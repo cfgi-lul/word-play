@@ -94,7 +94,7 @@ const EN = {
 
   'home.eyebrow': 'Choose a mode',
   'home.tagline': 'Guess the hidden word — play freely, or take on today’s shared puzzle.',
-  'home.navAria': 'Game modes',
+  'home.navAria': 'Main menu',
   'home.classic': 'Classic',
   'home.classicHint': 'Choose attempts, dictionary, and keep a personal streak.',
   'home.daily': 'Daily word',
@@ -261,7 +261,7 @@ const RU: Record<TranslationKey, string> = {
 
   'home.eyebrow': 'Выберите режим',
   'home.tagline': 'Угадайте скрытое слово — играйте свободно или берите общее слово дня.',
-  'home.navAria': 'Режимы игры',
+  'home.navAria': 'Главное меню',
   'home.classic': 'Обычная игра',
   'home.classicHint': 'Выбирайте попытки, словарь и ведите свою серию.',
   'home.daily': 'Ежедневное слово',
