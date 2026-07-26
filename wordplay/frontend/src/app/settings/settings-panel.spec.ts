@@ -42,6 +42,7 @@ describe('SettingsPanel', () => {
     expect(panel.tab()).toBe('game');
 
     const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.textContent).toContain('Word length');
     expect(compiled.textContent).toContain('Dictionary');
     expect(compiled.textContent).toContain('Attempts');
     expect(compiled.textContent).toContain('Word language');
@@ -55,6 +56,7 @@ describe('SettingsPanel', () => {
     expect(panel.tab()).toBe('system');
     expect(compiled.textContent).toContain('Interface language');
     expect(compiled.textContent).toContain('Theme');
+    expect(compiled.textContent).not.toContain('Word length');
     expect(compiled.textContent).not.toContain('Dictionary');
     expect(compiled.textContent).not.toContain('Attempts');
   });
