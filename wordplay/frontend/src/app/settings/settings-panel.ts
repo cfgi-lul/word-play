@@ -12,6 +12,7 @@ import {
 import { LocaleService } from '../i18n/locale.service';
 import { TranslatePipe } from '../i18n/translate.pipe';
 import { type AppLocale } from '../i18n/translations';
+import { PwaUpdateService } from '../pwa/pwa-update.service';
 import { type ThemeMode, ThemeService } from '../theme/theme.service';
 
 export type SettingsTab = 'game' | 'system';
@@ -27,6 +28,7 @@ export class SettingsPanel {
   private readonly themes = inject(ThemeService);
   private readonly i18n = inject(LocaleService);
   private readonly game = inject(GameService);
+  private readonly updates = inject(PwaUpdateService);
 
   readonly open = input(false);
   readonly closed = output<void>();
@@ -39,6 +41,8 @@ export class SettingsPanel {
   readonly difficulty = this.game.difficulty;
   readonly wordTier = this.game.wordTier;
   readonly wordLengths = WORD_LENGTHS;
+  readonly updateAvailable = this.updates.updateAvailable;
+  readonly isApplyingUpdate = this.updates.isApplyingUpdate;
 
   selectTab(tab: SettingsTab): void {
     this.tab.set(tab);
@@ -66,6 +70,10 @@ export class SettingsPanel {
 
   selectWordTier(tier: WordTier): void {
     this.game.setWordTier(tier);
+  }
+
+  applyUpdate(): void {
+    void this.updates.applyUpdate();
   }
 
   close(): void {

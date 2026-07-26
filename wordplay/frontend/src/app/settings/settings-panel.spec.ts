@@ -45,6 +45,8 @@ describe('SettingsPanel', () => {
     expect(compiled.textContent).toContain('Dictionary');
     expect(compiled.textContent).toContain('Attempts');
     expect(compiled.textContent).toContain('Word language');
+    expect(compiled.textContent).toContain('App update');
+    expect(compiled.textContent).toContain('Update now');
     expect(compiled.textContent).not.toContain('Interface language');
 
     panel.selectTab('system');
