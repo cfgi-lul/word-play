@@ -11,262 +11,297 @@
       <div class="settings-modal__content">
         <header class="panel__header">
           <h2 id="settings-title">{{ 'settings.title' | t: locale() }}</h2>
-          <p>{{ 'settings.subtitle' | t: locale() }}</p>
+          <p>
+            @if (tab() === 'game') {
+              {{ 'settings.subtitle.game' | t: locale() }}
+            } @else {
+              {{ 'settings.subtitle.system' | t: locale() }}
+            }
+          </p>
         </header>
 
-        <section class="section">
-          <h3>{{ 'settings.wordLength' | t: locale() }}</h3>
-          <p class="section__hint">{{ 'settings.wordLengthHint' | t: locale() }}</p>
-
-          <div
-            class="length-options"
-            role="radiogroup"
-            [attr.aria-label]="'settings.wordLengthAria' | t: locale()"
+        <div
+          class="settings-tabs"
+          role="tablist"
+          [attr.aria-label]="'settings.tabsAria' | t: locale()"
+        >
+          <button
+            type="button"
+            class="settings-tab"
+            role="tab"
+            [attr.aria-selected]="tab() === 'game'"
+            [class.settings-tab--active]="tab() === 'game'"
+            (click)="selectTab('game')"
           >
-            @for (length of wordLengths; track length) {
+            {{ 'settings.tab.game' | t: locale() }}
+          </button>
+          <button
+            type="button"
+            class="settings-tab"
+            role="tab"
+            [attr.aria-selected]="tab() === 'system'"
+            [class.settings-tab--active]="tab() === 'system'"
+            (click)="selectTab('system')"
+          >
+            {{ 'settings.tab.system' | t: locale() }}
+          </button>
+        </div>
+
+        @if (tab() === 'game') {
+          <section class="section">
+            <h3>{{ 'settings.difficulty' | t: locale() }}</h3>
+            <p class="section__hint">{{ 'settings.difficultyHint' | t: locale() }}</p>
+
+            <div
+              class="theme-options"
+              role="radiogroup"
+              [attr.aria-label]="'settings.difficultyAria' | t: locale()"
+            >
               <button
                 type="button"
-                class="length-option"
+                class="theme-option"
                 role="radio"
-                [attr.aria-checked]="wordLength() === length"
-                [class.length-option--active]="wordLength() === length"
-                (click)="selectWordLength(length)"
+                [attr.aria-checked]="difficulty() === 'easy'"
+                [class.theme-option--active]="difficulty() === 'easy'"
+                (click)="selectDifficulty('easy')"
               >
-                <span class="length-option__badge" aria-hidden="true">{{ length }}</span>
-                <span class="length-option__copy">
-                  <strong>{{ 'settings.wordLengthOption' | t: locale() : { length } }}</strong>
+                <span class="theme-option__badge" aria-hidden="true">{{
+                  'settings.difficultyBadge.easy' | t: locale()
+                }}</span>
+                <span class="theme-option__copy">
+                  <strong>{{ 'settings.difficulty.easy' | t: locale() }}</strong>
+                  <small>{{ 'settings.difficultyHint.easy' | t: locale() }}</small>
                 </span>
               </button>
-            }
-          </div>
-        </section>
 
-        <section class="section">
-          <h3>{{ 'settings.difficulty' | t: locale() }}</h3>
-          <p class="section__hint">{{ 'settings.difficultyHint' | t: locale() }}</p>
+              <button
+                type="button"
+                class="theme-option"
+                role="radio"
+                [attr.aria-checked]="difficulty() === 'normal'"
+                [class.theme-option--active]="difficulty() === 'normal'"
+                (click)="selectDifficulty('normal')"
+              >
+                <span class="theme-option__badge" aria-hidden="true">{{
+                  'settings.difficultyBadge.normal' | t: locale()
+                }}</span>
+                <span class="theme-option__copy">
+                  <strong>{{ 'settings.difficulty.normal' | t: locale() }}</strong>
+                  <small>{{ 'settings.difficultyHint.normal' | t: locale() }}</small>
+                </span>
+              </button>
 
-          <div
-            class="theme-options"
-            role="radiogroup"
-            [attr.aria-label]="'settings.difficultyAria' | t: locale()"
-          >
-            <button
-              type="button"
-              class="theme-option"
-              role="radio"
-              [attr.aria-checked]="difficulty() === 'easy'"
-              [class.theme-option--active]="difficulty() === 'easy'"
-              (click)="selectDifficulty('easy')"
-            >
-              <span class="theme-option__badge" aria-hidden="true">{{
-                'settings.difficultyBadge.easy' | t: locale()
-              }}</span>
-              <span class="theme-option__copy">
-                <strong>{{ 'settings.difficulty.easy' | t: locale() }}</strong>
-                <small>{{ 'settings.difficultyHint.easy' | t: locale() }}</small>
-              </span>
-            </button>
-
-            <button
-              type="button"
-              class="theme-option"
-              role="radio"
-              [attr.aria-checked]="difficulty() === 'normal'"
-              [class.theme-option--active]="difficulty() === 'normal'"
-              (click)="selectDifficulty('normal')"
-            >
-              <span class="theme-option__badge" aria-hidden="true">{{
-                'settings.difficultyBadge.normal' | t: locale()
-              }}</span>
-              <span class="theme-option__copy">
-                <strong>{{ 'settings.difficulty.normal' | t: locale() }}</strong>
-                <small>{{ 'settings.difficultyHint.normal' | t: locale() }}</small>
-              </span>
-            </button>
-
-            <button
-              type="button"
-              class="theme-option"
-              role="radio"
-              [attr.aria-checked]="difficulty() === 'hard'"
-              [class.theme-option--active]="difficulty() === 'hard'"
-              (click)="selectDifficulty('hard')"
-            >
-              <span class="theme-option__badge" aria-hidden="true">{{
-                'settings.difficultyBadge.hard' | t: locale()
-              }}</span>
-              <span class="theme-option__copy">
-                <strong>{{ 'settings.difficulty.hard' | t: locale() }}</strong>
-                <small>{{ 'settings.difficultyHint.hard' | t: locale() }}</small>
-              </span>
-            </button>
-          </div>
-        </section>
-
-        <section class="section">
-          <h3>{{ 'settings.interfaceLanguage' | t: locale() }}</h3>
-          <p class="section__hint">{{ 'settings.interfaceLanguageHint' | t: locale() }}</p>
-
-          <div
-            class="theme-options"
-            role="radiogroup"
-            [attr.aria-label]="'settings.interfaceLanguageAria' | t: locale()"
-          >
-            <button
-              type="button"
-              class="theme-option"
-              role="radio"
-              [attr.aria-checked]="locale() === 'en'"
-              [class.theme-option--active]="locale() === 'en'"
-              (click)="selectLocale('en')"
-            >
-              <span class="theme-option__badge" aria-hidden="true">EN</span>
-              <span class="theme-option__copy">
-                <strong>{{ 'settings.english' | t: locale() }}</strong>
-                <small>{{ 'settings.interfaceEnglishHint' | t: locale() }}</small>
-              </span>
-            </button>
-
-            <button
-              type="button"
-              class="theme-option"
-              role="radio"
-              [attr.aria-checked]="locale() === 'ru'"
-              [class.theme-option--active]="locale() === 'ru'"
-              (click)="selectLocale('ru')"
-            >
-              <span class="theme-option__badge" aria-hidden="true">RU</span>
-              <span class="theme-option__copy">
-                <strong>{{ 'settings.russian' | t: locale() }}</strong>
-                <small>{{ 'settings.interfaceRussianHint' | t: locale() }}</small>
-              </span>
-            </button>
-          </div>
-        </section>
-
-        <section class="section">
-          <h3>{{ 'settings.wordLanguage' | t: locale() }}</h3>
-          <p class="section__hint">{{ 'settings.wordLanguageHint' | t: locale() }}</p>
-
-          <div
-            class="theme-options"
-            role="radiogroup"
-            [attr.aria-label]="'settings.wordLanguageAria' | t: locale()"
-          >
-            <button
-              type="button"
-              class="theme-option"
-              role="radio"
-              [attr.aria-checked]="wordLanguage() === 'en'"
-              [class.theme-option--active]="wordLanguage() === 'en'"
-              (click)="selectWordLanguage('en')"
-            >
-              <span class="theme-option__badge" aria-hidden="true">EN</span>
-              <span class="theme-option__copy">
-                <strong>{{ 'settings.english' | t: locale() }}</strong>
-                <small>{{ 'settings.wordEnglishHint' | t: locale() }}</small>
-              </span>
-            </button>
-
-            <button
-              type="button"
-              class="theme-option"
-              role="radio"
-              [attr.aria-checked]="wordLanguage() === 'ru'"
-              [class.theme-option--active]="wordLanguage() === 'ru'"
-              (click)="selectWordLanguage('ru')"
-            >
-              <span class="theme-option__badge" aria-hidden="true">RU</span>
-              <span class="theme-option__copy">
-                <strong>{{ 'settings.russian' | t: locale() }}</strong>
-                <small>{{ 'settings.wordRussianHint' | t: locale() }}</small>
-              </span>
-            </button>
-          </div>
-        </section>
-
-        <section class="section">
-          <h3>{{ 'settings.theme' | t: locale() }}</h3>
-          <p class="section__hint">{{ 'settings.themeHint' | t: locale() }}</p>
-
-          <div
-            class="theme-options"
-            role="radiogroup"
-            [attr.aria-label]="'settings.themeAria' | t: locale()"
-          >
-            <button
-              type="button"
-              class="theme-option"
-              role="radio"
-              [attr.aria-checked]="theme() === 'system'"
-              [class.theme-option--active]="theme() === 'system'"
-              (click)="selectTheme('system')"
-            >
-              <span
-                class="theme-option__swatch theme-option__swatch--system"
-                aria-hidden="true"
-              ></span>
-              <span class="theme-option__copy">
-                <strong>{{ 'settings.system' | t: locale() }}</strong>
-                <small>{{ 'settings.systemHint' | t: locale() }}</small>
-              </span>
-            </button>
-
-            <button
-              type="button"
-              class="theme-option"
-              role="radio"
-              [attr.aria-checked]="theme() === 'light'"
-              [class.theme-option--active]="theme() === 'light'"
-              (click)="selectTheme('light')"
-            >
-              <span
-                class="theme-option__swatch theme-option__swatch--light"
-                aria-hidden="true"
-              ></span>
-              <span class="theme-option__copy">
-                <strong>{{ 'settings.light' | t: locale() }}</strong>
-                <small>{{ 'settings.lightHint' | t: locale() }}</small>
-              </span>
-            </button>
-
-            <button
-              type="button"
-              class="theme-option"
-              role="radio"
-              [attr.aria-checked]="theme() === 'dark'"
-              [class.theme-option--active]="theme() === 'dark'"
-              (click)="selectTheme('dark')"
-            >
-              <span
-                class="theme-option__swatch theme-option__swatch--dark"
-                aria-hidden="true"
-              ></span>
-              <span class="theme-option__copy">
-                <strong>{{ 'settings.dark' | t: locale() }}</strong>
-                <small>{{ 'settings.darkHint' | t: locale() }}</small>
-              </span>
-            </button>
-          </div>
-        </section>
-
-        <section class="section">
-          <h3>{{ 'settings.gameColors' | t: locale() }}</h3>
-          <div class="legend">
-            <div class="legend__item">
-              <span class="chip chip--correct">A</span>
-              <span>{{ 'settings.colorCorrect' | t: locale() }}</span>
+              <button
+                type="button"
+                class="theme-option"
+                role="radio"
+                [attr.aria-checked]="difficulty() === 'hard'"
+                [class.theme-option--active]="difficulty() === 'hard'"
+                (click)="selectDifficulty('hard')"
+              >
+                <span class="theme-option__badge" aria-hidden="true">{{
+                  'settings.difficultyBadge.hard' | t: locale()
+                }}</span>
+                <span class="theme-option__copy">
+                  <strong>{{ 'settings.difficulty.hard' | t: locale() }}</strong>
+                  <small>{{ 'settings.difficultyHint.hard' | t: locale() }}</small>
+                </span>
+              </button>
             </div>
-            <div class="legend__item">
-              <span class="chip chip--present">B</span>
-              <span>{{ 'settings.colorPresent' | t: locale() }}</span>
+          </section>
+
+          <section class="section">
+            <h3>{{ 'settings.wordLanguage' | t: locale() }}</h3>
+            <p class="section__hint">{{ 'settings.wordLanguageHint' | t: locale() }}</p>
+
+            <div
+              class="theme-options"
+              role="radiogroup"
+              [attr.aria-label]="'settings.wordLanguageAria' | t: locale()"
+            >
+              <button
+                type="button"
+                class="theme-option"
+                role="radio"
+                [attr.aria-checked]="wordLanguage() === 'en'"
+                [class.theme-option--active]="wordLanguage() === 'en'"
+                (click)="selectWordLanguage('en')"
+              >
+                <span class="theme-option__badge" aria-hidden="true">EN</span>
+                <span class="theme-option__copy">
+                  <strong>{{ 'settings.english' | t: locale() }}</strong>
+                  <small>{{ 'settings.wordEnglishHint' | t: locale() }}</small>
+                </span>
+              </button>
+
+              <button
+                type="button"
+                class="theme-option"
+                role="radio"
+                [attr.aria-checked]="wordLanguage() === 'ru'"
+                [class.theme-option--active]="wordLanguage() === 'ru'"
+                (click)="selectWordLanguage('ru')"
+              >
+                <span class="theme-option__badge" aria-hidden="true">RU</span>
+                <span class="theme-option__copy">
+                  <strong>{{ 'settings.russian' | t: locale() }}</strong>
+                  <small>{{ 'settings.wordRussianHint' | t: locale() }}</small>
+                </span>
+              </button>
             </div>
-            <div class="legend__item">
-              <span class="chip chip--absent">C</span>
-              <span>{{ 'settings.colorAbsent' | t: locale() }}</span>
+          </section>
+        } @else {
+          <section class="section">
+            <h3>{{ 'settings.wordLength' | t: locale() }}</h3>
+            <p class="section__hint">{{ 'settings.wordLengthHint' | t: locale() }}</p>
+
+            <div
+              class="length-options"
+              role="radiogroup"
+              [attr.aria-label]="'settings.wordLengthAria' | t: locale()"
+            >
+              @for (length of wordLengths; track length) {
+                <button
+                  type="button"
+                  class="length-option"
+                  role="radio"
+                  [attr.aria-checked]="wordLength() === length"
+                  [class.length-option--active]="wordLength() === length"
+                  (click)="selectWordLength(length)"
+                >
+                  <span class="length-option__badge" aria-hidden="true">{{ length }}</span>
+                  <span class="length-option__copy">
+                    <strong>{{ 'settings.wordLengthOption' | t: locale() : { length } }}</strong>
+                  </span>
+                </button>
+              }
             </div>
-          </div>
-        </section>
+          </section>
+
+          <section class="section">
+            <h3>{{ 'settings.interfaceLanguage' | t: locale() }}</h3>
+            <p class="section__hint">{{ 'settings.interfaceLanguageHint' | t: locale() }}</p>
+
+            <div
+              class="theme-options"
+              role="radiogroup"
+              [attr.aria-label]="'settings.interfaceLanguageAria' | t: locale()"
+            >
+              <button
+                type="button"
+                class="theme-option"
+                role="radio"
+                [attr.aria-checked]="locale() === 'en'"
+                [class.theme-option--active]="locale() === 'en'"
+                (click)="selectLocale('en')"
+              >
+                <span class="theme-option__badge" aria-hidden="true">EN</span>
+                <span class="theme-option__copy">
+                  <strong>{{ 'settings.english' | t: locale() }}</strong>
+                  <small>{{ 'settings.interfaceEnglishHint' | t: locale() }}</small>
+                </span>
+              </button>
+
+              <button
+                type="button"
+                class="theme-option"
+                role="radio"
+                [attr.aria-checked]="locale() === 'ru'"
+                [class.theme-option--active]="locale() === 'ru'"
+                (click)="selectLocale('ru')"
+              >
+                <span class="theme-option__badge" aria-hidden="true">RU</span>
+                <span class="theme-option__copy">
+                  <strong>{{ 'settings.russian' | t: locale() }}</strong>
+                  <small>{{ 'settings.interfaceRussianHint' | t: locale() }}</small>
+                </span>
+              </button>
+            </div>
+          </section>
+
+          <section class="section">
+            <h3>{{ 'settings.theme' | t: locale() }}</h3>
+            <p class="section__hint">{{ 'settings.themeHint' | t: locale() }}</p>
+
+            <div
+              class="theme-options"
+              role="radiogroup"
+              [attr.aria-label]="'settings.themeAria' | t: locale()"
+            >
+              <button
+                type="button"
+                class="theme-option"
+                role="radio"
+                [attr.aria-checked]="theme() === 'system'"
+                [class.theme-option--active]="theme() === 'system'"
+                (click)="selectTheme('system')"
+              >
+                <span
+                  class="theme-option__swatch theme-option__swatch--system"
+                  aria-hidden="true"
+                ></span>
+                <span class="theme-option__copy">
+                  <strong>{{ 'settings.system' | t: locale() }}</strong>
+                  <small>{{ 'settings.systemHint' | t: locale() }}</small>
+                </span>
+              </button>
+
+              <button
+                type="button"
+                class="theme-option"
+                role="radio"
+                [attr.aria-checked]="theme() === 'light'"
+                [class.theme-option--active]="theme() === 'light'"
+                (click)="selectTheme('light')"
+              >
+                <span
+                  class="theme-option__swatch theme-option__swatch--light"
+                  aria-hidden="true"
+                ></span>
+                <span class="theme-option__copy">
+                  <strong>{{ 'settings.light' | t: locale() }}</strong>
+                  <small>{{ 'settings.lightHint' | t: locale() }}</small>
+                </span>
+              </button>
+
+              <button
+                type="button"
+                class="theme-option"
+                role="radio"
+                [attr.aria-checked]="theme() === 'dark'"
+                [class.theme-option--active]="theme() === 'dark'"
+                (click)="selectTheme('dark')"
+              >
+                <span
+                  class="theme-option__swatch theme-option__swatch--dark"
+                  aria-hidden="true"
+                ></span>
+                <span class="theme-option__copy">
+                  <strong>{{ 'settings.dark' | t: locale() }}</strong>
+                  <small>{{ 'settings.darkHint' | t: locale() }}</small>
+                </span>
+              </button>
+            </div>
+          </section>
+
+          <section class="section">
+            <h3>{{ 'settings.gameColors' | t: locale() }}</h3>
+            <div class="legend">
+              <div class="legend__item">
+                <span class="chip chip--correct">A</span>
+                <span>{{ 'settings.colorCorrect' | t: locale() }}</span>
+              </div>
+              <div class="legend__item">
+                <span class="chip chip--present">B</span>
+                <span>{{ 'settings.colorPresent' | t: locale() }}</span>
+              </div>
+              <div class="legend__item">
+                <span class="chip chip--absent">C</span>
+                <span>{{ 'settings.colorAbsent' | t: locale() }}</span>
+              </div>
+            </div>
+          </section>
+        }
 
         <div class="dialog-actions">
           <button tuiButton type="button" appearance="primary" size="m" (click)="close()">
