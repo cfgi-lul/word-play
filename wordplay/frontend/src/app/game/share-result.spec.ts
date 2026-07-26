@@ -1,5 +1,10 @@
 import { type Board } from './game.types';
-import { buildShareText, guessRowsFromBoard, type ShareResultLabels } from './share-result';
+import {
+  buildShareText,
+  guessRowsFromBoard,
+  type ShareResultLabels,
+  wrapLine,
+} from './share-result';
 
 const labels: ShareResultLabels = {
   title: 'Word Play',
@@ -94,7 +99,27 @@ describe('share-result', () => {
     expect(text).toContain('Language: EN');
     expect(text).toContain('Hints used: 1');
     expect(text).toContain('Hard mode hints: required');
-    expect(text).toContain('Play this puzzle: https://example.com/word-play/classic/seed123');
+    expect(text).toContain('Play this puzzle:');
+    expect(text).toContain('https://example.com/word-play/classic/seed123');
+  });
+
+  it('wraps long URLs so share-card text stays within the canvas width', () => {
+    const url = 'https://cfgi-lul.github.io/word-play/classic/verylongseedvalue1234567890';
+    const measure = (value: string): number => value.length * 10;
+
+    expect(wrapLine(url, 120, measure)).toEqual([
+      'https://cfgi',
+      '-lul.github.',
+      'io/word-play',
+      '/classic/ver',
+      'ylongseedval',
+      'ue1234567890',
+    ]);
+    expect(wrapLine('Play this puzzle:', 200, measure)).toEqual(['Play this puzzle:']);
+    expect(wrapLine('Attempts: Easy mode label', 140, measure)).toEqual([
+      'Attempts: Easy',
+      'mode label',
+    ]);
   });
 
   it('includes the daily date for daily shares', () => {

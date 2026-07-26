@@ -55,6 +55,13 @@ const TILE_EMOJI: Record<ShareTile, string> = {
   absent: '⬛',
 };
 
+const SHARE_MIN_WIDTH = 320;
+const SHARE_MAX_WIDTH = 720;
+const SHARE_PAD = 24;
+const SHARE_TITLE_SIZE = 28;
+const SHARE_LINE_SIZE = 18;
+const SHARE_LINE_GAP = 8;
+
 export function guessRowsFromBoard(board: Board): ShareTile[][] {
   return board
     .filter((row) =>
@@ -83,40 +90,74 @@ export function buildShareText(input: ShareResultInput): string {
 export function renderShareImage(input: ShareResultInput): Blob {
   const rows = guessRowsFromBoard(input.board);
   const cols = rows.at(0)?.length ?? 0;
-  const meta = metaLines(input);
   const tile = 44;
   const gap = 8;
-  const pad = 24;
-  const titleSize = 28;
-  const lineSize = 18;
-  const lineGap = 8;
   const gridWidth = cols > 0 ? cols * tile + (cols - 1) * gap : 0;
   const gridHeight = rows.length > 0 ? rows.length * tile + (rows.length - 1) * gap : 0;
-  const textBlockHeight = titleSize + lineGap + lineSize + pad + meta.length * (lineSize + lineGap);
-  const width = Math.max(gridWidth + pad * 2, 320);
-  const height = pad + textBlockHeight + gridHeight + pad;
   const canvas = document.createElement('canvas');
-  canvas.width = width * 2;
-  canvas.height = height * 2;
   const ctx = canvas.getContext('2d');
   if (!ctx) {
     throw new Error('Canvas unavailable');
   }
 
+  const headline = resultHeadline(input, rows.length);
+  const meta = metaLines(input);
+  const minContentWidth = Math.max(gridWidth, SHARE_MIN_WIDTH - SHARE_PAD * 2);
+  const maxContentWidth = SHARE_MAX_WIDTH - SHARE_PAD * 2;
+
+  ctx.font = `800 ${SHARE_TITLE_SIZE}px Manrope, "Segoe UI", sans-serif`;
+  const titleWidth = ctx.measureText(input.labels.title).width;
+  ctx.font = `700 ${SHARE_LINE_SIZE}px Manrope, "Segoe UI", sans-serif`;
+  const headlineWidth = ctx.measureText(headline).width;
+  ctx.font = `600 ${SHARE_LINE_SIZE}px Manrope, "Segoe UI", sans-serif`;
+  const metaWidths = meta.map((line) => ctx.measureText(line).width);
+  const naturalContentWidth = Math.max(minContentWidth, titleWidth, headlineWidth, ...metaWidths);
+  const contentWidth = Math.min(maxContentWidth, naturalContentWidth);
+
+  ctx.font = `800 ${SHARE_TITLE_SIZE}px Manrope, "Segoe UI", sans-serif`;
+  const titleLines = wrapLine(
+    input.labels.title,
+    contentWidth,
+    (value) => ctx.measureText(value).width,
+  );
+  ctx.font = `700 ${SHARE_LINE_SIZE}px Manrope, "Segoe UI", sans-serif`;
+  const headlineLines = wrapLine(headline, contentWidth, (value) => ctx.measureText(value).width);
+  ctx.font = `600 ${SHARE_LINE_SIZE}px Manrope, "Segoe UI", sans-serif`;
+  const metaWrapped = meta.flatMap((line) =>
+    wrapLine(line, contentWidth, (value) => ctx.measureText(value).width),
+  );
+
+  const textBlockHeight =
+    titleLines.length * (SHARE_TITLE_SIZE + SHARE_LINE_GAP) +
+    headlineLines.length * (SHARE_LINE_SIZE + SHARE_LINE_GAP) +
+    SHARE_PAD -
+    SHARE_LINE_GAP +
+    metaWrapped.length * (SHARE_LINE_SIZE + SHARE_LINE_GAP);
+
+  const width = Math.ceil(contentWidth + SHARE_PAD * 2);
+  const height = Math.ceil(SHARE_PAD + textBlockHeight + gridHeight + SHARE_PAD);
+  canvas.width = width * 2;
+  canvas.height = height * 2;
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
   ctx.scale(2, 2);
   ctx.fillStyle = '#152033';
   ctx.fillRect(0, 0, width, height);
 
-  let y = pad;
+  let y = SHARE_PAD;
   ctx.fillStyle = '#ffffff';
-  ctx.font = `800 ${titleSize}px Manrope, "Segoe UI", sans-serif`;
-  ctx.fillText(input.labels.title, pad, y + titleSize * 0.8);
-  y += titleSize + lineGap;
+  ctx.font = `800 ${SHARE_TITLE_SIZE}px Manrope, "Segoe UI", sans-serif`;
+  for (const line of titleLines) {
+    ctx.fillText(line, SHARE_PAD, y + SHARE_TITLE_SIZE * 0.8);
+    y += SHARE_TITLE_SIZE + SHARE_LINE_GAP;
+  }
 
   ctx.fillStyle = '#9aa8c0';
-  ctx.font = `700 ${lineSize}px Manrope, "Segoe UI", sans-serif`;
-  ctx.fillText(resultHeadline(input, rows.length), pad, y + lineSize * 0.8);
-  y += lineSize + pad;
+  ctx.font = `700 ${SHARE_LINE_SIZE}px Manrope, "Segoe UI", sans-serif`;
+  for (const line of headlineLines) {
+    ctx.fillText(line, SHARE_PAD, y + SHARE_LINE_SIZE * 0.8);
+    y += SHARE_LINE_SIZE + SHARE_LINE_GAP;
+  }
+  y += SHARE_PAD - SHARE_LINE_GAP;
 
   const gridX = (width - gridWidth) / 2;
   for (let r = 0; r < rows.length; r++) {
@@ -137,13 +178,13 @@ export function renderShareImage(input: ShareResultInput): Blob {
       });
     }
   }
-  y += gridHeight + pad;
+  y += gridHeight + SHARE_PAD;
 
   ctx.fillStyle = '#e8eef8';
-  ctx.font = `600 ${lineSize}px Manrope, "Segoe UI", sans-serif`;
-  for (const line of meta) {
-    ctx.fillText(line, pad, y + lineSize * 0.8);
-    y += lineSize + lineGap;
+  ctx.font = `600 ${SHARE_LINE_SIZE}px Manrope, "Segoe UI", sans-serif`;
+  for (const line of metaWrapped) {
+    ctx.fillText(line, SHARE_PAD, y + SHARE_LINE_SIZE * 0.8);
+    y += SHARE_LINE_SIZE + SHARE_LINE_GAP;
   }
 
   return canvasToPng(canvas);
@@ -189,6 +230,77 @@ export async function shareGameResult(
   return 'copied';
 }
 
+/** Wrap a single line so each segment fits within maxWidth (character-aware for URLs). */
+export function wrapLine(
+  text: string,
+  maxWidth: number,
+  measure: (value: string) => number,
+): string[] {
+  if (maxWidth <= 0 || measure(text) <= maxWidth) {
+    return [text];
+  }
+
+  if (!/\s/.test(text)) {
+    return wrapByCharacters(text, maxWidth, measure);
+  }
+
+  const words = text.split(/\s+/).filter(Boolean);
+  const lines: string[] = [];
+  let current = '';
+
+  for (const word of words) {
+    const candidate = current ? `${current} ${word}` : word;
+    if (measure(candidate) <= maxWidth) {
+      current = candidate;
+      continue;
+    }
+
+    if (current) {
+      lines.push(current);
+    }
+
+    if (measure(word) <= maxWidth) {
+      current = word;
+      continue;
+    }
+
+    const parts = wrapByCharacters(word, maxWidth, measure);
+    lines.push(...parts.slice(0, -1));
+    current = parts.at(-1) ?? '';
+  }
+
+  if (current) {
+    lines.push(current);
+  }
+
+  return lines.length > 0 ? lines : [text];
+}
+
+function wrapByCharacters(
+  text: string,
+  maxWidth: number,
+  measure: (value: string) => number,
+): string[] {
+  const lines: string[] = [];
+  let current = '';
+
+  for (const char of text) {
+    const next = `${current}${char}`;
+    if (current && measure(next) > maxWidth) {
+      lines.push(current);
+      current = char;
+    } else {
+      current = next;
+    }
+  }
+
+  if (current) {
+    lines.push(current);
+  }
+
+  return lines.length > 0 ? lines : [text];
+}
+
 function resultHeadline(input: ShareResultInput, guesses: number): string {
   const mode =
     input.mode === 'daily'
@@ -215,7 +327,8 @@ function metaLines(input: ShareResultInput): string[] {
     lines.push(`${input.labels.hardModeLabel}: ${input.labels.hardModeOn}`);
   }
   if (input.playUrl) {
-    lines.push(`${input.labels.playLinkLabel}: ${input.playUrl}`);
+    // Keep the long URL on its own line so share cards can wrap it cleanly.
+    lines.push(`${input.labels.playLinkLabel}:`, input.playUrl);
   }
   return lines;
 }
