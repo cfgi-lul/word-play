@@ -1,17 +1,26 @@
-name: Build frontend
+name: Build and deploy frontend
 
 on:
   push:
-    branches: [main, master]
+    branches: [main]
     paths:
       - 'wordplay/frontend/**'
       - '.github/workflows/build-frontend.yml'
   pull_request:
-    branches: [main, master]
+    branches: [main]
     paths:
       - 'wordplay/frontend/**'
       - '.github/workflows/build-frontend.yml'
   workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
 
 jobs:
   build:
@@ -37,12 +46,26 @@ jobs:
       - name: Lint
         run: npm run lint
 
-      - name: Build
-        run: npm run build
+      - name: Build for GitHub Pages
+        run: npm run build:gh-pages
 
-      - name: Upload build artifact
-        uses: actions/upload-artifact@v4
+      - name: Prepare SPA fallback
+        run: cp dist/word-play/browser/index.html dist/word-play/browser/404.html
+
+      - name: Upload Pages artifact
+        if: github.event_name != 'pull_request'
+        uses: actions/upload-pages-artifact@v3
         with:
-          name: word-play-frontend
-          path: wordplay/frontend/dist/word-play
-          if-no-files-found: error
+          path: wordplay/frontend/dist/word-play/browser
+
+  deploy:
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

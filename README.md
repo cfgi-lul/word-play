@@ -26,6 +26,19 @@ cd wordplay/frontend
 npm run build
 ```
 
+## Deploy (GitHub Pages)
+
+On every push to `main`, GitHub Actions builds and deploys the frontend.
+
+Site URL after the first successful deploy:
+
+`https://cfgi-lul.github.io/word-play/`
+
+One-time repo setup:
+
+1. Open **Settings → Pages**
+2. Set **Source** to **GitHub Actions**
+
 ## Linting
 
 Uses Taiga UI’s official ESLint preset
