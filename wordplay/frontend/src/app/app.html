@@ -98,7 +98,11 @@
     >
       <tui-scrollbar class="help-modal__scroll">
         <div class="help-modal__content">
-          <app-how-to-play [locale]="locale()" [wordLength]="wordLength()" />
+          <app-how-to-play
+            [locale]="locale()"
+            [wordLength]="wordLength()"
+            [maxAttempts]="maxAttempts()"
+          />
           <div class="dialog-actions">
             <button tuiButton type="button" appearance="primary" size="m" (click)="closeHelp()">
               {{ 'app.gotIt' | t: locale() }}

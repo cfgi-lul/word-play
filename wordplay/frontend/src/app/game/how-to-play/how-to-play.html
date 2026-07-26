@@ -1,12 +1,17 @@
 <article class="how-to">
   <header class="how-to__header">
     <h2 id="help-title">{{ 'help.title' | t: locale() }}</h2>
-    <p class="how-to__subtitle">{{ 'help.subtitle' | t: locale() }}</p>
+    <p class="how-to__subtitle">{{ 'help.subtitle' | t: locale() : { attempts: maxAttempts() } }}</p>
   </header>
 
   <section>
     <h3>{{ 'help.objective' | t: locale() }}</h3>
-    <p>{{ 'help.objectiveText' | t: locale() : { length: wordLength() } }}</p>
+    <p>
+      {{
+        'help.objectiveText'
+          | t: locale() : { length: wordLength(), attempts: maxAttempts() }
+      }}
+    </p>
   </section>
 
   <section>
@@ -52,6 +57,7 @@
       <li>{{ 'help.tip2' | t: locale() }}</li>
       <li>{{ 'help.tip3' | t: locale() }}</li>
       <li>{{ 'help.tip4' | t: locale() }}</li>
+      <li>{{ 'help.tip5' | t: locale() }}</li>
     </ul>
   </section>
 </article>

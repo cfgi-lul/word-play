@@ -44,6 +44,39 @@
   font-weight: 600;
 }
 
+.settings-tabs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.35rem;
+  padding: 0.3rem;
+  border-radius: 0.9rem;
+  background: var(--wp-surface);
+  border: 1px solid var(--wp-border);
+}
+
+.settings-tab {
+  appearance: none;
+  border: 0;
+  border-radius: 0.7rem;
+  padding: 0.65rem 0.75rem;
+  background: transparent;
+  color: var(--wp-text-muted);
+  font: inherit;
+  font-size: 0.92rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition:
+    background 140ms ease,
+    color 140ms ease,
+    box-shadow 140ms ease;
+}
+
+.settings-tab--active {
+  background: var(--wp-surface-elevated);
+  color: var(--wp-text);
+  box-shadow: 0 1px 2px rgb(16 24 40 / 10%);
+}
+
 .section {
   display: grid;
   gap: 0.65rem;

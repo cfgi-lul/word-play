@@ -1,12 +1,19 @@
-import { ChangeDetectionStrategy, Component, inject, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input, output, signal } from '@angular/core';
 import { TuiButton, TuiScrollbar } from '@taiga-ui/core';
 
 import { GameService } from '../game/game.service';
-import { type GameLanguage, WORD_LENGTHS, type WordLength } from '../game/game.types';
+import {
+  type Difficulty,
+  type GameLanguage,
+  WORD_LENGTHS,
+  type WordLength,
+} from '../game/game.types';
 import { LocaleService } from '../i18n/locale.service';
 import { TranslatePipe } from '../i18n/translate.pipe';
 import { type AppLocale } from '../i18n/translations';
 import { type ThemeMode, ThemeService } from '../theme/theme.service';
+
+export type SettingsTab = 'game' | 'system';
 
 @Component({
   selector: 'app-settings-panel',
@@ -23,11 +30,17 @@ export class SettingsPanel {
   readonly open = input(false);
   readonly closed = output<void>();
 
+  readonly tab = signal<SettingsTab>('game');
   readonly theme = this.themes.theme;
   readonly locale = this.i18n.current;
   readonly wordLanguage = this.game.language;
   readonly wordLength = this.game.wordLength;
+  readonly difficulty = this.game.difficulty;
   readonly wordLengths = WORD_LENGTHS;
+
+  selectTab(tab: SettingsTab): void {
+    this.tab.set(tab);
+  }
 
   selectTheme(theme: ThemeMode): void {
     this.themes.setTheme(theme);
@@ -43,6 +56,10 @@ export class SettingsPanel {
 
   selectWordLength(length: WordLength): void {
     this.game.setWordLength(length);
+  }
+
+  selectDifficulty(difficulty: Difficulty): void {
+    this.game.setDifficulty(difficulty);
   }
 
   close(): void {

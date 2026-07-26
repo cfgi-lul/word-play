@@ -2,10 +2,25 @@ import { type AppLocale } from '../i18n/translations';
 
 export type WordLength = 4 | 5 | 6 | 7;
 export type GameLanguage = AppLocale;
+export type Difficulty = 'easy' | 'normal' | 'hard';
 
 export const WORD_LENGTHS: readonly WordLength[] = [4, 5, 6, 7];
 export const DEFAULT_WORD_LENGTH: WordLength = 5;
+export const DIFFICULTIES: readonly Difficulty[] = ['easy', 'normal', 'hard'];
+export const DEFAULT_DIFFICULTY: Difficulty = 'normal';
+
+/** Kept for older imports; prefer attemptsForDifficulty(). */
 export const MAX_ATTEMPTS = 6;
+
+export const DIFFICULTY_ATTEMPTS: Record<Difficulty, number> = {
+  easy: 8,
+  normal: 6,
+  hard: 5,
+};
+
+export function attemptsForDifficulty(difficulty: Difficulty): number {
+  return DIFFICULTY_ATTEMPTS[difficulty];
+}
 
 export type LetterStatus = 'empty' | 'tbd' | 'correct' | 'present' | 'absent';
 
@@ -23,6 +38,8 @@ export type KeyStatus = Exclude<LetterStatus, 'empty' | 'tbd'>;
 export interface GameState {
   language: GameLanguage;
   wordLength: WordLength;
+  difficulty: Difficulty;
+  maxAttempts: number;
   solution: string;
   guesses: string[];
   currentGuess: string;
@@ -36,4 +53,8 @@ export function isGameLanguage(value: unknown): value is GameLanguage {
 
 export function isWordLength(value: unknown): value is WordLength {
   return value === 4 || value === 5 || value === 6 || value === 7;
+}
+
+export function isDifficulty(value: unknown): value is Difficulty {
+  return value === 'easy' || value === 'normal' || value === 'hard';
 }

@@ -54,6 +54,7 @@ export class App {
   readonly solution = this.game.solution;
   readonly isPlaying = this.game.isPlaying;
   readonly wordLength = this.game.wordLength;
+  readonly maxAttempts = this.game.maxAttempts;
   readonly wordLanguage = this.game.language;
   readonly helpOpen = signal(false);
   readonly settingsOpen = signal(false);
@@ -145,6 +146,9 @@ export class App {
     const result = this.game.submitGuess();
 
     switch (result) {
+      case 'hard-mode':
+        this.notify(this.i18n.t('app.hardModeViolation'), 'warning');
+        break;
       case 'invalid':
         this.notify(this.i18n.t('app.notInWordList'), 'warning');
         break;
