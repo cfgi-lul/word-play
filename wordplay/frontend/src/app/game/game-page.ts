@@ -165,12 +165,17 @@ export class GamePage {
     this.blurHiddenInput();
   }
 
-  playAgain(): void {
+  newGame(): void {
+    if (!this.canPlayAgain()) {
+      return;
+    }
+
     this.game.startNewGame();
     const nextSeed = this.game.puzzleSeed();
     if (nextSeed) {
       this.navigation.replaceClassicSeed(nextSeed);
     }
+    this.notify(this.i18n.t('app.newGameStarted'), 'info');
     queueMicrotask(() => this.blurHiddenInput());
   }
 

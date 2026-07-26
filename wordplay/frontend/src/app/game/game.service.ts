@@ -72,7 +72,7 @@ export class GameService {
     return (
       current.status === 'playing' &&
       current.hintsUsed < MAX_HINTS_PER_GAME &&
-      unknownHintPositions(current).length > 0
+      unknownHintLetters(current).length > 0
     );
   });
   /** Classic puzzle seed for the active solution (null in daily mode). */
@@ -232,18 +232,17 @@ export class GameService {
       return 'none-left';
     }
 
-    const candidates = unknownHintPositions(current);
+    const candidates = unknownHintLetters(current);
     if (candidates.length === 0) {
       return 'no-unknown';
     }
 
-    const position = candidates[Math.floor(Math.random() * candidates.length)];
-    const letter = current.solution[position];
-    const keyboard = { ...current.keyboard, [letter]: 'correct' as const };
+    const letter = candidates[Math.floor(Math.random() * candidates.length)];
+    const keyboard = markKeyboardPresent(current.keyboard, letter);
 
     const next: GameState = {
       ...current,
-      hintedPositions: [...current.hintedPositions, position],
+      hintedLetters: [...current.hintedLetters, letter],
       hintsUsed: current.hintsUsed + 1,
       keyboard,
     };
@@ -271,7 +270,7 @@ export class GameService {
         current.currentGuess,
         current.guesses,
         current.solution,
-        current.hintedPositions,
+        current.hintedLetters,
       )
     ) {
       return 'hard-mode';
@@ -367,23 +366,11 @@ export class GameService {
 
       if (row === state.guesses.length && state.status === 'playing') {
         const letters = state.currentGuess.split('');
-        const hinted = new Set(state.hintedPositions);
         rows.push(
-          Array.from({ length }, (_, index): Tile => {
-            if (letters[index]) {
-              return {
-                letter: letters[index].toUpperCase(),
-                status: 'tbd',
-              };
-            }
-            if (hinted.has(index)) {
-              return {
-                letter: state.solution[index].toUpperCase(),
-                status: 'correct',
-              };
-            }
-            return { letter: '', status: 'empty' };
-          }),
+          Array.from({ length }, (_, index): Tile => ({
+            letter: (letters[index] ?? '').toUpperCase(),
+            status: letters[index] ? 'tbd' : 'empty',
+          })),
         );
         continue;
       }
@@ -497,7 +484,7 @@ export class GameService {
       currentGuess: progress.currentGuess,
       status: progress.status,
       keyboard: progress.keyboard,
-      hintedPositions: progress.hintedPositions,
+      hintedLetters: progress.hintedLetters,
       hintsUsed: progress.hintsUsed,
     };
   }
@@ -570,7 +557,7 @@ export class GameService {
         currentGuess: progress.currentGuess,
         status: progress.status,
         keyboard: progress.keyboard,
-        hintedPositions: progress.hintedPositions,
+        hintedLetters: progress.hintedLetters,
         hintsUsed: progress.hintsUsed,
       };
     } catch {
@@ -606,7 +593,7 @@ export class GameService {
       currentGuess: '',
       status: 'playing',
       keyboard: {},
-      hintedPositions: [],
+      hintedLetters: [],
       hintsUsed: 0,
     };
   }
@@ -625,7 +612,7 @@ export class GameService {
       currentGuess: '',
       status: 'playing',
       keyboard: {},
-      hintedPositions: [],
+      hintedLetters: [],
       hintsUsed: 0,
     };
   }
@@ -700,10 +687,10 @@ export function satisfiesHardMode(
   guess: string,
   previousGuesses: string[],
   solution: string,
-  hintedPositions: readonly number[] = [],
+  hintedLetters: readonly string[] = [],
 ): boolean {
-  for (const position of hintedPositions) {
-    if (guess[position] !== solution[position]) {
+  for (const letter of hintedLetters) {
+    if (!guess.includes(letter)) {
       return false;
     }
   }
@@ -734,35 +721,55 @@ export function satisfiesHardMode(
   return true;
 }
 
-function unknownHintPositions(state: GameState): number[] {
-  const known = new Set<number>(state.hintedPositions);
-  for (const guess of state.guesses) {
-    const evaluation = evaluateGuess(guess, state.solution);
-    for (let i = 0; i < evaluation.length; i++) {
-      if (evaluation[i] === 'correct') {
-        known.add(i);
-      }
+/** Letters that are in the solution but not yet marked present/correct on the keyboard. */
+function unknownHintLetters(state: GameState): string[] {
+  const hinted = new Set(state.hintedLetters);
+  const unique = [...new Set(state.solution.split(''))];
+  return unique.filter((letter) => {
+    if (hinted.has(letter)) {
+      return false;
     }
-  }
+    const status = state.keyboard[letter];
+    return status !== 'correct' && status !== 'present';
+  });
+}
 
-  return Array.from({ length: state.wordLength }, (_, index) => index).filter(
-    (index) => !known.has(index),
-  );
+function markKeyboardPresent(
+  keyboard: Record<string, KeyStatus>,
+  letter: string,
+): Record<string, KeyStatus> {
+  const previous = keyboard[letter];
+  if (previous === 'correct') {
+    return keyboard;
+  }
+  return { ...keyboard, [letter]: 'present' };
 }
 
 function normalizeHints(
-  parsed: Partial<GameState>,
-  length: WordLength,
-): { hintedPositions: number[]; hintsUsed: number } {
-  const hintedPositions = Array.isArray(parsed.hintedPositions)
-    ? [
-        ...new Set(
-          parsed.hintedPositions.filter(
-            (value): value is number => Number.isInteger(value) && value >= 0 && value < length,
-          ),
-        ),
-      ].slice(0, MAX_HINTS_PER_GAME)
+  parsed: Partial<GameState> & { hintedPositions?: unknown },
+  solution: string,
+  language: GameLanguage,
+): { hintedLetters: string[]; hintsUsed: number } {
+  const fromLetters = Array.isArray(parsed.hintedLetters)
+    ? parsed.hintedLetters
+        .filter((value): value is string => typeof value === 'string' && value.length > 0)
+        .map((letter) => normalizeLetter(letter, language))
     : [];
+
+  const legacyPositions = Array.isArray(parsed.hintedPositions)
+    ? parsed.hintedPositions.filter(
+        (value): value is number =>
+          Number.isInteger(value) && value >= 0 && value < solution.length,
+      )
+    : [];
+
+  const fromLegacy = legacyPositions
+    .map((index) => solution[index])
+    .filter((letter): letter is string => typeof letter === 'string' && letter.length > 0);
+
+  const hintedLetters = [...new Set([...fromLetters, ...fromLegacy])]
+    .filter((letter) => solution.includes(letter))
+    .slice(0, MAX_HINTS_PER_GAME);
 
   const counted =
     typeof parsed.hintsUsed === 'number' &&
@@ -771,9 +778,9 @@ function normalizeHints(
       ? Math.floor(parsed.hintsUsed)
       : 0;
 
-  const hintsUsed = Math.min(MAX_HINTS_PER_GAME, Math.max(counted, hintedPositions.length));
+  const hintsUsed = Math.min(MAX_HINTS_PER_GAME, Math.max(counted, hintedLetters.length));
 
-  return { hintedPositions, hintsUsed };
+  return { hintedLetters, hintsUsed };
 }
 
 function mergeKeyboard(
@@ -799,18 +806,15 @@ function mergeKeyboard(
 function rebuildKeyboard(
   guesses: readonly string[],
   solution: string,
-  hintedPositions: readonly number[],
+  hintedLetters: readonly string[],
 ): Record<string, KeyStatus> {
   let keyboard: Record<string, KeyStatus> = {};
   for (const guess of guesses) {
     keyboard = mergeKeyboard(keyboard, guess, evaluateGuess(guess, solution));
   }
 
-  for (const position of hintedPositions) {
-    const letter = solution[position];
-    if (letter) {
-      keyboard = { ...keyboard, [letter]: 'correct' };
-    }
+  for (const letter of hintedLetters) {
+    keyboard = markKeyboardPresent(keyboard, letter);
   }
 
   return keyboard;
@@ -869,7 +873,7 @@ function hydrateSavedProgress(
   currentGuess: string;
   status: GameStatus;
   keyboard: Record<string, KeyStatus>;
-  hintedPositions: number[];
+  hintedLetters: string[];
   hintsUsed: number;
 } | null {
   if (!Array.isArray(parsed.guesses) || parsed.guesses.length > maxAttempts) {
@@ -886,14 +890,14 @@ function hydrateSavedProgress(
   }
 
   const status = resolveStatus(guesses, solution, maxAttempts);
-  const hints = normalizeHints(parsed, length);
+  const hints = normalizeHints(parsed, solution, language);
 
   return {
     guesses,
     currentGuess: normalizeCurrentGuess(parsed.currentGuess, language, length, status),
     status,
-    keyboard: rebuildKeyboard(guesses, solution, hints.hintedPositions),
-    hintedPositions: hints.hintedPositions,
+    keyboard: rebuildKeyboard(guesses, solution, hints.hintedLetters),
+    hintedLetters: hints.hintedLetters,
     hintsUsed: hints.hintsUsed,
   };
 }

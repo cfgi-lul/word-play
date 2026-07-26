@@ -55,8 +55,8 @@ export interface GameState {
   currentGuess: string;
   status: GameStatus;
   keyboard: Record<string, KeyStatus>;
-  /** 0-based solution indexes revealed via a player hint. */
-  hintedPositions: number[];
+  /** Letters revealed via a player hint (in-word, position unknown). */
+  hintedLetters: string[];
   /** How many player hints were used in this game. */
   hintsUsed: number;
 }

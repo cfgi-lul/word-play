@@ -14,6 +14,8 @@ const EN = {
   'app.won': 'You found the word!',
   'app.lost': 'Out of tries. The word was {{word}}',
   'app.playAgain': 'Play again',
+  'app.newGameAria': 'Start a new game with a new word',
+  'app.newGameStarted': 'New game started',
   'app.share': 'Share result',
   'app.shareAria': 'Share result',
   'app.shareCopied': 'Result copied',
@@ -32,9 +34,9 @@ const EN = {
   'app.sharePlayLink': 'Play this puzzle',
   'app.invalidSeed': 'This puzzle link is invalid or outdated',
   'app.hintAria': 'Use a hint',
-  'app.hintRevealed': 'A correct letter was revealed',
+  'app.hintRevealed': 'A letter from the word was highlighted on the keyboard',
   'app.hintNoneLeft': 'No hints left for this game',
-  'app.hintUnavailable': 'No unknown letters left to reveal',
+  'app.hintUnavailable': 'No unknown letters left to highlight',
   'app.gotIt': 'Got it',
   'app.notEnoughLetters': 'Not enough letters',
   'app.notInWordList': 'Not in word list',
@@ -184,7 +186,7 @@ const EN = {
   'help.tip7':
     'Daily word is the same for everyone today and ignores difficulty settings. Open Statistics from the home screen.',
   'help.tip8':
-    'You can use one hint per game to reveal a correct letter. Hints are shown in your shared result and statistics.',
+    'You can use one hint per game to highlight a letter that is in the word on the keyboard (position unknown). Hints are shown in your shared result and statistics.',
   'help.tip9':
     'Share your result to send a puzzle link — friends open the same word from the URL seed.',
 } as const;
@@ -201,6 +203,8 @@ const RU: Record<TranslationKey, string> = {
   'app.won': 'Вы угадали слово!',
   'app.lost': 'Попытки закончились. Загаданное слово: {{word}}',
   'app.playAgain': 'Играть снова',
+  'app.newGameAria': 'Начать новую игру с новым словом',
+  'app.newGameStarted': 'Начата новая игра',
   'app.share': 'Поделиться результатом',
   'app.shareAria': 'Поделиться результатом',
   'app.shareCopied': 'Результат скопирован',
@@ -219,9 +223,9 @@ const RU: Record<TranslationKey, string> = {
   'app.sharePlayLink': 'Сыграть в эту загадку',
   'app.invalidSeed': 'Ссылка на загадку недействительна или устарела',
   'app.hintAria': 'Использовать подсказку',
-  'app.hintRevealed': 'Открыта верная буква',
+  'app.hintRevealed': 'На клавиатуре подсвечена буква из слова',
   'app.hintNoneLeft': 'Подсказки в этой игре закончились',
-  'app.hintUnavailable': 'Нечего открывать — все буквы уже известны',
+  'app.hintUnavailable': 'Нечего подсвечивать — все буквы уже известны',
   'app.gotIt': 'Понятно',
   'app.notEnoughLetters': 'Недостаточно букв',
   'app.notInWordList': 'Слова нет в словаре',
@@ -372,7 +376,7 @@ const RU: Record<TranslationKey, string> = {
   'help.tip7':
     'Ежедневное слово одно на всех и без настроек сложности. Статистику открывайте с главного экрана.',
   'help.tip8':
-    'За игру можно взять одну подсказку — она откроет верную букву. Подсказки отображаются в шаринге и статистике.',
+    'За игру можно взять одну подсказку — на клавиатуре подсветится буква из слова (без позиции). Подсказки отображаются в шаринге и статистике.',
   'help.tip9': 'В шаринге есть ссылка на загадку — друг откроет то же слово по seed в адресе.',
 };
 
