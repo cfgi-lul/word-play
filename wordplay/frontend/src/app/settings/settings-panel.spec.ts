@@ -44,6 +44,8 @@ describe('SettingsPanel', () => {
     const compiled = fixture.nativeElement as HTMLElement;
     expect(compiled.textContent).toContain('Difficulty');
     expect(compiled.textContent).toContain('Word language');
+    expect(compiled.textContent).toContain('App update');
+    expect(compiled.textContent).toContain('Update now');
     expect(compiled.textContent).not.toContain('Interface language');
 
     panel.selectTab('system');

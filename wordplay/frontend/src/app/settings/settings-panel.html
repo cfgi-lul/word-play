@@ -48,6 +48,34 @@
         </div>
 
         @if (tab() === 'game') {
+          <section class="section" [class.section--update]="updateAvailable()">
+            <h3>{{ 'settings.update' | t: locale() }}</h3>
+            <p class="section__hint">
+              @if (updateAvailable()) {
+                {{ 'settings.updateAvailable' | t: locale() }}
+              } @else {
+                {{ 'settings.updateHint' | t: locale() }}
+              }
+            </p>
+            <button
+              tuiButton
+              type="button"
+              appearance="secondary"
+              size="m"
+              class="update-button"
+              [disabled]="isApplyingUpdate()"
+              (click)="applyUpdate()"
+            >
+              @if (updateAvailable()) {
+                <span class="update-button__dot" aria-hidden="true"></span>
+              }
+              {{
+                (isApplyingUpdate() ? 'settings.updateChecking' : 'settings.updateNow')
+                  | t: locale()
+              }}
+            </button>
+          </section>
+
           <section class="section">
             <h3>{{ 'settings.difficulty' | t: locale() }}</h3>
             <p class="section__hint">{{ 'settings.difficultyHint' | t: locale() }}</p>
