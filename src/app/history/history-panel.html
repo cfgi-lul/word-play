@@ -1,0 +1,61 @@
+@if (open()) {
+  <div class="history-backdrop" (click)="close()"></div>
+  <div
+    class="history-modal"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="history-title"
+    (click)="$event.stopPropagation()"
+  >
+    <tui-scrollbar class="history-modal__scroll">
+      <div class="history-modal__content">
+        <header class="panel__header">
+          <h2 id="history-title">{{ 'history.title' | t: locale() }}</h2>
+          <p>{{ 'history.subtitle' | t: locale() }}</p>
+        </header>
+
+        @if (entries().length === 0) {
+          <p class="history-empty">{{ 'history.empty' | t: locale() }}</p>
+        } @else {
+          <ul class="history-list">
+            @for (
+              entry of entries();
+              track entry.word + entry.language + entry.length + entry.finishedAt
+            ) {
+              <li class="history-item">
+                <span class="history-item__word">{{ entry.word }}</span>
+                <span class="history-item__meta">
+                  <span
+                    class="history-item__status"
+                    [class.history-item__status--won]="entry.status === 'won'"
+                    [class.history-item__status--lost]="entry.status === 'lost'"
+                  >
+                    {{
+                      (entry.status === 'won' ? 'history.won' : 'history.lost') | t: locale()
+                    }}
+                  </span>
+                  <span>
+                    {{
+                      (entry.language === 'ru' ? 'history.languageRu' : 'history.languageEn')
+                        | t: locale()
+                    }}
+                  </span>
+                  <span>{{ 'history.letters' | t: locale() : { length: entry.length } }}</span>
+                  <span>
+                    {{ 'history.attempts' | t: locale() : { count: entry.attempts } }}
+                  </span>
+                </span>
+              </li>
+            }
+          </ul>
+        }
+
+        <div class="dialog-actions">
+          <button tuiButton type="button" appearance="primary" size="m" (click)="close()">
+            {{ 'history.done' | t: locale() }}
+          </button>
+        </div>
+      </div>
+    </tui-scrollbar>
+  </div>
+}

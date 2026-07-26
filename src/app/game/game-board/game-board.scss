@@ -1,0 +1,67 @@
+:host {
+  display: block;
+}
+
+.board {
+  display: grid;
+  gap: 0.45rem;
+  justify-content: center;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: repeat(var(--wp-cols, 5), minmax(0, 1fr));
+  gap: 0.45rem;
+}
+
+.tile {
+  width: clamp(2.35rem, calc(56vw / var(--wp-cols, 5)), 3.75rem);
+  height: clamp(2.35rem, calc(56vw / var(--wp-cols, 5)), 3.75rem);
+  display: grid;
+  place-items: center;
+  border-radius: 0.55rem;
+  border: 2px solid var(--wp-border);
+  background: var(--wp-tile);
+  color: var(--wp-tile-text);
+  font-size: clamp(1.05rem, calc(22vw / var(--wp-cols, 5)), 1.65rem);
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  transition:
+    background 180ms ease,
+    border-color 180ms ease,
+    color 180ms ease,
+    transform 120ms ease;
+}
+
+.tile--tbd {
+  border-color: var(--wp-border-strong);
+  animation: pop 120ms ease;
+}
+
+.tile--correct {
+  background: var(--game-correct);
+  border-color: var(--game-correct);
+  color: var(--game-correct-text);
+}
+
+.tile--present {
+  background: var(--game-present);
+  border-color: var(--game-present);
+  color: var(--game-present-text);
+}
+
+.tile--absent {
+  background: var(--game-absent);
+  border-color: var(--game-absent);
+  color: var(--game-absent-text);
+}
+
+@keyframes pop {
+  from {
+    transform: scale(0.95);
+  }
+  to {
+    transform: scale(1);
+  }
+}

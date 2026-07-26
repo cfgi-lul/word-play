@@ -1,0 +1,227 @@
+.settings-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  background: var(--wp-overlay);
+}
+
+.settings-modal {
+  position: fixed;
+  z-index: 31;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(28rem, calc(100vw - 2rem));
+  max-height: min(85dvh, 40rem);
+  overflow: hidden;
+  border-radius: 1rem;
+  background: var(--wp-surface-elevated);
+  color: var(--wp-text);
+  box-shadow: var(--wp-shadow);
+  border: 1px solid var(--wp-border);
+}
+
+.settings-modal__scroll {
+  max-block-size: min(85dvh, 40rem);
+}
+
+.settings-modal__content {
+  display: grid;
+  gap: 1.25rem;
+  padding: 1.25rem 1.25rem 1rem;
+}
+
+.panel__header h2 {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.panel__header p {
+  margin: 0.3rem 0 0;
+  color: var(--wp-text-muted);
+  font-weight: 600;
+}
+
+.section {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.section h3 {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 800;
+}
+
+.section__hint {
+  margin: 0;
+  color: var(--wp-text-muted);
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.length-options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.65rem;
+}
+
+.length-option {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  width: 100%;
+  padding: 0.7rem 0.75rem;
+  border-radius: 0.85rem;
+  border: 1.5px solid var(--wp-option-border);
+  background: var(--wp-surface);
+  color: var(--wp-text);
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color 140ms ease,
+    background 140ms ease,
+    box-shadow 140ms ease;
+}
+
+.length-option--active {
+  border-color: var(--wp-option-active);
+  box-shadow: inset 0 0 0 1px var(--wp-option-active);
+}
+
+.length-option__badge {
+  width: 2.2rem;
+  height: 2.2rem;
+  border-radius: 0.65rem;
+  border: 1px solid var(--wp-border);
+  display: grid;
+  place-items: center;
+  background: var(--wp-key);
+  color: var(--wp-key-text);
+  font-size: 1rem;
+  font-weight: 800;
+  flex: 0 0 auto;
+}
+
+.length-option__copy strong {
+  font-size: 0.92rem;
+}
+
+.theme-options {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.theme-option {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  width: 100%;
+  padding: 0.75rem 0.85rem;
+  border-radius: 0.85rem;
+  border: 1.5px solid var(--wp-option-border);
+  background: var(--wp-surface);
+  color: var(--wp-text);
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color 140ms ease,
+    background 140ms ease,
+    box-shadow 140ms ease;
+}
+
+.theme-option--active {
+  border-color: var(--wp-option-active);
+  box-shadow: inset 0 0 0 1px var(--wp-option-active);
+}
+
+.theme-option__swatch,
+.theme-option__badge {
+  width: 2.4rem;
+  height: 2.4rem;
+  border-radius: 0.65rem;
+  border: 1px solid var(--wp-border);
+  flex: 0 0 auto;
+}
+
+.theme-option__swatch--system {
+  background: linear-gradient(110deg, #eef3f9 50%, #101826 50%);
+}
+
+.theme-option__swatch--light {
+  background: linear-gradient(145deg, #eef3f9, #ffffff);
+}
+
+.theme-option__swatch--dark {
+  background: linear-gradient(145deg, #101826, #2a3548);
+}
+
+.theme-option__badge {
+  display: grid;
+  place-items: center;
+  background: var(--wp-key);
+  color: var(--wp-key-text);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+
+.theme-option__copy {
+  display: grid;
+  gap: 0.1rem;
+}
+
+.theme-option__copy strong {
+  font-size: 0.98rem;
+}
+
+.theme-option__copy small {
+  color: var(--wp-text-muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.legend {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.legend__item {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  color: var(--wp-text-muted);
+  font-weight: 600;
+  font-size: 0.92rem;
+}
+
+.chip {
+  width: 1.85rem;
+  height: 1.85rem;
+  display: grid;
+  place-items: center;
+  border-radius: 0.4rem;
+  font-weight: 800;
+}
+
+.chip--correct {
+  background: var(--game-correct);
+  color: var(--game-correct-text);
+}
+
+.chip--present {
+  background: var(--game-present);
+  color: var(--game-present-text);
+}
+
+.chip--absent {
+  background: var(--game-absent);
+  color: var(--game-absent-text);
+}
+
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+}

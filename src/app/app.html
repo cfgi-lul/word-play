@@ -1,0 +1,113 @@
+<tui-root>
+  <div class="app" (click)="focusInput()">
+    <input
+      #hiddenInput
+      class="hidden-input"
+      type="text"
+      inputmode="text"
+      autocomplete="off"
+      autocapitalize="off"
+      autocorrect="off"
+      spellcheck="false"
+      [attr.aria-label]="'app.guessAria' | t: locale()"
+      tabindex="0"
+      (keydown)="onPhysicalKeydown($event)"
+    />
+
+    <header class="header">
+      <div class="header__brand">
+        <h1>{{ 'app.title' | t: locale() }}</h1>
+      </div>
+
+      <div class="header__actions">
+        <button
+          tuiIconButton
+          type="button"
+          appearance="flat"
+          size="m"
+          iconStart="@tui.history"
+          [attr.aria-label]="'app.historyAria' | t: locale()"
+          (click)="openHistory(); $event.stopPropagation()"
+        ></button>
+        <button
+          tuiIconButton
+          type="button"
+          appearance="flat"
+          size="m"
+          iconStart="@tui.settings"
+          [attr.aria-label]="'app.settingsAria' | t: locale()"
+          (click)="openSettings(); $event.stopPropagation()"
+        ></button>
+        <button
+          tuiIconButton
+          type="button"
+          appearance="flat"
+          size="m"
+          iconStart="@tui.circle-help"
+          [attr.aria-label]="'app.helpAria' | t: locale()"
+          (click)="openHelp(); $event.stopPropagation()"
+        ></button>
+      </div>
+    </header>
+
+    <main class="main">
+      <app-game-board [board]="board()" [locale]="locale()" [wordLength]="wordLength()" />
+
+      @if (status() !== 'playing') {
+        <div class="result" role="status">
+          @if (status() === 'won') {
+            <p>{{ 'app.won' | t: locale() }}</p>
+          } @else {
+            <p>{{ 'app.lost' | t: locale() : { word: solution().toUpperCase() } }}</p>
+          }
+          <button
+            tuiButton
+            type="button"
+            appearance="primary"
+            size="m"
+            (click)="playAgain(); $event.stopPropagation()"
+          >
+            {{ 'app.playAgain' | t: locale() }}
+          </button>
+        </div>
+      }
+    </main>
+
+    <footer class="footer">
+      <app-keyboard
+        [keyStatuses]="keyboard()"
+        [disabled]="!isPlaying()"
+        [locale]="locale()"
+        [gameLanguage]="wordLanguage()"
+        (letter)="onLetter($event)"
+        (backspace)="onBackspace()"
+        (enter)="submit()"
+      />
+    </footer>
+  </div>
+
+  @if (helpOpen()) {
+    <div class="help-backdrop" (click)="closeHelp()"></div>
+    <div
+      class="help-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="help-title"
+      (click)="$event.stopPropagation()"
+    >
+      <tui-scrollbar class="help-modal__scroll">
+        <div class="help-modal__content">
+          <app-how-to-play [locale]="locale()" [wordLength]="wordLength()" />
+          <div class="dialog-actions">
+            <button tuiButton type="button" appearance="primary" size="m" (click)="closeHelp()">
+              {{ 'app.gotIt' | t: locale() }}
+            </button>
+          </div>
+        </div>
+      </tui-scrollbar>
+    </div>
+  }
+
+  <app-history-panel [open]="historyOpen()" (closed)="closeHistory()" />
+  <app-settings-panel [open]="settingsOpen()" (closed)="closeSettings()" />
+</tui-root>

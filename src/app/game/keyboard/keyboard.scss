@@ -1,0 +1,111 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+.keyboard {
+  display: grid;
+  gap: 0.45rem;
+  width: min(100%, 34rem);
+  margin-inline: auto;
+}
+
+.keyboard__row {
+  display: flex;
+  justify-content: center;
+  gap: 0.35rem;
+}
+
+.keyboard__row--last {
+  padding-inline: 0;
+}
+
+:host([data-lang='ru']) .key {
+  min-width: 1.45rem;
+  font-size: 0.85rem;
+}
+
+.key {
+  --key-bg: var(--wp-key);
+  --key-fg: var(--wp-key-text);
+  min-width: 1.9rem;
+  height: 3.35rem;
+  flex: 1 1 0;
+  border: 0;
+  border-radius: 0.55rem;
+  background: var(--key-bg);
+  color: var(--key-fg);
+  font-size: 0.95rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition:
+    background 160ms ease,
+    color 160ms ease,
+    transform 80ms ease;
+}
+
+.key:active:not(:disabled),
+.key--pressed:not(:disabled) {
+  transform: scale(0.94);
+  filter: brightness(0.92);
+}
+
+.key--pressed:not(:disabled) {
+  animation: key-press 140ms ease;
+}
+
+@keyframes key-press {
+  from {
+    transform: scale(1);
+    filter: brightness(1);
+  }
+  to {
+    transform: scale(0.94);
+    filter: brightness(0.92);
+  }
+}
+
+.key:disabled {
+  cursor: default;
+  opacity: 0.7;
+}
+
+.key--correct {
+  --key-bg: var(--game-correct);
+  --key-fg: var(--game-correct-text);
+}
+
+.key--present {
+  --key-bg: var(--game-present);
+  --key-fg: var(--game-present-text);
+}
+
+.key--absent {
+  --key-bg: var(--game-absent);
+  --key-fg: var(--game-absent-text);
+}
+
+.key--action {
+  flex: 1.35 1 0;
+  min-width: 2.6rem;
+  display: grid;
+  place-items: center;
+}
+
+.key--action svg {
+  width: 1.35rem;
+  height: 1.35rem;
+}
+
+@media (max-width: 420px) {
+  .key {
+    min-width: 1.55rem;
+    height: 3rem;
+    font-size: 0.85rem;
+  }
+
+  .key--action {
+    min-width: 2.2rem;
+  }
+}

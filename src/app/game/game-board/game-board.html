@@ -1,0 +1,20 @@
+<div class="board" role="grid" [attr.aria-label]="'app.boardAria' | t: locale()">
+  @for (row of board(); track $index) {
+    <div class="row" role="row">
+      @for (tile of row; track $index) {
+        <div
+          class="tile"
+          role="gridcell"
+          [class.tile--empty]="tile.status === 'empty'"
+          [class.tile--tbd]="tile.status === 'tbd'"
+          [class.tile--correct]="tile.status === 'correct'"
+          [class.tile--present]="tile.status === 'present'"
+          [class.tile--absent]="tile.status === 'absent'"
+          [attr.data-letter]="tile.letter || null"
+        >
+          {{ tile.letter }}
+        </div>
+      }
+    </div>
+  }
+</div>

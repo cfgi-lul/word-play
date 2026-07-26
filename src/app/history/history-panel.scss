@@ -1,0 +1,103 @@
+.history-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  background: var(--wp-overlay);
+}
+
+.history-modal {
+  position: fixed;
+  z-index: 31;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(28rem, calc(100vw - 2rem));
+  max-height: min(85dvh, 40rem);
+  overflow: hidden;
+  border-radius: 1rem;
+  background: var(--wp-surface-elevated);
+  color: var(--wp-text);
+  box-shadow: var(--wp-shadow);
+  border: 1px solid var(--wp-border);
+}
+
+.history-modal__scroll {
+  max-block-size: min(85dvh, 40rem);
+}
+
+.history-modal__content {
+  display: grid;
+  gap: 1.25rem;
+  padding: 1.25rem 1.25rem 1rem;
+}
+
+.panel__header h2 {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.panel__header p {
+  margin: 0.3rem 0 0;
+  color: var(--wp-text-muted);
+  font-weight: 600;
+}
+
+.history-empty {
+  margin: 0;
+  padding: 1.25rem 0.25rem;
+  color: var(--wp-text-muted);
+  font-weight: 600;
+  text-align: center;
+}
+
+.history-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.55rem;
+}
+
+.history-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.75rem 0.85rem;
+  border-radius: 0.85rem;
+  border: 1.5px solid var(--wp-option-border);
+  background: var(--wp-surface);
+}
+
+.history-item__word {
+  font-size: 1.05rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.history-item__meta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.35rem 0.65rem;
+  color: var(--wp-text-muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-align: right;
+}
+
+.history-item__status--won {
+  color: var(--game-correct);
+}
+
+.history-item__status--lost {
+  color: var(--wp-text-muted);
+}
+
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+}

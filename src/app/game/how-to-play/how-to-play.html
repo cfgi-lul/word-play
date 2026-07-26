@@ -1,0 +1,57 @@
+<article class="how-to">
+  <header class="how-to__header">
+    <h2 id="help-title">{{ 'help.title' | t: locale() }}</h2>
+    <p class="how-to__subtitle">{{ 'help.subtitle' | t: locale() }}</p>
+  </header>
+
+  <section>
+    <h3>{{ 'help.objective' | t: locale() }}</h3>
+    <p>{{ 'help.objectiveText' | t: locale() : { length: wordLength() } }}</p>
+  </section>
+
+  <section>
+    <h3>{{ 'help.howToPlay' | t: locale() }}</h3>
+    <ol>
+      <li>{{ 'help.step1' | t: locale() }}</li>
+      <li>{{ 'help.step2' | t: locale() }}</li>
+      <li>{{ 'help.step3' | t: locale() }}</li>
+      <li>{{ 'help.step4' | t: locale() }}</li>
+    </ol>
+  </section>
+
+  <section>
+    <h3>{{ 'help.colorGuide' | t: locale() }}</h3>
+    <div class="examples">
+      @for (example of examples(); track example.titleKey) {
+        <div class="example">
+          <div class="example__tiles" aria-hidden="true">
+            @for (letter of example.word; track $index) {
+              <span
+                class="mini-tile"
+                [class.mini-tile--correct]="example.status === 'correct' && $index === example.highlight"
+                [class.mini-tile--present]="example.status === 'present' && $index === example.highlight"
+                [class.mini-tile--absent]="example.status === 'absent' && $index === example.highlight"
+              >
+                {{ letter }}
+              </span>
+            }
+          </div>
+          <p>
+            <strong>{{ example.titleKey | t: locale() }}:</strong>
+            {{ example.descriptionKey | t: locale() }}
+          </p>
+        </div>
+      }
+    </div>
+  </section>
+
+  <section>
+    <h3>{{ 'help.tips' | t: locale() }}</h3>
+    <ul>
+      <li>{{ 'help.tip1' | t: locale() }}</li>
+      <li>{{ 'help.tip2' | t: locale() }}</li>
+      <li>{{ 'help.tip3' | t: locale() }}</li>
+      <li>{{ 'help.tip4' | t: locale() }}</li>
+    </ul>
+  </section>
+</article>

@@ -1,0 +1,90 @@
+:host {
+  display: block;
+  color: var(--wp-text);
+}
+
+.how-to {
+  display: grid;
+  gap: 1.25rem;
+  padding: 0.25rem 0.15rem 0.5rem;
+  max-width: 28rem;
+}
+
+.how-to__header h2 {
+  margin: 0;
+  font-size: 1.45rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.how-to__subtitle {
+  margin: 0.35rem 0 0;
+  color: var(--wp-text-muted);
+  font-weight: 600;
+}
+
+section h3 {
+  margin: 0 0 0.45rem;
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+section p,
+section li {
+  margin: 0;
+  line-height: 1.5;
+  color: var(--wp-text-muted);
+}
+
+ol,
+ul {
+  margin: 0;
+  padding-left: 1.2rem;
+  display: grid;
+  gap: 0.35rem;
+}
+
+.examples {
+  display: grid;
+  gap: 1rem;
+}
+
+.example {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.example__tiles {
+  display: flex;
+  gap: 0.35rem;
+}
+
+.mini-tile {
+  width: 2.35rem;
+  height: 2.35rem;
+  display: grid;
+  place-items: center;
+  border-radius: 0.45rem;
+  border: 2px solid var(--wp-border);
+  background: var(--wp-tile);
+  color: var(--wp-tile-text);
+  font-weight: 800;
+}
+
+.mini-tile--correct {
+  background: var(--game-correct);
+  border-color: var(--game-correct);
+  color: var(--game-correct-text);
+}
+
+.mini-tile--present {
+  background: var(--game-present);
+  border-color: var(--game-present);
+  color: var(--game-present-text);
+}
+
+.mini-tile--absent {
+  background: var(--game-absent);
+  border-color: var(--game-absent);
+  color: var(--game-absent-text);
+}

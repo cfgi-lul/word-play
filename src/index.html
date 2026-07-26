@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Word Play</title>
+    <base href="/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="light dark" />
+    <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <meta name="apple-mobile-web-app-title" content="Word Play" />
+    <meta name="theme-color" content="#1a73e8" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <script>
+      (function () {
+        try {
+          var storedTheme = localStorage.getItem('word-play-theme');
+          var preference =
+            storedTheme === 'system' || storedTheme === 'light' || storedTheme === 'dark'
+              ? storedTheme
+              : 'system';
+          var theme =
+            preference === 'system'
+              ? window.matchMedia('(prefers-color-scheme: dark)').matches
+                ? 'dark'
+                : 'light'
+              : preference;
+          document.documentElement.dataset.theme = theme;
+          document.documentElement.style.colorScheme = theme;
+
+          var storedLocale = localStorage.getItem('word-play-locale');
+          var locale = storedLocale === 'en' || storedLocale === 'ru' ? storedLocale : null;
+          if (!locale) {
+            var languages = navigator.languages && navigator.languages.length
+              ? navigator.languages
+              : [navigator.language || 'en'];
+            locale = 'en';
+            for (var i = 0; i < languages.length; i++) {
+              var lang = String(languages[i] || '').toLowerCase();
+              if (lang === 'ru' || lang.indexOf('ru-') === 0) {
+                locale = 'ru';
+                break;
+              }
+              if (lang === 'en' || lang.indexOf('en-') === 0) {
+                locale = 'en';
+                break;
+              }
+            }
+          }
+          document.documentElement.lang = locale;
+        } catch (e) {}
+      })();
+    </script>
+  </head>
+  <body>
+    <app-root></app-root>
+  </body>
+</html>

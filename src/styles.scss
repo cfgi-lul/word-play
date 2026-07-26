@@ -1,0 +1,94 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  min-height: 100%;
+}
+
+tui-root {
+  display: block;
+  min-height: 100%;
+}
+
+/*
+  Game feedback colors stay identical in light and dark themes
+  so blue / yellow / gray always mean the same thing.
+*/
+:root {
+  --game-correct: #1a73e8;
+  --game-correct-text: #ffffff;
+  --game-present: #e8b000;
+  --game-present-text: #1a1a1a;
+  --game-absent: #7a8499;
+  --game-absent-text: #ffffff;
+}
+
+html,
+html[data-theme='light'] {
+  --wp-bg: #eef3f9;
+  --wp-bg-accent: #e3ebf5;
+  --wp-surface: #ffffff;
+  --wp-surface-elevated: #ffffff;
+  --wp-text: #152033;
+  --wp-text-muted: #5b6b84;
+  --wp-border: #c5d0e0;
+  --wp-border-strong: #9aabc4;
+  --wp-key: #d9e1ec;
+  --wp-key-text: #152033;
+  --wp-tile: #ffffff;
+  --wp-tile-text: #152033;
+  --wp-overlay: rgb(21 32 51 / 48%);
+  --wp-shadow: 0 22px 50px rgb(21 32 51 / 18%);
+  --wp-toast: #152033;
+  --wp-toast-text: #ffffff;
+  --wp-option-border: #c5d0e0;
+  --wp-option-active: #1a73e8;
+  --wp-option-active-text: #ffffff;
+}
+
+html[data-theme='dark'] {
+  --wp-bg: #101826;
+  --wp-bg-accent: #172133;
+  --wp-surface: #1b2436;
+  --wp-surface-elevated: #232e44;
+  --wp-text: #e8eef8;
+  --wp-text-muted: #9aa8c0;
+  --wp-border: #3a4660;
+  --wp-border-strong: #5a6b88;
+  --wp-key: #2a3548;
+  --wp-key-text: #e8eef8;
+  --wp-tile: #1b2436;
+  --wp-tile-text: #e8eef8;
+  --wp-overlay: rgb(6 10 18 / 62%);
+  --wp-shadow: 0 24px 60px rgb(0 0 0 / 45%);
+  --wp-toast: #e8eef8;
+  --wp-toast-text: #101826;
+  --wp-option-border: #3a4660;
+  --wp-option-active: #1a73e8;
+  --wp-option-active-text: #ffffff;
+}
+
+body {
+  font-family:
+    'Manrope',
+    'Segoe UI',
+    sans-serif;
+  background:
+    radial-gradient(1200px 500px at 10% -10%, var(--wp-bg-accent), transparent 55%),
+    var(--wp-bg);
+  color: var(--wp-text);
+  -webkit-font-smoothing: antialiased;
+  transition:
+    background 180ms ease,
+    color 180ms ease;
+}
+
+button {
+  font: inherit;
+}
