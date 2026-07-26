@@ -7,6 +7,7 @@ import {
   type GameLanguage,
   WORD_LENGTHS,
   type WordLength,
+  type WordTier,
 } from '../game/game.types';
 import { LocaleService } from '../i18n/locale.service';
 import { TranslatePipe } from '../i18n/translate.pipe';
@@ -36,6 +37,7 @@ export class SettingsPanel {
   readonly wordLanguage = this.game.language;
   readonly wordLength = this.game.wordLength;
   readonly difficulty = this.game.difficulty;
+  readonly wordTier = this.game.wordTier;
   readonly wordLengths = WORD_LENGTHS;
 
   selectTab(tab: SettingsTab): void {
@@ -60,6 +62,10 @@ export class SettingsPanel {
 
   selectDifficulty(difficulty: Difficulty): void {
     this.game.setDifficulty(difficulty);
+  }
+
+  selectWordTier(tier: WordTier): void {
+    this.game.setWordTier(tier);
   }
 
   close(): void {

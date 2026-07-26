@@ -3,11 +3,14 @@ import { type AppLocale } from '../i18n/translations';
 export type WordLength = 4 | 5 | 6 | 7;
 export type GameLanguage = AppLocale;
 export type Difficulty = 'easy' | 'normal' | 'hard';
+export type WordTier = 'easy' | 'medium' | 'hard';
 
 export const WORD_LENGTHS: readonly WordLength[] = [4, 5, 6, 7];
 export const DEFAULT_WORD_LENGTH: WordLength = 5;
 export const DIFFICULTIES: readonly Difficulty[] = ['easy', 'normal', 'hard'];
 export const DEFAULT_DIFFICULTY: Difficulty = 'normal';
+export const WORD_TIERS: readonly WordTier[] = ['easy', 'medium', 'hard'];
+export const DEFAULT_WORD_TIER: WordTier = 'medium';
 
 /** Kept for older imports; prefer attemptsForDifficulty(). */
 export const MAX_ATTEMPTS = 6;
@@ -39,6 +42,7 @@ export interface GameState {
   language: GameLanguage;
   wordLength: WordLength;
   difficulty: Difficulty;
+  wordTier: WordTier;
   maxAttempts: number;
   solution: string;
   guesses: string[];
@@ -57,4 +61,8 @@ export function isWordLength(value: unknown): value is WordLength {
 
 export function isDifficulty(value: unknown): value is Difficulty {
   return value === 'easy' || value === 'normal' || value === 'hard';
+}
+
+export function isWordTier(value: unknown): value is WordTier {
+  return value === 'easy' || value === 'medium' || value === 'hard';
 }

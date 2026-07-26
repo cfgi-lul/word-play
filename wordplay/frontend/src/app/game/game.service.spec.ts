@@ -193,22 +193,35 @@ describe('GameService', () => {
     expect(game.currentGuess()).toBe('');
     expect(game.solution().length).toBe(5);
   });
+
+  it('switches dictionary tier and keeps a separate in-progress game', () => {
+    const game = createGame({ solution: 'crane', wordTier: 'medium' });
+
+    expect(game.wordTier()).toBe('medium');
+    game.setWordTier('easy');
+    expect(game.wordTier()).toBe('easy');
+    expect(game.isPlaying()).toBe(true);
+    expect(game.solution().length).toBe(5);
+  });
 });
 
 function createGame(partial: Partial<GameState> = {}): GameService {
   const difficulty = partial.difficulty ?? 'normal';
+  const wordTier = partial.wordTier ?? 'medium';
   const maxAttempts = partial.maxAttempts ?? attemptsForDifficulty(difficulty);
 
   localStorage.clear();
   localStorage.setItem('word-play-word-length', '5');
   localStorage.setItem('word-play-game-language', 'en');
   localStorage.setItem('word-play-difficulty', difficulty);
+  localStorage.setItem('word-play-word-tier', wordTier);
   localStorage.setItem(
-    `word-play-game-en-5-${difficulty}`,
+    `word-play-game-en-5-${difficulty}-${wordTier}`,
     JSON.stringify({
       language: 'en',
       wordLength: 5,
       difficulty,
+      wordTier,
       maxAttempts,
       solution: 'crane',
       guesses: [],

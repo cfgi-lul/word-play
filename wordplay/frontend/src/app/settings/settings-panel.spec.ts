@@ -42,7 +42,8 @@ describe('SettingsPanel', () => {
     expect(panel.tab()).toBe('game');
 
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.textContent).toContain('Difficulty');
+    expect(compiled.textContent).toContain('Dictionary');
+    expect(compiled.textContent).toContain('Attempts');
     expect(compiled.textContent).toContain('Word language');
     expect(compiled.textContent).not.toContain('Interface language');
 
@@ -52,17 +53,20 @@ describe('SettingsPanel', () => {
     expect(panel.tab()).toBe('system');
     expect(compiled.textContent).toContain('Interface language');
     expect(compiled.textContent).toContain('Theme');
-    expect(compiled.textContent).not.toContain('Difficulty');
+    expect(compiled.textContent).not.toContain('Dictionary');
+    expect(compiled.textContent).not.toContain('Attempts');
   });
 
-  it('updates difficulty from the game tab', async () => {
+  it('updates dictionary and attempts from the game tab', async () => {
     const fixture = TestBed.createComponent(SettingsPanel);
     fixture.componentRef.setInput('open', true);
     await fixture.whenStable();
     fixture.detectChanges();
 
     const panel = fixture.componentInstance;
+    panel.selectWordTier('hard');
     panel.selectDifficulty('hard');
+    expect(panel.wordTier()).toBe('hard');
     expect(panel.difficulty()).toBe('hard');
   });
 });

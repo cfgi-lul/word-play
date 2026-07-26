@@ -49,6 +49,68 @@
 
         @if (tab() === 'game') {
           <section class="section">
+            <h3>{{ 'settings.dictionary' | t: locale() }}</h3>
+            <p class="section__hint">{{ 'settings.dictionaryHint' | t: locale() }}</p>
+
+            <div
+              class="theme-options"
+              role="radiogroup"
+              [attr.aria-label]="'settings.dictionaryAria' | t: locale()"
+            >
+              <button
+                type="button"
+                class="theme-option"
+                role="radio"
+                [attr.aria-checked]="wordTier() === 'easy'"
+                [class.theme-option--active]="wordTier() === 'easy'"
+                (click)="selectWordTier('easy')"
+              >
+                <span class="theme-option__badge" aria-hidden="true">{{
+                  'settings.dictionaryBadge.easy' | t: locale()
+                }}</span>
+                <span class="theme-option__copy">
+                  <strong>{{ 'settings.dictionary.easy' | t: locale() }}</strong>
+                  <small>{{ 'settings.dictionaryHint.easy' | t: locale() }}</small>
+                </span>
+              </button>
+
+              <button
+                type="button"
+                class="theme-option"
+                role="radio"
+                [attr.aria-checked]="wordTier() === 'medium'"
+                [class.theme-option--active]="wordTier() === 'medium'"
+                (click)="selectWordTier('medium')"
+              >
+                <span class="theme-option__badge" aria-hidden="true">{{
+                  'settings.dictionaryBadge.medium' | t: locale()
+                }}</span>
+                <span class="theme-option__copy">
+                  <strong>{{ 'settings.dictionary.medium' | t: locale() }}</strong>
+                  <small>{{ 'settings.dictionaryHint.medium' | t: locale() }}</small>
+                </span>
+              </button>
+
+              <button
+                type="button"
+                class="theme-option"
+                role="radio"
+                [attr.aria-checked]="wordTier() === 'hard'"
+                [class.theme-option--active]="wordTier() === 'hard'"
+                (click)="selectWordTier('hard')"
+              >
+                <span class="theme-option__badge" aria-hidden="true">{{
+                  'settings.dictionaryBadge.hard' | t: locale()
+                }}</span>
+                <span class="theme-option__copy">
+                  <strong>{{ 'settings.dictionary.hard' | t: locale() }}</strong>
+                  <small>{{ 'settings.dictionaryHint.hard' | t: locale() }}</small>
+                </span>
+              </button>
+            </div>
+          </section>
+
+          <section class="section">
             <h3>{{ 'settings.difficulty' | t: locale() }}</h3>
             <p class="section__hint">{{ 'settings.difficultyHint' | t: locale() }}</p>
 
