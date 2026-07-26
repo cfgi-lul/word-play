@@ -13,7 +13,12 @@
           <h2 id="settings-title">{{ 'settings.title' | t: locale() }}</h2>
           <p>
             @if (tab() === 'game') {
-              {{ 'settings.subtitle.game' | t: locale() }}
+              {{
+                (showDifficultySettings()
+                  ? 'settings.subtitle.game'
+                  : 'settings.subtitle.gameDaily')
+                  | t: locale()
+              }}
             } @else {
               {{ 'settings.subtitle.system' | t: locale() }}
             }
@@ -103,6 +108,7 @@
             </div>
           </section>
 
+          @if (showDifficultySettings()) {
           <section class="section">
             <h3>{{ 'settings.dictionary' | t: locale() }}</h3>
             <p class="section__hint">{{ 'settings.dictionaryHint' | t: locale() }}</p>
@@ -226,6 +232,7 @@
               </button>
             </div>
           </section>
+          }
 
           <section class="section">
             <h3>{{ 'settings.wordLanguage' | t: locale() }}</h3>

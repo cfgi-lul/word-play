@@ -1,11 +1,15 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
 
+import { dailyDateKey, pickDailyWord } from './daily-word';
 import { DifficultyService } from './difficulty.service';
 import {
   attemptsForDifficulty,
   type Board,
+  DAILY_DIFFICULTY,
+  DAILY_WORD_TIER,
   type Difficulty,
   type GameLanguage,
+  type GameMode,
   type GameState,
   type GameStatus,
   isDifficulty,
@@ -19,17 +23,21 @@ import {
   type WordTier,
 } from './game.types';
 import { GameLanguageService } from './game-language.service';
+import { GameModeService } from './game-mode.service';
 import { HistoryService } from './history.service';
 import { WordLengthService } from './word-length.service';
 import { WordTierService } from './word-tier.service';
 import { isPlayableLetter, isValidGuess, normalizeLetter, pickRandomWord } from './words';
 
-const storageKey = (
+const classicStorageKey = (
   language: GameLanguage,
   length: WordLength,
   difficulty: Difficulty,
   wordTier: WordTier,
 ): string => `word-play-game-${language}-${length}-${difficulty}-${wordTier}`;
+
+const dailyStorageKey = (language: GameLanguage, length: WordLength, dateKey: string): string =>
+  `word-play-game-daily-${language}-${length}-${dateKey}`;
 
 @Injectable({ providedIn: 'root' })
 export class GameService {
@@ -37,20 +45,15 @@ export class GameService {
   private readonly gameLanguages = inject(GameLanguageService);
   private readonly difficulties = inject(DifficultyService);
   private readonly wordTiers = inject(WordTierService);
+  private readonly modes = inject(GameModeService);
   private readonly history = inject(HistoryService);
-  private readonly state = signal<GameState>(
-    this.loadOrCreate(
-      this.gameLanguages.language(),
-      this.wordLengths.wordLength(),
-      this.difficulties.difficulty(),
-      this.wordTiers.wordTier(),
-    ),
-  );
+  private readonly state = signal<GameState>(this.loadActive());
 
+  readonly mode = this.modes.mode;
   readonly language = this.gameLanguages.language;
   readonly wordLength = this.wordLengths.wordLength;
-  readonly difficulty = this.difficulties.difficulty;
-  readonly wordTier = this.wordTiers.wordTier;
+  readonly difficulty = computed(() => this.state().difficulty);
+  readonly wordTier = computed(() => this.state().wordTier);
   readonly maxAttempts = computed(() => this.state().maxAttempts);
   readonly board = computed(() => this.buildBoard(this.state()));
   readonly keyboard = computed(() => this.state().keyboard);
@@ -59,20 +62,20 @@ export class GameService {
   readonly solution = computed(() => this.state().solution);
   readonly guessesCount = computed(() => this.state().guesses.length);
   readonly isPlaying = computed(() => this.state().status === 'playing');
+  readonly canPlayAgain = computed(() => this.modes.mode() === 'classic');
+  readonly dailyDate = computed(() => this.state().dailyDate);
+
+  activateMode(mode: GameMode): void {
+    this.modes.setMode(mode);
+    this.state.set(this.loadActive());
+  }
 
   setLanguage(language: GameLanguage): void {
     if (this.gameLanguages.language() === language) {
       return;
     }
     this.gameLanguages.setLanguage(language);
-    this.state.set(
-      this.loadOrCreate(
-        language,
-        this.wordLengths.wordLength(),
-        this.difficulties.difficulty(),
-        this.wordTiers.wordTier(),
-      ),
-    );
+    this.state.set(this.loadActive());
   }
 
   setWordLength(length: WordLength): void {
@@ -80,14 +83,7 @@ export class GameService {
       return;
     }
     this.wordLengths.setWordLength(length);
-    this.state.set(
-      this.loadOrCreate(
-        this.gameLanguages.language(),
-        length,
-        this.difficulties.difficulty(),
-        this.wordTiers.wordTier(),
-      ),
-    );
+    this.state.set(this.loadActive());
   }
 
   setDifficulty(difficulty: Difficulty): void {
@@ -95,14 +91,9 @@ export class GameService {
       return;
     }
     this.difficulties.setDifficulty(difficulty);
-    this.state.set(
-      this.loadOrCreate(
-        this.gameLanguages.language(),
-        this.wordLengths.wordLength(),
-        difficulty,
-        this.wordTiers.wordTier(),
-      ),
-    );
+    if (this.modes.mode() === 'classic') {
+      this.state.set(this.loadActive());
+    }
   }
 
   setWordTier(tier: WordTier): void {
@@ -110,14 +101,9 @@ export class GameService {
       return;
     }
     this.wordTiers.setTier(tier);
-    this.state.set(
-      this.loadOrCreate(
-        this.gameLanguages.language(),
-        this.wordLengths.wordLength(),
-        this.difficulties.difficulty(),
-        tier,
-      ),
-    );
+    if (this.modes.mode() === 'classic') {
+      this.state.set(this.loadActive());
+    }
   }
 
   addLetter(letter: string): void {
@@ -158,6 +144,7 @@ export class GameService {
       return 'invalid';
     }
     if (
+      current.mode === 'classic' &&
       current.difficulty === 'hard' &&
       !satisfiesHardMode(current.currentGuess, current.guesses, current.solution)
     ) {
@@ -186,8 +173,10 @@ export class GameService {
         word: current.solution,
         language: current.language,
         length: current.wordLength,
+        mode: current.mode,
         difficulty: current.difficulty,
         wordTier: current.wordTier,
+        dailyDate: current.dailyDate,
         status,
         attempts: guesses.length,
       });
@@ -197,7 +186,11 @@ export class GameService {
   }
 
   startNewGame(): void {
-    const next = this.createFreshState(
+    if (this.modes.mode() === 'daily') {
+      return;
+    }
+
+    const next = this.createClassicState(
       this.gameLanguages.language(),
       this.wordLengths.wordLength(),
       this.difficulties.difficulty(),
@@ -205,6 +198,20 @@ export class GameService {
     );
     this.state.set(next);
     this.persist(next);
+  }
+
+  private loadActive(): GameState {
+    const language = this.gameLanguages.language();
+    const length = this.wordLengths.wordLength();
+    if (this.modes.mode() === 'daily') {
+      return this.loadOrCreateDaily(language, length, dailyDateKey());
+    }
+    return this.loadOrCreateClassic(
+      language,
+      length,
+      this.difficulties.difficulty(),
+      this.wordTiers.wordTier(),
+    );
   }
 
   private buildBoard(state: GameState): Board {
@@ -246,7 +253,7 @@ export class GameService {
     return rows;
   }
 
-  private loadOrCreate(
+  private loadOrCreateClassic(
     language: GameLanguage,
     length: WordLength,
     difficulty: Difficulty,
@@ -254,10 +261,10 @@ export class GameService {
   ): GameState {
     try {
       const raw =
-        localStorage.getItem(storageKey(language, length, difficulty, wordTier)) ??
+        localStorage.getItem(classicStorageKey(language, length, difficulty, wordTier)) ??
         legacyRaw(language, length, difficulty, wordTier);
       if (!raw) {
-        return this.createFreshState(language, length, difficulty, wordTier);
+        return this.createClassicState(language, length, difficulty, wordTier);
       }
 
       const parsed = JSON.parse(raw) as Partial<GameState>;
@@ -276,7 +283,7 @@ export class GameService {
         !Array.isArray(parsed.guesses) ||
         parsed.guesses.length > maxAttempts
       ) {
-        return this.createFreshState(language, length, difficulty, wordTier);
+        return this.createClassicState(language, length, difficulty, wordTier);
       }
 
       const status =
@@ -289,7 +296,7 @@ export class GameService {
       const used = this.history.usedWords(length, language);
 
       if (status === 'playing' && used.has(solution)) {
-        return this.createFreshState(language, length, difficulty, wordTier);
+        return this.createClassicState(language, length, difficulty, wordTier);
       }
 
       if (status === 'won' || status === 'lost') {
@@ -297,6 +304,7 @@ export class GameService {
           word: solution,
           language,
           length,
+          mode: 'classic',
           difficulty,
           wordTier,
           status,
@@ -305,6 +313,7 @@ export class GameService {
       }
 
       return {
+        mode: 'classic',
         language,
         wordLength: length,
         difficulty,
@@ -326,17 +335,102 @@ export class GameService {
         keyboard: parsed.keyboard ?? {},
       };
     } catch {
-      return this.createFreshState(language, length, difficulty, wordTier);
+      return this.createClassicState(language, length, difficulty, wordTier);
     }
   }
 
-  private createFreshState(
+  private loadOrCreateDaily(
+    language: GameLanguage,
+    length: WordLength,
+    dateKey: string,
+  ): GameState {
+    const difficulty = DAILY_DIFFICULTY;
+    const wordTier = DAILY_WORD_TIER;
+    const maxAttempts = attemptsForDifficulty(difficulty);
+    const expected = pickDailyWord(dateKey, language, length);
+
+    try {
+      const raw = localStorage.getItem(dailyStorageKey(language, length, dateKey));
+      if (!raw) {
+        return this.createDailyState(language, length, dateKey);
+      }
+
+      const parsed = JSON.parse(raw) as Partial<GameState>;
+      if (
+        !isWordLength(parsed.wordLength) ||
+        parsed.wordLength !== length ||
+        !isGameLanguage(parsed.language) ||
+        parsed.language !== language ||
+        parsed.dailyDate !== dateKey ||
+        typeof parsed.solution !== 'string' ||
+        parsed.solution.length !== length ||
+        !Array.isArray(parsed.guesses) ||
+        parsed.guesses.length > maxAttempts
+      ) {
+        return this.createDailyState(language, length, dateKey);
+      }
+
+      const solution = [...parsed.solution]
+        .map((letter) => normalizeLetter(letter, language))
+        .join('');
+
+      if (solution !== expected) {
+        return this.createDailyState(language, length, dateKey);
+      }
+
+      const status =
+        parsed.status === 'won' || parsed.status === 'lost' ? parsed.status : 'playing';
+
+      if (status === 'won' || status === 'lost') {
+        this.history.record({
+          word: solution,
+          language,
+          length,
+          mode: 'daily',
+          difficulty,
+          wordTier,
+          dailyDate: dateKey,
+          status,
+          attempts: parsed.guesses.length,
+        });
+      }
+
+      return {
+        mode: 'daily',
+        language,
+        wordLength: length,
+        difficulty,
+        wordTier,
+        dailyDate: dateKey,
+        maxAttempts,
+        solution,
+        guesses: parsed.guesses.map((guess) =>
+          [...(typeof guess === 'string' ? guess : '')]
+            .map((letter) => normalizeLetter(letter, language))
+            .join(''),
+        ),
+        currentGuess:
+          status === 'playing'
+            ? [...(parsed.currentGuess ?? '')]
+                .map((letter) => normalizeLetter(letter, language))
+                .join('')
+            : '',
+        status,
+        keyboard: parsed.keyboard ?? {},
+      };
+    } catch {
+      return this.createDailyState(language, length, dateKey);
+    }
+  }
+
+  private createClassicState(
     language: GameLanguage,
     length: WordLength,
     difficulty: Difficulty,
     wordTier: WordTier,
   ): GameState {
     return {
+      mode: 'classic',
       language,
       wordLength: length,
       difficulty,
@@ -355,9 +449,34 @@ export class GameService {
     };
   }
 
+  private createDailyState(language: GameLanguage, length: WordLength, dateKey: string): GameState {
+    return {
+      mode: 'daily',
+      language,
+      wordLength: length,
+      difficulty: DAILY_DIFFICULTY,
+      wordTier: DAILY_WORD_TIER,
+      dailyDate: dateKey,
+      maxAttempts: attemptsForDifficulty(DAILY_DIFFICULTY),
+      solution: pickDailyWord(dateKey, language, length),
+      guesses: [],
+      currentGuess: '',
+      status: 'playing',
+      keyboard: {},
+    };
+  }
+
   private persist(state: GameState): void {
+    if (state.mode === 'daily' && state.dailyDate) {
+      localStorage.setItem(
+        dailyStorageKey(state.language, state.wordLength, state.dailyDate),
+        JSON.stringify(state),
+      );
+      return;
+    }
+
     localStorage.setItem(
-      storageKey(state.language, state.wordLength, state.difficulty, state.wordTier),
+      classicStorageKey(state.language, state.wordLength, state.difficulty, state.wordTier),
       JSON.stringify(state),
     );
   }

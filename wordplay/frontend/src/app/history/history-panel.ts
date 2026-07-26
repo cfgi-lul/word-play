@@ -1,8 +1,8 @@
-import { ChangeDetectionStrategy, Component, inject, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, output } from '@angular/core';
 import { TuiButton, TuiScrollbar } from '@taiga-ui/core';
 
 import { DifficultyService } from '../game/difficulty.service';
-import { type Difficulty, type WordTier } from '../game/game.types';
+import { type Difficulty, type GameMode, type WordTier } from '../game/game.types';
 import { HistoryService } from '../game/history.service';
 import { WordTierService } from '../game/word-tier.service';
 import { LocaleService } from '../i18n/locale.service';
@@ -22,14 +22,18 @@ export class HistoryPanel {
   private readonly wordTiers = inject(WordTierService);
   private readonly i18n = inject(LocaleService);
 
-  readonly open = input(false);
   readonly closed = output<void>();
 
   readonly locale = this.i18n.current;
-  readonly entries = this.history.forCurrentMode;
+  readonly entries = this.history.forStatsMode;
   readonly stats = this.history.stats;
+  readonly statsMode = this.history.statsMode;
   readonly difficulty = this.difficulties.difficulty;
   readonly wordTier = this.wordTiers.wordTier;
+
+  selectMode(mode: GameMode): void {
+    this.history.setStatsMode(mode);
+  }
 
   close(): void {
     this.closed.emit();

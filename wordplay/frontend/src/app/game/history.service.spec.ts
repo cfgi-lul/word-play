@@ -19,6 +19,7 @@ describe('HistoryService', () => {
       word: 'Crane',
       language: 'en',
       length: 5,
+      mode: 'classic',
       difficulty: 'normal',
       wordTier: 'medium',
       status: 'won',
@@ -31,7 +32,7 @@ describe('HistoryService', () => {
     expect(history.usedWords(4, 'en').has('crane')).toBe(false);
   });
 
-  it('does not duplicate the same finished word for a mode', () => {
+  it('does not duplicate the same finished classic word for a mode', () => {
     localStorage.clear();
     TestBed.configureTestingModule({});
     const history = TestBed.inject(HistoryService);
@@ -40,6 +41,7 @@ describe('HistoryService', () => {
       word: 'crane',
       language: 'en',
       length: 5,
+      mode: 'classic',
       difficulty: 'normal',
       wordTier: 'medium',
       status: 'won',
@@ -49,6 +51,7 @@ describe('HistoryService', () => {
       word: 'crane',
       language: 'en',
       length: 5,
+      mode: 'classic',
       difficulty: 'normal',
       wordTier: 'medium',
       status: 'lost',
@@ -59,7 +62,7 @@ describe('HistoryService', () => {
     expect(history.all().at(0)?.status).toBe('won');
   });
 
-  it('allows the same word under a different difficulty or dictionary', () => {
+  it('allows the same word under a different classic difficulty or dictionary', () => {
     localStorage.clear();
     TestBed.configureTestingModule({});
     const history = TestBed.inject(HistoryService);
@@ -68,6 +71,7 @@ describe('HistoryService', () => {
       word: 'crane',
       language: 'en',
       length: 5,
+      mode: 'classic',
       difficulty: 'normal',
       wordTier: 'medium',
       status: 'won',
@@ -77,6 +81,7 @@ describe('HistoryService', () => {
       word: 'crane',
       language: 'en',
       length: 5,
+      mode: 'classic',
       difficulty: 'hard',
       wordTier: 'medium',
       status: 'lost',
@@ -86,6 +91,7 @@ describe('HistoryService', () => {
       word: 'crane',
       language: 'en',
       length: 5,
+      mode: 'classic',
       difficulty: 'normal',
       wordTier: 'hard',
       status: 'won',
@@ -95,7 +101,7 @@ describe('HistoryService', () => {
     expect(history.count()).toBe(3);
   });
 
-  it('scopes stats and history list to the current difficulty and dictionary', () => {
+  it('scopes classic stats to the selected difficulty and dictionary', () => {
     localStorage.clear();
     TestBed.configureTestingModule({});
     const history = TestBed.inject(HistoryService);
@@ -106,6 +112,7 @@ describe('HistoryService', () => {
       word: 'about',
       language: 'en',
       length: 5,
+      mode: 'classic',
       difficulty: 'normal',
       wordTier: 'medium',
       status: 'won',
@@ -115,6 +122,7 @@ describe('HistoryService', () => {
       word: 'apple',
       language: 'en',
       length: 5,
+      mode: 'classic',
       difficulty: 'hard',
       wordTier: 'medium',
       status: 'lost',
@@ -124,32 +132,65 @@ describe('HistoryService', () => {
       word: 'bloom',
       language: 'en',
       length: 5,
+      mode: 'classic',
       difficulty: 'normal',
       wordTier: 'easy',
       status: 'won',
       attempts: 3,
     });
+    history.record({
+      word: 'crane',
+      language: 'en',
+      length: 5,
+      mode: 'daily',
+      difficulty: 'normal',
+      wordTier: 'medium',
+      dailyDate: '2026-07-26',
+      status: 'won',
+      attempts: 4,
+    });
 
+    history.setStatsMode('classic');
     expect(difficulties.difficulty()).toBe('normal');
     expect(wordTiers.wordTier()).toBe('medium');
-    expect(history.forCurrentMode()).toHaveLength(1);
+    expect(history.forStatsMode()).toHaveLength(1);
     expect(history.stats().played).toBe(1);
     expect(history.stats().wins).toBe(1);
     expect(history.stats().attemptDistribution).toHaveLength(6);
 
     difficulties.setDifficulty('hard');
-    expect(history.forCurrentMode()).toHaveLength(1);
+    expect(history.forStatsMode()).toHaveLength(1);
     expect(history.stats().played).toBe(1);
     expect(history.stats().losses).toBe(1);
     expect(history.stats().attemptDistribution).toHaveLength(5);
 
-    difficulties.setDifficulty('normal');
-    wordTiers.setTier('easy');
-    expect(history.forCurrentMode().at(0)?.word).toBe('bloom');
-    expect(history.stats().played).toBe(1);
+    history.setStatsMode('daily');
+    expect(history.forStatsMode()).toHaveLength(1);
+    expect(history.forStatsMode().at(0)?.word).toBe('crane');
+    expect(history.stats().attemptDistribution).toHaveLength(6);
   });
 
-  it('loads legacy history entries with default difficulty and dictionary', () => {
+  it('does not treat daily words as used classic answers', () => {
+    localStorage.clear();
+    TestBed.configureTestingModule({});
+    const history = TestBed.inject(HistoryService);
+
+    history.record({
+      word: 'crane',
+      language: 'en',
+      length: 5,
+      mode: 'daily',
+      difficulty: 'normal',
+      wordTier: 'medium',
+      dailyDate: '2026-07-26',
+      status: 'won',
+      attempts: 3,
+    });
+
+    expect(history.usedWords(5, 'en').has('crane')).toBe(false);
+  });
+
+  it('loads legacy history entries as classic with default difficulty and dictionary', () => {
     localStorage.setItem(
       'word-play-history',
       JSON.stringify([
@@ -169,11 +210,13 @@ describe('HistoryService', () => {
     expect(history.all().at(0)).toEqual(
       expect.objectContaining({
         word: 'crane',
+        mode: 'classic',
         difficulty: 'normal',
         wordTier: 'medium',
       }),
     );
-    expect(history.forCurrentMode()).toHaveLength(1);
+    history.setStatsMode('classic');
+    expect(history.forStatsMode()).toHaveLength(1);
   });
 
   it('returns empty stats for no games', () => {
@@ -200,6 +243,7 @@ describe('HistoryService', () => {
           word: 'aaaaa',
           language: 'en',
           length: 5,
+          mode: 'classic',
           difficulty: 'normal',
           wordTier: 'medium',
           status: 'won',
@@ -210,6 +254,7 @@ describe('HistoryService', () => {
           word: 'bbbbb',
           language: 'en',
           length: 5,
+          mode: 'classic',
           difficulty: 'normal',
           wordTier: 'medium',
           status: 'won',
@@ -220,6 +265,7 @@ describe('HistoryService', () => {
           word: 'ccccc',
           language: 'en',
           length: 5,
+          mode: 'classic',
           difficulty: 'normal',
           wordTier: 'medium',
           status: 'lost',
@@ -230,6 +276,7 @@ describe('HistoryService', () => {
           word: 'ddddd',
           language: 'en',
           length: 5,
+          mode: 'classic',
           difficulty: 'normal',
           wordTier: 'medium',
           status: 'won',
@@ -240,6 +287,7 @@ describe('HistoryService', () => {
           word: 'eeeee',
           language: 'en',
           length: 5,
+          mode: 'classic',
           difficulty: 'normal',
           wordTier: 'medium',
           status: 'won',

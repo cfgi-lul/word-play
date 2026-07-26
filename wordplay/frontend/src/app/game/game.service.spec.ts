@@ -203,6 +203,48 @@ describe('GameService', () => {
     expect(game.isPlaying()).toBe(true);
     expect(game.solution().length).toBe(5);
   });
+
+  it('loads a seeded daily puzzle without difficulty settings', () => {
+    localStorage.clear();
+    localStorage.setItem('word-play-word-length', '5');
+    localStorage.setItem('word-play-game-language', 'en');
+    localStorage.setItem('word-play-game-mode', 'daily');
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({});
+    const game = TestBed.inject(GameService);
+
+    game.activateMode('daily');
+    expect(game.mode()).toBe('daily');
+    expect(game.difficulty()).toBe('normal');
+    expect(game.wordTier()).toBe('medium');
+    expect(game.maxAttempts()).toBe(6);
+    expect(game.canPlayAgain()).toBe(false);
+    expect(game.solution()).toHaveLength(5);
+    expect(game.dailyDate()).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+
+    game.setDifficulty('hard');
+    expect(game.difficulty()).toBe('normal');
+    expect(game.maxAttempts()).toBe(6);
+  });
+
+  it('does not start a new daily puzzle with play again', () => {
+    localStorage.clear();
+    localStorage.setItem('word-play-word-length', '5');
+    localStorage.setItem('word-play-game-language', 'en');
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({});
+    const game = TestBed.inject(GameService);
+    game.activateMode('daily');
+    const solution = game.solution();
+
+    typeWord(game, solution);
+    expect(game.submitGuess()).toBe('ok');
+    expect(game.status()).toBe('won');
+
+    game.startNewGame();
+    expect(game.status()).toBe('won');
+    expect(game.solution()).toBe(solution);
+  });
 });
 
 function createGame(partial: Partial<GameState> = {}): GameService {
@@ -215,9 +257,11 @@ function createGame(partial: Partial<GameState> = {}): GameService {
   localStorage.setItem('word-play-game-language', 'en');
   localStorage.setItem('word-play-difficulty', difficulty);
   localStorage.setItem('word-play-word-tier', wordTier);
+  localStorage.setItem('word-play-game-mode', 'classic');
   localStorage.setItem(
     `word-play-game-en-5-${difficulty}-${wordTier}`,
     JSON.stringify({
+      mode: 'classic',
       language: 'en',
       wordLength: 5,
       difficulty,

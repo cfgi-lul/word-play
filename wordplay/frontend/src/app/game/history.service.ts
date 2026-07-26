@@ -3,13 +3,16 @@ import { computed, inject, Injectable, signal } from '@angular/core';
 import { DifficultyService } from './difficulty.service';
 import {
   attemptsForDifficulty,
+  DAILY_DIFFICULTY,
   DEFAULT_DIFFICULTY,
   DEFAULT_WORD_TIER,
   type Difficulty,
   type GameLanguage,
+  type GameMode,
   type GameStatus,
   isDifficulty,
   isGameLanguage,
+  isGameMode,
   isWordLength,
   isWordTier,
   type WordLength,
@@ -21,8 +24,10 @@ export interface HistoryEntry {
   word: string;
   language: GameLanguage;
   length: WordLength;
+  mode: GameMode;
   difficulty: Difficulty;
   wordTier: WordTier;
+  dailyDate?: string;
   status: Exclude<GameStatus, 'playing'>;
   attempts: number;
   finishedAt: string;
@@ -53,27 +58,48 @@ export class HistoryService {
   private readonly difficulties = inject(DifficultyService);
   private readonly wordTiers = inject(WordTierService);
   private readonly entries = signal<HistoryEntry[]>(this.read());
+  private readonly statsModeSignal = signal<GameMode>('classic');
 
   readonly all = this.entries.asReadonly();
   readonly count = computed(() => this.entries().length);
+  readonly statsMode = this.statsModeSignal.asReadonly();
 
-  /** Finished games for the currently selected attempts mode + dictionary tier. */
-  readonly forCurrentMode = computed(() => {
+  readonly forStatsMode = computed(() => this.entriesFor(this.statsModeSignal()));
+
+  readonly stats = computed(() => {
+    const mode = this.statsModeSignal();
+
+    const maxAttempts =
+      mode === 'daily'
+        ? attemptsForDifficulty(DAILY_DIFFICULTY)
+        : attemptsForDifficulty(this.difficulties.difficulty());
+    return computeGameStats(this.entriesFor(mode), maxAttempts);
+  });
+
+  setStatsMode(mode: GameMode): void {
+    this.statsModeSignal.set(mode);
+  }
+
+  entriesFor(mode: GameMode): HistoryEntry[] {
+    if (mode === 'daily') {
+      return this.entries().filter((entry) => entry.mode === 'daily');
+    }
+
     const difficulty = this.difficulties.difficulty();
     const wordTier = this.wordTiers.wordTier();
     return this.entries().filter(
-      (entry) => entry.difficulty === difficulty && entry.wordTier === wordTier,
+      (entry) =>
+        entry.mode === 'classic' && entry.difficulty === difficulty && entry.wordTier === wordTier,
     );
-  });
-
-  readonly stats = computed(() =>
-    computeGameStats(this.forCurrentMode(), attemptsForDifficulty(this.difficulties.difficulty())),
-  );
+  }
 
   usedWords(length: WordLength, language: GameLanguage): ReadonlySet<string> {
     return new Set(
       this.entries()
-        .filter((entry) => entry.length === length && entry.language === language)
+        .filter(
+          (entry) =>
+            entry.mode === 'classic' && entry.length === length && entry.language === language,
+        )
         .map((entry) => entry.word),
     );
   }
@@ -88,16 +114,7 @@ export class HistoryService {
     };
 
     this.entries.update((current) => {
-      if (
-        current.some(
-          (item) =>
-            item.word === word &&
-            item.length === entry.length &&
-            item.language === entry.language &&
-            item.difficulty === entry.difficulty &&
-            item.wordTier === entry.wordTier,
-        )
-      ) {
+      if (current.some((item) => isSameRecord(item, next))) {
         return current;
       }
       return [next, ...current];
@@ -126,6 +143,12 @@ export class HistoryService {
           const language = isGameLanguage(entry.language) ? entry.language : 'en';
           const difficulty = isDifficulty(entry.difficulty) ? entry.difficulty : DEFAULT_DIFFICULTY;
           const wordTier = isWordTier(entry.wordTier) ? entry.wordTier : DEFAULT_WORD_TIER;
+          const mode = isGameMode(entry.mode) ? entry.mode : 'classic';
+
+          const dailyDate =
+            typeof entry.dailyDate === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(entry.dailyDate)
+              ? entry.dailyDate
+              : undefined;
           if (
             typeof entry.word !== 'string' ||
             !isWordLength(entry.length) ||
@@ -139,8 +162,10 @@ export class HistoryService {
             word: entry.word.toLowerCase(),
             language,
             length: entry.length,
+            mode,
             difficulty,
             wordTier,
+            dailyDate,
             status: entry.status,
             attempts: entry.attempts,
             finishedAt: entry.finishedAt,
@@ -155,6 +180,26 @@ export class HistoryService {
   private persist(): void {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(this.entries()));
   }
+}
+
+function isSameRecord(item: HistoryEntry, next: HistoryEntry): boolean {
+  if (next.mode === 'daily') {
+    return (
+      item.mode === 'daily' &&
+      item.language === next.language &&
+      item.length === next.length &&
+      item.dailyDate === next.dailyDate
+    );
+  }
+
+  return (
+    item.mode === 'classic' &&
+    item.word === next.word &&
+    item.length === next.length &&
+    item.language === next.language &&
+    item.difficulty === next.difficulty &&
+    item.wordTier === next.wordTier
+  );
 }
 
 export function computeGameStats(

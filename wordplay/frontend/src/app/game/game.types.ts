@@ -4,6 +4,8 @@ export type WordLength = 4 | 5 | 6 | 7;
 export type GameLanguage = AppLocale;
 export type Difficulty = 'easy' | 'normal' | 'hard';
 export type WordTier = 'easy' | 'medium' | 'hard';
+export type GameMode = 'classic' | 'daily';
+export type AppScreen = 'home' | 'game' | 'stats';
 
 export const WORD_LENGTHS: readonly WordLength[] = [4, 5, 6, 7];
 export const DEFAULT_WORD_LENGTH: WordLength = 5;
@@ -11,6 +13,8 @@ export const DIFFICULTIES: readonly Difficulty[] = ['easy', 'normal', 'hard'];
 export const DEFAULT_DIFFICULTY: Difficulty = 'normal';
 export const WORD_TIERS: readonly WordTier[] = ['easy', 'medium', 'hard'];
 export const DEFAULT_WORD_TIER: WordTier = 'medium';
+export const DAILY_DIFFICULTY: Difficulty = 'normal';
+export const DAILY_WORD_TIER: WordTier = 'medium';
 
 /** Kept for older imports; prefer attemptsForDifficulty(). */
 export const MAX_ATTEMPTS = 6;
@@ -39,10 +43,13 @@ export type Board = Tile[][];
 export type KeyStatus = Exclude<LetterStatus, 'empty' | 'tbd'>;
 
 export interface GameState {
+  mode: GameMode;
   language: GameLanguage;
   wordLength: WordLength;
   difficulty: Difficulty;
   wordTier: WordTier;
+  /** Local calendar date `YYYY-MM-DD` for daily puzzles. */
+  dailyDate?: string;
   maxAttempts: number;
   solution: string;
   guesses: string[];
@@ -65,4 +72,8 @@ export function isDifficulty(value: unknown): value is Difficulty {
 
 export function isWordTier(value: unknown): value is WordTier {
   return value === 'easy' || value === 'medium' || value === 'hard';
+}
+
+export function isGameMode(value: unknown): value is GameMode {
+  return value === 'classic' || value === 'daily';
 }

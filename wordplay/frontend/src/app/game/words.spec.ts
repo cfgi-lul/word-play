@@ -1,7 +1,9 @@
+import { dailyDateKey, pickDailyWord } from './daily-word';
 import {
   isPlayableLetter,
   isValidGuess,
   normalizeLetter,
+  pickDailyAnswer,
   pickRandomWord,
   wordTierOf,
 } from './words';
@@ -51,5 +53,19 @@ describe('words helpers', () => {
     expect(isValidGuess(word, 5, 'en')).toBe(true);
     expect(used.has(word)).toBe(false);
     expect(wordTierOf(word, 5, 'en')).toBe('medium');
+  });
+
+  it('picks a deterministic daily word from the medium tier', () => {
+    const dateKey = dailyDateKey(new Date('2026-07-26T12:00:00'));
+    const first = pickDailyWord(dateKey, 'en', 5);
+    const second = pickDailyWord(dateKey, 'en', 5);
+    const otherDay = pickDailyWord('2026-07-27', 'en', 5);
+
+    expect(first).toBe(second);
+    expect(first).toHaveLength(5);
+    expect(wordTierOf(first, 5, 'en')).toBe('medium');
+    expect(isValidGuess(first, 5, 'en')).toBe(true);
+    expect(pickDailyAnswer('en', 5, 'seed-a')).not.toBe(pickDailyAnswer('en', 5, 'seed-b'));
+    expect(otherDay).not.toBe(first);
   });
 });

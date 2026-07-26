@@ -156,3 +156,20 @@ export function pickRandomWord(
   const index = Math.floor(Math.random() * pool.length);
   return pool[index] ?? WORDS_BY_LANGUAGE[language][length].at(0)!;
 }
+
+/** Deterministic daily answer from the medium dictionary tier. */
+export function pickDailyAnswer(language: GameLanguage, length: WordLength, seed: string): string {
+  const pool = ANSWERS_BY_TIER[language][length].medium;
+  const fallback = WORDS_BY_LANGUAGE[language][length].at(0)!;
+  if (pool.length === 0) {
+    return fallback;
+  }
+
+  let hash = 2166136261;
+  for (let i = 0; i < seed.length; i++) {
+    hash ^= seed.charCodeAt(i);
+    hash = Math.imul(hash, 16777619);
+  }
+
+  return pool[Math.abs(hash) % pool.length] ?? fallback;
+}
