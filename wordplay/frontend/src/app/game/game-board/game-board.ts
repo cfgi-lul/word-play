@@ -10,7 +10,11 @@ import { type Board, type WordLength } from '../game.types';
   templateUrl: './game-board.html',
   styleUrl: './game-board.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { '[attr.data-length]': 'wordLength()', '[style.--wp-cols]': 'wordLength()' },
+  host: {
+    '[attr.data-length]': 'wordLength()',
+    '[style.--wp-cols]': 'wordLength()',
+    '[style.--wp-rows]': 'board().length',
+  },
 })
 export class GameBoard {
   readonly board = input.required<Board>();

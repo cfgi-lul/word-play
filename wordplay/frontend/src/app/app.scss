@@ -75,15 +75,21 @@
 .main {
   min-height: 0;
   display: grid;
-  align-content: start;
-  justify-items: center;
-  gap: 1rem;
-  padding-block: 0.5rem;
+  grid-template-rows: minmax(0, 1fr) auto;
+  justify-items: stretch;
+  align-items: stretch;
+  gap: 0.75rem;
+  padding-block: 0.35rem;
   /* Keep board above the fixed on-screen keyboard */
   padding-bottom: calc(var(--wp-keyboard-space) + env(safe-area-inset-bottom, 0px));
-  overflow: auto;
+  overflow: hidden;
   overscroll-behavior: contain;
-  -webkit-overflow-scrolling: touch;
+}
+
+.main > app-game-board {
+  min-height: 0;
+  width: 100%;
+  height: 100%;
 }
 
 .result {
