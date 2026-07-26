@@ -77,6 +77,33 @@
           </section>
 
           <section class="section">
+            <h3>{{ 'settings.wordLength' | t: locale() }}</h3>
+            <p class="section__hint">{{ 'settings.wordLengthHint' | t: locale() }}</p>
+
+            <div
+              class="length-options"
+              role="radiogroup"
+              [attr.aria-label]="'settings.wordLengthAria' | t: locale()"
+            >
+              @for (length of wordLengths; track length) {
+                <button
+                  type="button"
+                  class="length-option"
+                  role="radio"
+                  [attr.aria-checked]="wordLength() === length"
+                  [class.length-option--active]="wordLength() === length"
+                  (click)="selectWordLength(length)"
+                >
+                  <span class="length-option__badge" aria-hidden="true">{{ length }}</span>
+                  <span class="length-option__copy">
+                    <strong>{{ 'settings.wordLengthOption' | t: locale() : { length } }}</strong>
+                  </span>
+                </button>
+              }
+            </div>
+          </section>
+
+          <section class="section">
             <h3>{{ 'settings.dictionary' | t: locale() }}</h3>
             <p class="section__hint">{{ 'settings.dictionaryHint' | t: locale() }}</p>
 
@@ -241,33 +268,6 @@
             </div>
           </section>
         } @else {
-          <section class="section">
-            <h3>{{ 'settings.wordLength' | t: locale() }}</h3>
-            <p class="section__hint">{{ 'settings.wordLengthHint' | t: locale() }}</p>
-
-            <div
-              class="length-options"
-              role="radiogroup"
-              [attr.aria-label]="'settings.wordLengthAria' | t: locale()"
-            >
-              @for (length of wordLengths; track length) {
-                <button
-                  type="button"
-                  class="length-option"
-                  role="radio"
-                  [attr.aria-checked]="wordLength() === length"
-                  [class.length-option--active]="wordLength() === length"
-                  (click)="selectWordLength(length)"
-                >
-                  <span class="length-option__badge" aria-hidden="true">{{ length }}</span>
-                  <span class="length-option__copy">
-                    <strong>{{ 'settings.wordLengthOption' | t: locale() : { length } }}</strong>
-                  </span>
-                </button>
-              }
-            </div>
-          </section>
-
           <section class="section">
             <h3>{{ 'settings.interfaceLanguage' | t: locale() }}</h3>
             <p class="section__hint">{{ 'settings.interfaceLanguageHint' | t: locale() }}</p>
