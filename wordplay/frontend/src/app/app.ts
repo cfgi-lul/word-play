@@ -122,11 +122,9 @@ export class App {
   }
 
   focusInput(): void {
-    if (!this.isPlaying() || this.helpOpen() || this.settingsOpen() || this.historyOpen()) {
-      return;
-    }
-
-    this.hiddenInput()?.nativeElement.focus({ preventScroll: true });
+    // Never keep a text field focused — that opens the mobile OS keyboard.
+    // Physical / Bluetooth keys are handled by window:keydown instead.
+    this.hiddenInput()?.nativeElement.blur();
   }
 
   onPhysicalKeydown(event: KeyboardEvent): void {

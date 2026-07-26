@@ -1,16 +1,17 @@
 <tui-root>
-  <div class="app" (click)="focusInput()">
+  <div class="app">
     <input
       #hiddenInput
       class="hidden-input"
       type="text"
-      inputmode="text"
+      readonly
+      tabindex="-1"
+      inputmode="none"
       autocomplete="off"
       autocapitalize="off"
       autocorrect="off"
       spellcheck="false"
-      [attr.aria-label]="'app.guessAria' | t: locale()"
-      tabindex="0"
+      aria-hidden="true"
       (keydown)="onPhysicalKeydown($event)"
     />
 

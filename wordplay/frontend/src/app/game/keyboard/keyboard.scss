@@ -39,6 +39,9 @@
   font-weight: 700;
   text-transform: uppercase;
   cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
   transition:
     background 160ms ease,
     color 160ms ease,

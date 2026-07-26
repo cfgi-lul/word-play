@@ -9,10 +9,10 @@
   min-height: 100dvh;
   max-width: 40rem;
   margin: 0 auto;
-  padding: 1rem 1rem 1.25rem;
+  padding: 1rem 1rem 0;
   display: grid;
-  grid-template-rows: auto 1fr auto;
-  gap: 1.25rem;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 1rem;
 }
 
 .hidden-input {
@@ -26,6 +26,8 @@
   overflow: hidden;
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
+  caret-color: transparent;
+  pointer-events: none;
 }
 
 .header {
@@ -51,10 +53,14 @@
 
 .main {
   display: grid;
-  align-content: center;
+  align-content: start;
   justify-items: center;
   gap: 1rem;
   padding-block: 0.5rem;
+  /* Keep board above the fixed on-screen keyboard */
+  padding-bottom: calc(var(--wp-keyboard-space) + env(safe-area-inset-bottom, 0px));
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .result {
@@ -75,7 +81,17 @@
 }
 
 .footer {
-  padding-bottom: max(0.25rem, env(safe-area-inset-bottom));
+  position: fixed;
+  z-index: 15;
+  left: 50%;
+  bottom: 0;
+  transform: translateX(-50%);
+  width: min(100%, 40rem);
+  padding: 0.55rem 0.75rem max(0.55rem, env(safe-area-inset-bottom, 0px));
+  background: color-mix(in srgb, var(--wp-bg) 92%, transparent);
+  backdrop-filter: blur(10px);
+  border-top: 1px solid var(--wp-border);
+  box-shadow: 0 -8px 24px rgb(16 24 40 / 8%);
 }
 
 .dialog-actions {
@@ -113,4 +129,14 @@
 
 .help-modal__content {
   padding: 1.25rem 1.25rem 1rem;
+}
+
+:host {
+  --wp-keyboard-space: 13.5rem;
+}
+
+@media (max-width: 420px) {
+  :host {
+    --wp-keyboard-space: 12.25rem;
+  }
 }
