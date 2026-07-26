@@ -70,6 +70,8 @@ export class App {
   readonly wordTier = this.game.wordTier;
   readonly dailyDate = this.game.dailyDate;
   readonly canPlayAgain = this.game.canPlayAgain;
+  readonly canUseHint = this.game.canUseHint;
+  readonly hintsUsed = this.game.hintsUsed;
   readonly updateAvailable = this.updates.updateAvailable;
   readonly helpOpen = signal(false);
   readonly sharing = signal(false);
@@ -152,6 +154,24 @@ export class App {
     this.focusInput();
   }
 
+  useHint(): void {
+    const result = this.game.useHint();
+    switch (result) {
+      case 'no-unknown':
+        this.notify(this.i18n.t('app.hintUnavailable'), 'warning');
+        break;
+      case 'none-left':
+        this.notify(this.i18n.t('app.hintNoneLeft'), 'warning');
+        break;
+      case 'ok':
+        this.notify(this.i18n.t('app.hintRevealed'), 'positive');
+        break;
+      default:
+        break;
+    }
+    this.focusInput();
+  }
+
   submit(): void {
     const result = this.game.submitGuess();
 
@@ -203,6 +223,7 @@ export class App {
         wordTier: this.wordTier(),
         language: this.wordLanguage(),
         maxAttempts: this.maxAttempts(),
+        hintsUsed: this.hintsUsed(),
         dailyDate: this.dailyDate(),
         labels: {
           title: this.i18n.t('app.title'),
@@ -213,6 +234,7 @@ export class App {
           attemptsLabel: this.i18n.t('app.shareAttempts'),
           dictionaryLabel: this.i18n.t('app.shareDictionary'),
           languageLabel: this.i18n.t('app.shareLanguage'),
+          hintsLabel: this.i18n.t('app.shareHints'),
           hardModeLabel: this.i18n.t('app.shareHardMode'),
           hardModeOn: this.i18n.t('app.shareHardModeOn'),
           difficulty: {

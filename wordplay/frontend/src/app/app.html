@@ -65,6 +65,16 @@
             type="button"
             appearance="flat"
             size="m"
+            iconStart="@tui.sparkles"
+            [attr.aria-label]="'app.hintAria' | t: locale()"
+            [disabled]="!canUseHint()"
+            (click)="useHint(); $event.stopPropagation()"
+          ></button>
+          <button
+            tuiIconButton
+            type="button"
+            appearance="flat"
+            size="m"
             iconStart="@tui.circle-help"
             [attr.aria-label]="'app.helpAria' | t: locale()"
             (click)="openHelp(); $event.stopPropagation()"

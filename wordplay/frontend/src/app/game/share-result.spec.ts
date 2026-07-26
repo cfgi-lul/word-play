@@ -10,6 +10,7 @@ const labels: ShareResultLabels = {
   attemptsLabel: 'Attempts',
   dictionaryLabel: 'Dictionary',
   languageLabel: 'Language',
+  hintsLabel: 'Hints used',
   hardModeLabel: 'Hard mode hints',
   hardModeOn: 'required',
   difficulty: {
@@ -78,6 +79,7 @@ describe('share-result', () => {
       wordTier: 'medium',
       language: 'en',
       maxAttempts: 5,
+      hintsUsed: 1,
       labels,
     });
 
@@ -88,6 +90,7 @@ describe('share-result', () => {
     expect(text).toContain('Attempts: Hard');
     expect(text).toContain('Dictionary: Medium');
     expect(text).toContain('Language: EN');
+    expect(text).toContain('Hints used: 1');
     expect(text).toContain('Hard mode hints: required');
   });
 
@@ -110,6 +113,7 @@ describe('share-result', () => {
       wordTier: 'medium',
       language: 'ru',
       maxAttempts: 6,
+      hintsUsed: 0,
       dailyDate: '2026-07-26',
       labels,
     });
@@ -117,5 +121,6 @@ describe('share-result', () => {
     expect(text).toContain('Daily word 2026-07-26 · Solved 1/6');
     expect(text).toContain('Language: RU');
     expect(text).not.toContain('Hard mode hints');
+    expect(text).not.toContain('Hints used');
   });
 });

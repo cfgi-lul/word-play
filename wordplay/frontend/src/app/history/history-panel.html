@@ -92,6 +92,10 @@
               <strong>{{ stats().wins }}/{{ stats().losses }}</strong>
               <span>{{ 'history.statsWinsLosses' | t: locale() }}</span>
             </div>
+            <div class="stats__card">
+              <strong>{{ stats().gamesWithHints }}</strong>
+              <span>{{ 'history.statsHints' | t: locale() }}</span>
+            </div>
           </div>
 
           <div class="stats__distribution">
@@ -162,6 +166,11 @@
                 <span>
                   {{ 'history.attempts' | t: locale() : { count: entry.attempts } }}
                 </span>
+                @if (entry.hintsUsed > 0) {
+                  <span>
+                    {{ 'history.hints' | t: locale() : { count: entry.hintsUsed } }}
+                  </span>
+                }
               </span>
             </li>
           }

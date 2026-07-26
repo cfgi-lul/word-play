@@ -245,6 +245,45 @@ describe('GameService', () => {
     expect(game.status()).toBe('won');
     expect(game.solution()).toBe(solution);
   });
+
+  it('reveals one correct letter with a hint and records it on finish', () => {
+    const game = createGame({ solution: 'crane' });
+    const history = TestBed.inject(HistoryService);
+
+    expect(game.canUseHint()).toBe(true);
+    expect(game.useHint()).toBe('ok');
+    expect(game.hintsUsed()).toBe(1);
+    expect(game.canUseHint()).toBe(false);
+    expect(game.useHint()).toBe('none-left');
+
+    const currentRow = game.board().at(0)!;
+    const revealed = currentRow.filter((tile) => tile.status === 'correct');
+    expect(revealed).toHaveLength(1);
+    expect(game.solution().toUpperCase()).toContain(revealed.at(0)!.letter);
+
+    typeWord(game, 'crane');
+    expect(game.submitGuess()).toBe('ok');
+    expect(history.all().at(0)?.hintsUsed).toBe(1);
+  });
+
+  it('requires hinted letters in hard mode guesses', () => {
+    const game = createGame({
+      solution: 'crane',
+      difficulty: 'hard',
+      maxAttempts: 5,
+      hintedPositions: [0],
+      hintsUsed: 1,
+    });
+
+    typeWord(game, 'plane');
+    expect(game.submitGuess()).toBe('hard-mode');
+
+    while (game.currentGuess().length > 0) {
+      game.removeLetter();
+    }
+    typeWord(game, 'crane');
+    expect(game.submitGuess()).toBe('ok');
+  });
 });
 
 function createGame(partial: Partial<GameState> = {}): GameService {
@@ -272,6 +311,8 @@ function createGame(partial: Partial<GameState> = {}): GameService {
       currentGuess: '',
       status: 'playing',
       keyboard: {},
+      hintedPositions: [],
+      hintsUsed: 0,
       ...partial,
     } satisfies GameState),
   );

@@ -19,6 +19,7 @@ export interface ShareResultLabels {
   attemptsLabel: string;
   dictionaryLabel: string;
   languageLabel: string;
+  hintsLabel: string;
   hardModeLabel: string;
   hardModeOn: string;
   difficulty: Record<Difficulty, string>;
@@ -34,6 +35,7 @@ export interface ShareResultInput {
   wordTier: WordTier;
   language: GameLanguage;
   maxAttempts: number;
+  hintsUsed: number;
   dailyDate?: string;
   labels: ShareResultLabels;
 }
@@ -203,6 +205,9 @@ function metaLines(input: ShareResultInput): string[] {
     `${input.labels.dictionaryLabel}: ${input.labels.dictionary[input.wordTier]}`,
     `${input.labels.languageLabel}: ${input.labels.language[input.language]}`,
   ];
+  if (input.hintsUsed > 0) {
+    lines.push(`${input.labels.hintsLabel}: ${input.hintsUsed}`);
+  }
   if (input.difficulty === 'hard') {
     lines.push(`${input.labels.hardModeLabel}: ${input.labels.hardModeOn}`);
   }
