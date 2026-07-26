@@ -9,6 +9,8 @@ body {
   margin: 0;
   height: 100%;
   min-height: 100%;
+  /* Reduce accidental double-tap zoom on mobile controls. */
+  touch-action: manipulation;
 }
 
 tui-root {
