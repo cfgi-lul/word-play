@@ -26,6 +26,7 @@ import {
 import { GameLanguageService } from './game-language.service';
 import { GameModeService } from './game-mode.service';
 import { HistoryService } from './history.service';
+import { decodePuzzleSeed, encodePuzzleSeed, type PuzzleSeedPayload } from './puzzle-seed';
 import { WordLengthService } from './word-length.service';
 import { WordTierService } from './word-tier.service';
 import { isPlayableLetter, isValidGuess, normalizeLetter, pickRandomWord } from './words';
@@ -74,10 +75,94 @@ export class GameService {
       unknownHintPositions(current).length > 0
     );
   });
+  /** Classic puzzle seed for the active solution (null in daily mode). */
+  readonly puzzleSeed = computed(() => {
+    const current = this.state();
+    if (current.mode !== 'classic') {
+      return null;
+    }
+    return encodePuzzleSeed({
+      language: current.language,
+      wordLength: current.wordLength,
+      difficulty: current.difficulty,
+      wordTier: current.wordTier,
+      solution: current.solution,
+    });
+  });
 
   activateMode(mode: GameMode): void {
     this.modes.setMode(mode);
     this.state.set(this.loadActive());
+  }
+
+  /** Open a classic puzzle from a shareable seed. */
+  activateClassicSeed(seed: string): boolean {
+    const payload = decodePuzzleSeed(seed);
+    if (!payload) {
+      return false;
+    }
+
+    this.applyPuzzleSettings(payload);
+    this.modes.setMode('classic');
+
+    const key = classicStorageKey(
+      payload.language,
+      payload.wordLength,
+      payload.difficulty,
+      payload.wordTier,
+    );
+
+    const raw =
+      localStorage.getItem(key) ??
+      legacyRaw(payload.language, payload.wordLength, payload.difficulty, payload.wordTier);
+    if (raw) {
+      try {
+        const parsed = JSON.parse(raw) as Partial<GameState>;
+
+        const savedSolution =
+          typeof parsed.solution === 'string'
+            ? [...parsed.solution]
+                .map((letter) => normalizeLetter(letter, payload.language))
+                .join('')
+            : '';
+        if (savedSolution === payload.solution) {
+          this.state.set(
+            this.loadOrCreateClassic(
+              payload.language,
+              payload.wordLength,
+              payload.difficulty,
+              payload.wordTier,
+            ),
+          );
+          return true;
+        }
+      } catch {
+        // Fall through and create a fresh seeded game.
+      }
+    }
+
+    const next = this.createClassicState(
+      payload.language,
+      payload.wordLength,
+      payload.difficulty,
+      payload.wordTier,
+      payload.solution,
+    );
+    this.state.set(next);
+    this.persist(next);
+    return true;
+  }
+
+  /** Open a daily puzzle for a calendar date (defaults to settings language/length). */
+  activateDailyDate(
+    dateKey: string,
+    language: GameLanguage = this.gameLanguages.language(),
+    length: WordLength = this.wordLengths.wordLength(),
+  ): void {
+    this.gameLanguages.setLanguage(language);
+    this.wordLengths.setWordLength(length);
+    this.modes.setMode('daily');
+    this.state.set(this.loadOrCreateDaily(language, length, dateKey));
   }
 
   setLanguage(language: GameLanguage): void {
@@ -244,6 +329,13 @@ export class GameService {
     );
     this.state.set(next);
     this.persist(next);
+  }
+
+  private applyPuzzleSettings(payload: PuzzleSeedPayload): void {
+    this.gameLanguages.setLanguage(payload.language);
+    this.wordLengths.setWordLength(payload.wordLength);
+    this.difficulties.setDifficulty(payload.difficulty);
+    this.wordTiers.setTier(payload.wordTier);
   }
 
   private loadActive(): GameState {
@@ -496,7 +588,12 @@ export class GameService {
     length: WordLength,
     difficulty: Difficulty,
     wordTier: WordTier,
+    solution?: string,
   ): GameState {
+    const normalizedSolution = solution
+      ? [...solution].map((letter) => normalizeLetter(letter, language)).join('')
+      : pickRandomWord(length, language, this.history.usedWords(length, language), wordTier);
+
     return {
       mode: 'classic',
       language,
@@ -504,12 +601,7 @@ export class GameService {
       difficulty,
       wordTier,
       maxAttempts: attemptsForDifficulty(difficulty),
-      solution: pickRandomWord(
-        length,
-        language,
-        this.history.usedWords(length, language),
-        wordTier,
-      ),
+      solution: normalizedSolution,
       guesses: [],
       currentGuess: '',
       status: 'playing',

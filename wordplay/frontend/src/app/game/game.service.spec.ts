@@ -3,6 +3,7 @@ import { TestBed } from '@angular/core/testing';
 import { evaluateGuess, GameService, satisfiesHardMode } from './game.service';
 import { attemptsForDifficulty, type GameState } from './game.types';
 import { HistoryService } from './history.service';
+import { encodePuzzleSeed } from './puzzle-seed';
 
 describe('GameService', () => {
   afterEach(() => {
@@ -264,6 +265,32 @@ describe('GameService', () => {
     typeWord(game, 'crane');
     expect(game.submitGuess()).toBe('ok');
     expect(history.all().at(0)?.hintsUsed).toBe(1);
+  });
+
+  it('activates a classic puzzle from a shareable seed', () => {
+    const seed = encodePuzzleSeed({
+      language: 'en',
+      wordLength: 5,
+      difficulty: 'normal',
+      wordTier: 'medium',
+      solution: 'crane',
+    });
+
+    localStorage.clear();
+    localStorage.setItem('word-play-word-length', '5');
+    localStorage.setItem('word-play-game-language', 'en');
+    localStorage.setItem('word-play-difficulty', 'normal');
+    localStorage.setItem('word-play-word-tier', 'medium');
+    localStorage.setItem('word-play-game-mode', 'classic');
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({});
+    const game = TestBed.inject(GameService);
+
+    expect(game.activateClassicSeed(seed)).toBe(true);
+    expect(game.mode()).toBe('classic');
+    expect(game.solution()).toBe('crane');
+    expect(game.puzzleSeed()).toBe(seed);
+    expect(game.activateClassicSeed('bad-seed')).toBe(false);
   });
 
   it('requires hinted letters in hard mode guesses', () => {
