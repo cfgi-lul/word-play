@@ -1,5 +1,5 @@
-/** English 5-letter dictionary — every word can be the answer or a guess. */
-export const WORDS_5_EN: readonly string[] = [
+/** English 5-letter dictionary with explicit difficulty tiers. */
+export const WORDS_5_EN_EASY: readonly string[] = [
   'about', 'above', 'abuse', 'actor', 'acute', 'admit', 'adopt', 'adult', 'after', 'again',
   'agent', 'agree', 'ahead', 'alarm', 'album', 'alert', 'alike', 'alive', 'allow', 'alone',
   'along', 'alter', 'among', 'anger', 'angle', 'angry', 'apart', 'apple', 'apply', 'arena',
@@ -28,6 +28,9 @@ export const WORDS_5_EN: readonly string[] = [
   'match', 'maybe', 'mayor', 'meant', 'media', 'metal', 'might', 'minor', 'minus', 'mixed',
   'model', 'money', 'month', 'moral', 'motor', 'mount', 'mouse', 'mouth', 'movie', 'music',
   'needs', 'never', 'newly', 'night', 'noise', 'north', 'noted', 'novel', 'nurse', 'occur',
+];
+
+export const WORDS_5_EN_MEDIUM: readonly string[] = [
   'ocean', 'offer', 'often', 'order', 'other', 'ought', 'paint', 'panel', 'paper', 'party',
   'peace', 'peter', 'phase', 'phone', 'photo', 'piece', 'pilot', 'pitch', 'place', 'plain',
   'plane', 'plant', 'plate', 'point', 'pound', 'power', 'press', 'price', 'pride', 'prime',
@@ -51,6 +54,9 @@ export const WORDS_5_EN: readonly string[] = [
   'while', 'white', 'whole', 'whose', 'woman', 'women', 'world', 'worry', 'worse', 'worst',
   'worth', 'would', 'wound', 'write', 'wrong', 'wrote', 'yield', 'young', 'youth', 'flask',
   'humid', 'weary', 'pills', 'vague', 'crane', 'slate', 'trace', 'flame', 'grape', 'bloom',
+];
+
+export const WORDS_5_EN_HARD: readonly string[] = [
   'aahed', 'aalii', 'aargh', 'abaca', 'abaci', 'aback', 'abaft', 'abamp', 'abase', 'abash',
   'abate', 'abbas', 'abbes', 'abbey', 'abbot', 'abeam', 'abele', 'abets', 'abhor', 'abide',
   'abled', 'abler', 'ables', 'abmho', 'abode', 'abohm', 'aboil', 'aboma', 'aboon', 'abort',
@@ -450,4 +456,11 @@ export const WORDS_5_EN: readonly string[] = [
   'ahunt', 'ahura', 'ahush', 'ahwal', 'ayelp', 'ayens', 'aiery', 'aiger', 'aigre', 'aylet',
   'ailie', 'aillt', 'ayllu', 'aimak', 'aimee', 'ainee', 'ainoi', 'ainus', 'ayond', 'ayont',
   'ayous', 'airan', 'aitis', 'ayuyu', 'aiwan', 'aizle', 'ajaja', 'ajari', 'ajava', 'ajhar',
+];
+
+/** Full guess list = all tiers. Answers are chosen from the selected tier. */
+export const WORDS_5_EN: readonly string[] = [
+  ...WORDS_5_EN_EASY,
+  ...WORDS_5_EN_MEDIUM,
+  ...WORDS_5_EN_HARD,
 ];

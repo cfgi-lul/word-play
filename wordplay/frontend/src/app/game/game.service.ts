@@ -11,36 +11,46 @@ import {
   isDifficulty,
   isGameLanguage,
   isWordLength,
+  isWordTier,
   type KeyStatus,
   type LetterStatus,
   type Tile,
   type WordLength,
+  type WordTier,
 } from './game.types';
 import { GameLanguageService } from './game-language.service';
 import { HistoryService } from './history.service';
 import { WordLengthService } from './word-length.service';
+import { WordTierService } from './word-tier.service';
 import { isPlayableLetter, isValidGuess, normalizeLetter, pickRandomWord } from './words';
 
-const storageKey = (language: GameLanguage, length: WordLength, difficulty: Difficulty): string =>
-  `word-play-game-${language}-${length}-${difficulty}`;
+const storageKey = (
+  language: GameLanguage,
+  length: WordLength,
+  difficulty: Difficulty,
+  wordTier: WordTier,
+): string => `word-play-game-${language}-${length}-${difficulty}-${wordTier}`;
 
 @Injectable({ providedIn: 'root' })
 export class GameService {
   private readonly wordLengths = inject(WordLengthService);
   private readonly gameLanguages = inject(GameLanguageService);
   private readonly difficulties = inject(DifficultyService);
+  private readonly wordTiers = inject(WordTierService);
   private readonly history = inject(HistoryService);
   private readonly state = signal<GameState>(
     this.loadOrCreate(
       this.gameLanguages.language(),
       this.wordLengths.wordLength(),
       this.difficulties.difficulty(),
+      this.wordTiers.wordTier(),
     ),
   );
 
   readonly language = this.gameLanguages.language;
   readonly wordLength = this.wordLengths.wordLength;
   readonly difficulty = this.difficulties.difficulty;
+  readonly wordTier = this.wordTiers.wordTier;
   readonly maxAttempts = computed(() => this.state().maxAttempts);
   readonly board = computed(() => this.buildBoard(this.state()));
   readonly keyboard = computed(() => this.state().keyboard);
@@ -56,7 +66,12 @@ export class GameService {
     }
     this.gameLanguages.setLanguage(language);
     this.state.set(
-      this.loadOrCreate(language, this.wordLengths.wordLength(), this.difficulties.difficulty()),
+      this.loadOrCreate(
+        language,
+        this.wordLengths.wordLength(),
+        this.difficulties.difficulty(),
+        this.wordTiers.wordTier(),
+      ),
     );
   }
 
@@ -66,7 +81,12 @@ export class GameService {
     }
     this.wordLengths.setWordLength(length);
     this.state.set(
-      this.loadOrCreate(this.gameLanguages.language(), length, this.difficulties.difficulty()),
+      this.loadOrCreate(
+        this.gameLanguages.language(),
+        length,
+        this.difficulties.difficulty(),
+        this.wordTiers.wordTier(),
+      ),
     );
   }
 
@@ -76,7 +96,27 @@ export class GameService {
     }
     this.difficulties.setDifficulty(difficulty);
     this.state.set(
-      this.loadOrCreate(this.gameLanguages.language(), this.wordLengths.wordLength(), difficulty),
+      this.loadOrCreate(
+        this.gameLanguages.language(),
+        this.wordLengths.wordLength(),
+        difficulty,
+        this.wordTiers.wordTier(),
+      ),
+    );
+  }
+
+  setWordTier(tier: WordTier): void {
+    if (this.wordTiers.wordTier() === tier) {
+      return;
+    }
+    this.wordTiers.setTier(tier);
+    this.state.set(
+      this.loadOrCreate(
+        this.gameLanguages.language(),
+        this.wordLengths.wordLength(),
+        this.difficulties.difficulty(),
+        tier,
+      ),
     );
   }
 
@@ -159,6 +199,7 @@ export class GameService {
       this.gameLanguages.language(),
       this.wordLengths.wordLength(),
       this.difficulties.difficulty(),
+      this.wordTiers.wordTier(),
     );
     this.state.set(next);
     this.persist(next);
@@ -207,30 +248,33 @@ export class GameService {
     language: GameLanguage,
     length: WordLength,
     difficulty: Difficulty,
+    wordTier: WordTier,
   ): GameState {
     try {
       const raw =
-        localStorage.getItem(storageKey(language, length, difficulty)) ??
-        legacyRaw(language, length, difficulty);
+        localStorage.getItem(storageKey(language, length, difficulty, wordTier)) ??
+        legacyRaw(language, length, difficulty, wordTier);
       if (!raw) {
-        return this.createFreshState(language, length, difficulty);
+        return this.createFreshState(language, length, difficulty, wordTier);
       }
 
       const parsed = JSON.parse(raw) as Partial<GameState>;
       const parsedLength = isWordLength(parsed.wordLength) ? parsed.wordLength : length;
       const parsedLanguage = isGameLanguage(parsed.language) ? parsed.language : language;
       const parsedDifficulty = isDifficulty(parsed.difficulty) ? parsed.difficulty : difficulty;
+      const parsedTier = isWordTier(parsed.wordTier) ? parsed.wordTier : wordTier;
       const maxAttempts = attemptsForDifficulty(difficulty);
       if (
         parsedLength !== length ||
         parsedLanguage !== language ||
         parsedDifficulty !== difficulty ||
+        parsedTier !== wordTier ||
         typeof parsed.solution !== 'string' ||
         parsed.solution.length !== length ||
         !Array.isArray(parsed.guesses) ||
         parsed.guesses.length > maxAttempts
       ) {
-        return this.createFreshState(language, length, difficulty);
+        return this.createFreshState(language, length, difficulty, wordTier);
       }
 
       const status =
@@ -243,7 +287,7 @@ export class GameService {
       const used = this.history.usedWords(length, language);
 
       if (status === 'playing' && used.has(solution)) {
-        return this.createFreshState(language, length, difficulty);
+        return this.createFreshState(language, length, difficulty, wordTier);
       }
 
       if (status === 'won' || status === 'lost') {
@@ -260,6 +304,7 @@ export class GameService {
         language,
         wordLength: length,
         difficulty,
+        wordTier,
         maxAttempts,
         solution,
         guesses: parsed.guesses.map((guess) =>
@@ -277,7 +322,7 @@ export class GameService {
         keyboard: parsed.keyboard ?? {},
       };
     } catch {
-      return this.createFreshState(language, length, difficulty);
+      return this.createFreshState(language, length, difficulty, wordTier);
     }
   }
 
@@ -285,13 +330,20 @@ export class GameService {
     language: GameLanguage,
     length: WordLength,
     difficulty: Difficulty,
+    wordTier: WordTier,
   ): GameState {
     return {
       language,
       wordLength: length,
       difficulty,
+      wordTier,
       maxAttempts: attemptsForDifficulty(difficulty),
-      solution: pickRandomWord(length, language, this.history.usedWords(length, language)),
+      solution: pickRandomWord(
+        length,
+        language,
+        this.history.usedWords(length, language),
+        wordTier,
+      ),
       guesses: [],
       currentGuess: '',
       status: 'playing',
@@ -301,7 +353,7 @@ export class GameService {
 
   private persist(state: GameState): void {
     localStorage.setItem(
-      storageKey(state.language, state.wordLength, state.difficulty),
+      storageKey(state.language, state.wordLength, state.difficulty, state.wordTier),
       JSON.stringify(state),
     );
   }
@@ -311,15 +363,19 @@ function legacyRaw(
   language: GameLanguage,
   length: WordLength,
   difficulty: Difficulty,
+  wordTier: WordTier,
 ): string | null {
-  // Older saves had no difficulty segment and match the default (normal) mode.
-  if (difficulty !== 'normal') {
+  // Older saves omit the word-tier segment and match the default medium dictionary.
+  if (wordTier !== 'medium') {
     return null;
   }
 
   return (
-    localStorage.getItem(`word-play-game-${language}-${length}`) ??
-    (language === 'en' ? localStorage.getItem(`word-play-game-${length}`) : null)
+    localStorage.getItem(`word-play-game-${language}-${length}-${difficulty}`) ??
+    (difficulty === 'normal'
+      ? (localStorage.getItem(`word-play-game-${language}-${length}`) ??
+        (language === 'en' ? localStorage.getItem(`word-play-game-${length}`) : null))
+      : null)
   );
 }
 
