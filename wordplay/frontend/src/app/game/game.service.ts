@@ -1,17 +1,17 @@
-import { Injectable, computed, inject, signal } from '@angular/core';
+import { computed, inject, Injectable, signal } from '@angular/core';
 
 import {
   type Board,
   type GameLanguage,
   type GameState,
   type GameStatus,
+  isGameLanguage,
+  isWordLength,
   type KeyStatus,
   type LetterStatus,
   MAX_ATTEMPTS,
   type Tile,
   type WordLength,
-  isGameLanguage,
-  isWordLength,
 } from './game.types';
 import { GameLanguageService } from './game-language.service';
 import { HistoryService } from './history.service';
@@ -67,7 +67,7 @@ export class GameService {
       if (state.currentGuess.length >= state.wordLength) {
         return state;
       }
-      return { ...state, currentGuess: state.currentGuess + value };
+      return { ...state, currentGuess: `${state.currentGuess}${value}` };
     });
   }
 
@@ -142,12 +142,10 @@ export class GameService {
       if (guess) {
         const statuses = evaluateGuess(guess, state.solution);
         rows.push(
-          guess.split('').map(
-            (letter, index): Tile => ({
-              letter: letter.toUpperCase(),
-              status: statuses[index]!,
-            }),
-          ),
+          guess.split('').map((letter, index): Tile => ({
+            letter: letter.toUpperCase(),
+            status: statuses[index],
+          })),
         );
         continue;
       }
@@ -198,9 +196,11 @@ export class GameService {
 
       const status =
         parsed.status === 'won' || parsed.status === 'lost' ? parsed.status : 'playing';
+
       const solution = [...parsed.solution]
         .map((letter) => normalizeLetter(letter, language))
         .join('');
+
       const used = this.history.usedWords(length, language);
 
       if (status === 'playing' && used.has(solution)) {
@@ -222,7 +222,9 @@ export class GameService {
         wordLength: length,
         solution,
         guesses: parsed.guesses.map((guess) =>
-          [...String(guess)].map((letter) => normalizeLetter(letter, language)).join(''),
+          [...(typeof guess === 'string' ? guess : '')]
+            .map((letter) => normalizeLetter(letter, language))
+            .join(''),
         ),
         currentGuess:
           status === 'playing'
@@ -271,7 +273,7 @@ export function evaluateGuess(guess: string, solution: string): LetterStatus[] {
     if (result[i] === 'correct') {
       continue;
     }
-    const index = remaining.indexOf(guess[i]!);
+    const index = remaining.indexOf(guess[i]);
     if (index !== -1) {
       result[i] = 'present';
       remaining[index] = '';
@@ -290,7 +292,7 @@ function mergeKeyboard(
   const rank: Record<KeyStatus, number> = { absent: 1, present: 2, correct: 3 };
 
   for (let i = 0; i < guess.length; i++) {
-    const letter = guess[i]!;
+    const letter = guess[i];
     const status = evaluation[i] as KeyStatus;
     const previous = next[letter];
     if (!previous || rank[status] > rank[previous]) {

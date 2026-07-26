@@ -1,5 +1,5 @@
 import { DOCUMENT } from '@angular/common';
-import { DestroyRef, Injectable, computed, inject, signal } from '@angular/core';
+import { computed, DestroyRef, inject, Injectable, signal } from '@angular/core';
 import { TUI_DARK_MODE } from '@taiga-ui/core';
 
 export type ThemeMode = 'system' | 'light' | 'dark';

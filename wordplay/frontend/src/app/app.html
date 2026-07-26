@@ -58,7 +58,7 @@
           @if (status() === 'won') {
             <p>{{ 'app.won' | t: locale() }}</p>
           } @else {
-            <p>{{ 'app.lost' | t: locale() : { word: solution().toUpperCase() } }}</p>
+            <p>{{ 'app.lost' | t: locale() : { word: solution() | uppercase } }}</p>
           }
           <button
             tuiButton

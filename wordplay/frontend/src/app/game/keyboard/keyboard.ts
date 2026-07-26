@@ -1,16 +1,16 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  DestroyRef,
   computed,
+  DestroyRef,
   inject,
   input,
   output,
   signal,
 } from '@angular/core';
 
-import { type AppLocale } from '../../i18n/translations';
 import { TranslatePipe } from '../../i18n/translate.pipe';
+import { type AppLocale } from '../../i18n/translations';
 import { type GameLanguage, type KeyStatus } from '../game.types';
 
 const EN_ROWS = [
@@ -31,9 +31,7 @@ const RU_ROWS = [
   templateUrl: './keyboard.html',
   styleUrl: './keyboard.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: {
-    '[attr.data-lang]': 'gameLanguage()',
-  },
+  host: { '[attr.data-lang]': 'gameLanguage()' },
 })
 export class Keyboard {
   private readonly destroyRef = inject(DestroyRef);

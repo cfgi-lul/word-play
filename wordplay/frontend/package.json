@@ -2,11 +2,13 @@
   "name": "word-play",
   "version": "0.0.0",
   "scripts": {
+    "build": "ng build",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
     "ng": "ng",
     "start": "ng serve",
-    "build": "ng build",
-    "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "watch": "ng build --watch --configuration development"
   },
   "prettier": {
     "printWidth": 100,
@@ -43,6 +45,8 @@
     "@angular/build": "^21.0.5",
     "@angular/cli": "^21.0.5",
     "@angular/compiler-cli": "^21.0.0",
+    "@taiga-ui/eslint-plugin-experience-next": "^0.553.0",
+    "eslint": "^9.39.5",
     "jsdom": "^27.1.0",
     "less": "^4.8.0",
     "typescript": "~5.9.2",

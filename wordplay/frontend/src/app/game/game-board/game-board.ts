@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 
-import { type AppLocale } from '../../i18n/translations';
 import { TranslatePipe } from '../../i18n/translate.pipe';
+import { type AppLocale } from '../../i18n/translations';
 import { type Board, type WordLength } from '../game.types';
 
 @Component({
@@ -10,10 +10,7 @@ import { type Board, type WordLength } from '../game.types';
   templateUrl: './game-board.html',
   styleUrl: './game-board.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: {
-    '[style.--wp-cols]': 'wordLength()',
-    '[attr.data-length]': 'wordLength()',
-  },
+  host: { '[attr.data-length]': 'wordLength()', '[style.--wp-cols]': 'wordLength()' },
 })
 export class GameBoard {
   readonly board = input.required<Board>();

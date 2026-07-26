@@ -8,10 +8,7 @@ import { WORDS_6_RU } from './dictionaries/ru/words-6';
 import { WORDS_7_RU } from './dictionaries/ru/words-7';
 import { type GameLanguage, type WordLength } from './game.types';
 
-const WORDS_BY_LANGUAGE: Record<
-  GameLanguage,
-  Record<WordLength, readonly string[]>
-> = {
+const WORDS_BY_LANGUAGE: Record<GameLanguage, Record<WordLength, readonly string[]>> = {
   en: {
     4: WORDS_4_EN,
     5: WORDS_5_EN,
@@ -51,17 +48,9 @@ export function isPlayableLetter(letter: string, language: GameLanguage): boolea
   return language === 'ru' ? /^[а-я]$/.test(value) : /^[a-z]$/.test(value);
 }
 
-export function isValidGuess(
-  word: string,
-  length: WordLength,
-  language: GameLanguage,
-): boolean {
-  const normalized = [...word]
-    .map((letter) => normalizeLetter(letter, language))
-    .join('');
-  return (
-    normalized.length === length && VALID_BY_LANGUAGE[language][length].has(normalized)
-  );
+export function isValidGuess(word: string, length: WordLength, language: GameLanguage): boolean {
+  const normalized = [...word].map((letter) => normalizeLetter(letter, language)).join('');
+  return normalized.length === length && VALID_BY_LANGUAGE[language][length].has(normalized);
 }
 
 export function pickRandomWord(
@@ -73,5 +62,5 @@ export function pickRandomWord(
   const available = exclude.size === 0 ? all : all.filter((word) => !exclude.has(word));
   const pool = available.length > 0 ? available : all;
   const index = Math.floor(Math.random() * pool.length);
-  return pool[index]!;
+  return pool[index];
 }

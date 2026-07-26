@@ -1,12 +1,8 @@
 import { ChangeDetectionStrategy, Component, inject, input, output } from '@angular/core';
 import { TuiButton, TuiScrollbar } from '@taiga-ui/core';
 
-import {
-  type GameLanguage,
-  WORD_LENGTHS,
-  type WordLength,
-} from '../game/game.types';
 import { GameService } from '../game/game.service';
+import { type GameLanguage, WORD_LENGTHS, type WordLength } from '../game/game.types';
 import { LocaleService } from '../i18n/locale.service';
 import { TranslatePipe } from '../i18n/translate.pipe';
 import { type AppLocale } from '../i18n/translations';

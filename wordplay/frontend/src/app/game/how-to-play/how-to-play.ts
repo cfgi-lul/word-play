@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 
-import { type AppLocale } from '../../i18n/translations';
 import { TranslatePipe } from '../../i18n/translate.pipe';
+import { type AppLocale } from '../../i18n/translations';
 import { type WordLength } from '../game.types';
 
 @Component({

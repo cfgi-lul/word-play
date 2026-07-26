@@ -1,11 +1,7 @@
 import { DOCUMENT } from '@angular/common';
-import { Injectable, computed, inject, signal } from '@angular/core';
+import { computed, inject, Injectable, signal } from '@angular/core';
 
-import {
-  type AppLocale,
-  type TranslationKey,
-  TRANSLATIONS,
-} from './translations';
+import { type AppLocale, type TranslationKey, TRANSLATIONS } from './translations';
 
 const STORAGE_KEY = 'word-play-locale';
 

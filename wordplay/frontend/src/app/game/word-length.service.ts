@@ -1,10 +1,6 @@
 import { Injectable, signal } from '@angular/core';
 
-import {
-  DEFAULT_WORD_LENGTH,
-  isWordLength,
-  type WordLength,
-} from './game.types';
+import { DEFAULT_WORD_LENGTH, isWordLength, type WordLength } from './game.types';
 
 const STORAGE_KEY = 'word-play-word-length';
 

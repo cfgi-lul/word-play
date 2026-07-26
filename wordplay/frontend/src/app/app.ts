@@ -1,22 +1,22 @@
+import { UpperCasePipe } from '@angular/common';
 import {
   afterNextRender,
   ChangeDetectionStrategy,
   Component,
-  ElementRef,
-  HostListener,
+  type ElementRef,
   inject,
   signal,
   viewChild,
 } from '@angular/core';
 import { TuiButton, TuiNotificationService, TuiRoot, TuiScrollbar } from '@taiga-ui/core';
 
-import { GameBoard } from './game/game-board/game-board';
 import { GameService } from './game/game.service';
+import { GameBoard } from './game/game-board/game-board';
 import { HowToPlay } from './game/how-to-play/how-to-play';
 import { Keyboard } from './game/keyboard/keyboard';
+import { HistoryPanel } from './history/history-panel';
 import { LocaleService } from './i18n/locale.service';
 import { TranslatePipe } from './i18n/translate.pipe';
-import { HistoryPanel } from './history/history-panel';
 import { SettingsPanel } from './settings/settings-panel';
 import { ThemeService } from './theme/theme.service';
 
@@ -26,6 +26,7 @@ import { ThemeService } from './theme/theme.service';
     TuiRoot,
     TuiButton,
     TuiScrollbar,
+    UpperCasePipe,
     GameBoard,
     Keyboard,
     HowToPlay,
@@ -36,6 +37,7 @@ import { ThemeService } from './theme/theme.service';
   templateUrl: './app.html',
   styleUrl: './app.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: { '(window:keydown)': 'onWindowKeydown($event)' },
 })
 export class App {
   private readonly game = inject(GameService);
@@ -70,7 +72,6 @@ export class App {
     });
   }
 
-  @HostListener('window:keydown', ['$event'])
   onWindowKeydown(event: KeyboardEvent): void {
     if (this.helpOpen() || this.settingsOpen() || this.historyOpen()) {
       if (event.key === 'Escape') {
@@ -146,9 +147,6 @@ export class App {
     const result = this.game.submitGuess();
 
     switch (result) {
-      case 'too-short':
-        this.notify(this.i18n.t('app.notEnoughLetters'), 'warning');
-        break;
       case 'invalid':
         this.notify(this.i18n.t('app.notInWordList'), 'warning');
         break;
@@ -161,6 +159,9 @@ export class App {
             'negative',
           );
         }
+        break;
+      case 'too-short':
+        this.notify(this.i18n.t('app.notEnoughLetters'), 'warning');
         break;
       default:
         break;
@@ -218,11 +219,11 @@ export class App {
     }
 
     const codeMatch = /^Key([A-Z])$/.exec(event.code);
-    if (codeMatch?.[1]) {
-      return codeMatch[1].toLowerCase();
+    if (codeMatch?.at(1)) {
+      return codeMatch.at(1)!.toLowerCase();
     }
 
-    if (event.key.length === 1 && /[a-zA-Z]/.test(event.key)) {
+    if (event.key.length === 1 && /[a-z]/i.test(event.key)) {
       return event.key.toLowerCase();
     }
 
@@ -249,6 +250,6 @@ export class App {
         autoClose: 2200,
         closable: false,
       })
-      .subscribe({ error: () => undefined });
+      .subscribe({ error: () => {} });
   }
 }

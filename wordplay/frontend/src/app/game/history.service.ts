@@ -1,11 +1,11 @@
-import { Injectable, computed, signal } from '@angular/core';
+import { computed, Injectable, signal } from '@angular/core';
 
 import {
   type GameLanguage,
   type GameStatus,
-  type WordLength,
   isGameLanguage,
   isWordLength,
+  type WordLength,
 } from './game.types';
 
 export interface HistoryEntry {
@@ -36,6 +36,7 @@ export class HistoryService {
 
   record(entry: Omit<HistoryEntry, 'finishedAt'>): void {
     const word = entry.word.toLowerCase();
+
     const next: HistoryEntry = {
       ...entry,
       word,
@@ -46,9 +47,7 @@ export class HistoryService {
       if (
         current.some(
           (item) =>
-            item.word === word &&
-            item.length === entry.length &&
-            item.language === entry.language,
+            item.word === word && item.length === entry.length && item.language === entry.language,
         )
       ) {
         return current;

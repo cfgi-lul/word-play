@@ -26,4 +26,14 @@ cd wordplay/frontend
 npm run build
 ```
 
-Output: `wordplay/frontend/dist/word-play`
+## Linting
+
+Uses Taiga UI’s official ESLint preset
+[`@taiga-ui/eslint-plugin-experience-next`](https://www.npmjs.com/package/@taiga-ui/eslint-plugin-experience-next).
+
+```bash
+cd wordplay/frontend
+npm run lint
+npm run lint:fix
+```
+
