@@ -19,7 +19,14 @@
             (closed)="closeHelp()"
           />
           <div class="dialog-actions">
-            <button tuiButton type="button" appearance="primary" size="m" (click)="closeHelp()">
+            <button
+              #gotIt
+              tuiButton
+              type="button"
+              appearance="primary"
+              size="m"
+              (click)="closeHelp()"
+            >
               {{ 'app.gotIt' | t: locale() }}
             </button>
           </div>

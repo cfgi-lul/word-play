@@ -47,6 +47,7 @@ import {
   WORDS_7_RU_MEDIUM,
 } from './dictionaries/ru/words-7';
 import { DEFAULT_WORD_TIER, type GameLanguage, type WordLength, type WordTier } from './game.types';
+import { seededIndex } from './seeded-index';
 
 const WORDS_BY_LANGUAGE: Record<GameLanguage, Record<WordLength, readonly string[]>> = {
   en: {
@@ -165,11 +166,5 @@ export function pickDailyAnswer(language: GameLanguage, length: WordLength, seed
     return fallback;
   }
 
-  let hash = 2166136261;
-  for (let i = 0; i < seed.length; i++) {
-    hash ^= seed.charCodeAt(i);
-    hash = Math.imul(hash, 16777619);
-  }
-
-  return pool[Math.abs(hash) % pool.length] ?? fallback;
+  return pool[seededIndex(seed, pool.length)] ?? fallback;
 }

@@ -17,19 +17,14 @@
       <header class="panel__header">
         <p>
           @if (tab() === 'game') {
-            {{
-              (showDifficultySettings()
-                ? 'settings.subtitle.game'
-                : 'settings.subtitle.gameDaily')
-                | t: locale()
-            }}
+            {{ 'settings.subtitle.game' | t: locale() }}
           } @else {
             {{ 'settings.subtitle.system' | t: locale() }}
           }
         </p>
       </header>
 
-<div
+      <div
         class="settings-tabs"
         role="tablist"
         [attr.aria-label]="'settings.tabsAria' | t: locale()"
@@ -84,7 +79,6 @@
           </div>
         </section>
 
-        @if (showDifficultySettings()) {
         <section class="section">
           <h3>{{ 'settings.dictionary' | t: locale() }}</h3>
           <p class="section__hint">{{ 'settings.dictionaryHint' | t: locale() }}</p>
@@ -208,7 +202,6 @@
             </button>
           </div>
         </section>
-        }
 
         <section class="section">
           <h3>{{ 'settings.wordLanguage' | t: locale() }}</h3>
