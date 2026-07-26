@@ -26,6 +26,17 @@ cd wordplay/frontend
 npm run build
 ```
 
+## PWA
+
+Production builds generate a **Workbox** service worker (`sw.js`) so the app can be installed on phones.
+
+```bash
+cd wordplay/frontend
+npm run build:gh-pages
+```
+
+After deploy, open the site on mobile and use **Add to Home Screen** / **Install app**.
+
 ## Deploy (GitHub Pages)
 
 On every push to `main`, GitHub Actions builds and deploys the frontend.

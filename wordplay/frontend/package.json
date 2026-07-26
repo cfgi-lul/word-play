@@ -2,8 +2,8 @@
   "name": "word-play",
   "version": "0.0.0",
   "scripts": {
-    "build": "ng build",
-    "build:gh-pages": "ng build --configuration production --base-href /word-play/",
+    "build": "ng build && node scripts/generate-sw.mjs",
+    "build:gh-pages": "ng build --configuration production --base-href /word-play/ && node scripts/generate-sw.mjs --gh-pages",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "ng": "ng",
@@ -40,7 +40,8 @@
     "@taiga-ui/styles": "^5.16.0",
     "rxjs": "~7.8.0",
     "taiga-ui": "^5.16.0",
-    "tslib": "^2.3.0"
+    "tslib": "^2.3.0",
+    "workbox-window": "^7.4.1"
   },
   "devDependencies": {
     "@angular/build": "^21.0.5",
@@ -51,6 +52,7 @@
     "jsdom": "^27.1.0",
     "less": "^4.8.0",
     "typescript": "~5.9.2",
-    "vitest": "^4.0.8"
+    "vitest": "^4.0.8",
+    "workbox-build": "^7.4.1"
   }
 }

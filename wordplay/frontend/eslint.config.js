@@ -8,7 +8,13 @@ import taiga from '@taiga-ui/eslint-plugin-experience-next';
 export default [
   ...taiga.configs.recommended,
   {
-    ignores: ['dist/**', '.angular/**', 'node_modules/**', 'src/app/game/dictionaries/**'],
+    ignores: [
+      'dist/**',
+      '.angular/**',
+      'node_modules/**',
+      'src/app/game/dictionaries/**',
+      'scripts/**',
+    ],
   },
   {
     files: ['**/*.{ts,js,mjs,cjs,html}'],
