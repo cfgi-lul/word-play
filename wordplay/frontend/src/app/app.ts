@@ -54,6 +54,7 @@ export class App {
   readonly solution = this.game.solution;
   readonly isPlaying = this.game.isPlaying;
   readonly wordLength = this.game.wordLength;
+  readonly maxAttempts = this.game.maxAttempts;
   readonly wordLanguage = this.game.language;
   readonly helpOpen = signal(false);
   readonly settingsOpen = signal(false);
@@ -147,6 +148,9 @@ export class App {
     switch (result) {
       case 'invalid':
         this.notify(this.i18n.t('app.notInWordList'), 'warning');
+        break;
+      case 'hard-mode':
+        this.notify(this.i18n.t('app.hardModeViolation'), 'warning');
         break;
       case 'ok':
         if (this.status() === 'won') {

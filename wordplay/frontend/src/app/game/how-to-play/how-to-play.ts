@@ -14,6 +14,7 @@ import { type WordLength } from '../game.types';
 export class HowToPlay {
   readonly locale = input.required<AppLocale>();
   readonly wordLength = input.required<WordLength>();
+  readonly maxAttempts = input.required<number>();
 
   readonly examples = computed(() => [
     {

@@ -1,15 +1,18 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
 
+import { DifficultyService } from './difficulty.service';
 import {
+  attemptsForDifficulty,
   type Board,
+  type Difficulty,
   type GameLanguage,
   type GameState,
   type GameStatus,
+  isDifficulty,
   isGameLanguage,
   isWordLength,
   type KeyStatus,
   type LetterStatus,
-  MAX_ATTEMPTS,
   type Tile,
   type WordLength,
 } from './game.types';
@@ -18,20 +21,30 @@ import { HistoryService } from './history.service';
 import { WordLengthService } from './word-length.service';
 import { isPlayableLetter, isValidGuess, normalizeLetter, pickRandomWord } from './words';
 
-const storageKey = (language: GameLanguage, length: WordLength): string =>
-  `word-play-game-${language}-${length}`;
+const storageKey = (
+  language: GameLanguage,
+  length: WordLength,
+  difficulty: Difficulty,
+): string => `word-play-game-${language}-${length}-${difficulty}`;
 
 @Injectable({ providedIn: 'root' })
 export class GameService {
   private readonly wordLengths = inject(WordLengthService);
   private readonly gameLanguages = inject(GameLanguageService);
+  private readonly difficulties = inject(DifficultyService);
   private readonly history = inject(HistoryService);
   private readonly state = signal<GameState>(
-    this.loadOrCreate(this.gameLanguages.language(), this.wordLengths.wordLength()),
+    this.loadOrCreate(
+      this.gameLanguages.language(),
+      this.wordLengths.wordLength(),
+      this.difficulties.difficulty(),
+    ),
   );
 
   readonly language = this.gameLanguages.language;
   readonly wordLength = this.wordLengths.wordLength;
+  readonly difficulty = this.difficulties.difficulty;
+  readonly maxAttempts = computed(() => this.state().maxAttempts);
   readonly board = computed(() => this.buildBoard(this.state()));
   readonly keyboard = computed(() => this.state().keyboard);
   readonly status = computed(() => this.state().status);
@@ -45,7 +58,9 @@ export class GameService {
       return;
     }
     this.gameLanguages.setLanguage(language);
-    this.state.set(this.loadOrCreate(language, this.wordLengths.wordLength()));
+    this.state.set(
+      this.loadOrCreate(language, this.wordLengths.wordLength(), this.difficulties.difficulty()),
+    );
   }
 
   setWordLength(length: WordLength): void {
@@ -53,7 +68,19 @@ export class GameService {
       return;
     }
     this.wordLengths.setWordLength(length);
-    this.state.set(this.loadOrCreate(this.gameLanguages.language(), length));
+    this.state.set(
+      this.loadOrCreate(this.gameLanguages.language(), length, this.difficulties.difficulty()),
+    );
+  }
+
+  setDifficulty(difficulty: Difficulty): void {
+    if (this.difficulties.difficulty() === difficulty) {
+      return;
+    }
+    this.difficulties.setDifficulty(difficulty);
+    this.state.set(
+      this.loadOrCreate(this.gameLanguages.language(), this.wordLengths.wordLength(), difficulty),
+    );
   }
 
   addLetter(letter: string): void {
@@ -82,7 +109,7 @@ export class GameService {
     }));
   }
 
-  submitGuess(): 'ok' | 'too-short' | 'invalid' | 'finished' {
+  submitGuess(): 'ok' | 'too-short' | 'invalid' | 'hard-mode' | 'finished' {
     const current = this.state();
     if (current.status !== 'playing') {
       return 'finished';
@@ -93,12 +120,18 @@ export class GameService {
     if (!isValidGuess(current.currentGuess, current.wordLength, current.language)) {
       return 'invalid';
     }
+    if (
+      current.difficulty === 'hard' &&
+      !satisfiesHardMode(current.currentGuess, current.guesses, current.solution)
+    ) {
+      return 'hard-mode';
+    }
 
     const guess = current.currentGuess;
     const evaluation = evaluateGuess(guess, current.solution);
     const guesses = [...current.guesses, guess];
     const keyboard = mergeKeyboard(current.keyboard, guess, evaluation);
-    const status = resolveStatus(guesses, current.solution);
+    const status = resolveStatus(guesses, current.solution, current.maxAttempts);
 
     const next: GameState = {
       ...current,
@@ -128,6 +161,7 @@ export class GameService {
     const next = this.createFreshState(
       this.gameLanguages.language(),
       this.wordLengths.wordLength(),
+      this.difficulties.difficulty(),
     );
     this.state.set(next);
     this.persist(next);
@@ -137,7 +171,7 @@ export class GameService {
     const rows: Board = [];
     const length = state.wordLength;
 
-    for (let row = 0; row < MAX_ATTEMPTS; row++) {
+    for (let row = 0; row < state.maxAttempts; row++) {
       const guess = state.guesses[row];
       if (guess) {
         const statuses = evaluateGuess(guess, state.solution);
@@ -172,26 +206,34 @@ export class GameService {
     return rows;
   }
 
-  private loadOrCreate(language: GameLanguage, length: WordLength): GameState {
+  private loadOrCreate(
+    language: GameLanguage,
+    length: WordLength,
+    difficulty: Difficulty,
+  ): GameState {
     try {
       const raw =
-        localStorage.getItem(storageKey(language, length)) ??
-        (language === 'en' ? localStorage.getItem(`word-play-game-${length}`) : null);
+        localStorage.getItem(storageKey(language, length, difficulty)) ??
+        legacyRaw(language, length, difficulty);
       if (!raw) {
-        return this.createFreshState(language, length);
+        return this.createFreshState(language, length, difficulty);
       }
 
       const parsed = JSON.parse(raw) as Partial<GameState>;
       const parsedLength = isWordLength(parsed.wordLength) ? parsed.wordLength : length;
       const parsedLanguage = isGameLanguage(parsed.language) ? parsed.language : language;
+      const parsedDifficulty = isDifficulty(parsed.difficulty) ? parsed.difficulty : difficulty;
+      const maxAttempts = attemptsForDifficulty(difficulty);
       if (
         parsedLength !== length ||
         parsedLanguage !== language ||
+        parsedDifficulty !== difficulty ||
         typeof parsed.solution !== 'string' ||
         parsed.solution.length !== length ||
-        !Array.isArray(parsed.guesses)
+        !Array.isArray(parsed.guesses) ||
+        parsed.guesses.length > maxAttempts
       ) {
-        return this.createFreshState(language, length);
+        return this.createFreshState(language, length, difficulty);
       }
 
       const status =
@@ -204,7 +246,7 @@ export class GameService {
       const used = this.history.usedWords(length, language);
 
       if (status === 'playing' && used.has(solution)) {
-        return this.createFreshState(language, length);
+        return this.createFreshState(language, length, difficulty);
       }
 
       if (status === 'won' || status === 'lost') {
@@ -220,6 +262,8 @@ export class GameService {
       return {
         language,
         wordLength: length,
+        difficulty,
+        maxAttempts,
         solution,
         guesses: parsed.guesses.map((guess) =>
           [...(typeof guess === 'string' ? guess : '')]
@@ -236,14 +280,20 @@ export class GameService {
         keyboard: parsed.keyboard ?? {},
       };
     } catch {
-      return this.createFreshState(language, length);
+      return this.createFreshState(language, length, difficulty);
     }
   }
 
-  private createFreshState(language: GameLanguage, length: WordLength): GameState {
+  private createFreshState(
+    language: GameLanguage,
+    length: WordLength,
+    difficulty: Difficulty,
+  ): GameState {
     return {
       language,
       wordLength: length,
+      difficulty,
+      maxAttempts: attemptsForDifficulty(difficulty),
       solution: pickRandomWord(length, language, this.history.usedWords(length, language)),
       guesses: [],
       currentGuess: '',
@@ -253,8 +303,27 @@ export class GameService {
   }
 
   private persist(state: GameState): void {
-    localStorage.setItem(storageKey(state.language, state.wordLength), JSON.stringify(state));
+    localStorage.setItem(
+      storageKey(state.language, state.wordLength, state.difficulty),
+      JSON.stringify(state),
+    );
   }
+}
+
+function legacyRaw(
+  language: GameLanguage,
+  length: WordLength,
+  difficulty: Difficulty,
+): string | null {
+  // Older saves had no difficulty segment and match the default (normal) mode.
+  if (difficulty !== 'normal') {
+    return null;
+  }
+
+  return (
+    localStorage.getItem(`word-play-game-${language}-${length}`) ??
+    (language === 'en' ? localStorage.getItem(`word-play-game-${length}`) : null)
+  );
 }
 
 export function evaluateGuess(guess: string, solution: string): LetterStatus[] {
@@ -283,6 +352,33 @@ export function evaluateGuess(guess: string, solution: string): LetterStatus[] {
   return result;
 }
 
+export function satisfiesHardMode(guess: string, previousGuesses: string[], solution: string): boolean {
+  for (const previous of previousGuesses) {
+    const evaluation = evaluateGuess(previous, solution);
+    const required = guess.split('');
+
+    for (let i = 0; i < previous.length; i++) {
+      if (evaluation[i] === 'correct' && guess[i] !== previous[i]) {
+        return false;
+      }
+    }
+
+    for (let i = 0; i < previous.length; i++) {
+      if (evaluation[i] !== 'present') {
+        continue;
+      }
+      const letter = previous[i];
+      const index = required.indexOf(letter);
+      if (index === -1) {
+        return false;
+      }
+      required[index] = '';
+    }
+  }
+
+  return true;
+}
+
 function mergeKeyboard(
   keyboard: Record<string, KeyStatus>,
   guess: string,
@@ -303,11 +399,15 @@ function mergeKeyboard(
   return next;
 }
 
-function resolveStatus(guesses: string[], solution: string): GameStatus {
+function resolveStatus(
+  guesses: string[],
+  solution: string,
+  maxAttempts: number,
+): GameStatus {
   if (guesses[guesses.length - 1] === solution) {
     return 'won';
   }
-  if (guesses.length >= MAX_ATTEMPTS) {
+  if (guesses.length >= maxAttempts) {
     return 'lost';
   }
   return 'playing';

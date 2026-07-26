@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, inject, input, output } from '@angu
 import { TuiButton, TuiScrollbar } from '@taiga-ui/core';
 
 import { GameService } from '../game/game.service';
-import { type GameLanguage, WORD_LENGTHS, type WordLength } from '../game/game.types';
+import { type Difficulty, type GameLanguage, WORD_LENGTHS, type WordLength } from '../game/game.types';
 import { LocaleService } from '../i18n/locale.service';
 import { TranslatePipe } from '../i18n/translate.pipe';
 import { type AppLocale } from '../i18n/translations';
@@ -27,6 +27,7 @@ export class SettingsPanel {
   readonly locale = this.i18n.current;
   readonly wordLanguage = this.game.language;
   readonly wordLength = this.game.wordLength;
+  readonly difficulty = this.game.difficulty;
   readonly wordLengths = WORD_LENGTHS;
 
   selectTheme(theme: ThemeMode): void {
@@ -43,6 +44,10 @@ export class SettingsPanel {
 
   selectWordLength(length: WordLength): void {
     this.game.setWordLength(length);
+  }
+
+  selectDifficulty(difficulty: Difficulty): void {
+    this.game.setDifficulty(difficulty);
   }
 
   close(): void {

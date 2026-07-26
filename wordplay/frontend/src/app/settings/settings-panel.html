@@ -42,6 +42,68 @@
         </section>
 
         <section class="section">
+          <h3>{{ 'settings.difficulty' | t: locale() }}</h3>
+          <p class="section__hint">{{ 'settings.difficultyHint' | t: locale() }}</p>
+
+          <div
+            class="theme-options"
+            role="radiogroup"
+            [attr.aria-label]="'settings.difficultyAria' | t: locale()"
+          >
+            <button
+              type="button"
+              class="theme-option"
+              role="radio"
+              [attr.aria-checked]="difficulty() === 'easy'"
+              [class.theme-option--active]="difficulty() === 'easy'"
+              (click)="selectDifficulty('easy')"
+            >
+              <span class="theme-option__badge" aria-hidden="true">{{
+                'settings.difficultyBadge.easy' | t: locale()
+              }}</span>
+              <span class="theme-option__copy">
+                <strong>{{ 'settings.difficulty.easy' | t: locale() }}</strong>
+                <small>{{ 'settings.difficultyHint.easy' | t: locale() }}</small>
+              </span>
+            </button>
+
+            <button
+              type="button"
+              class="theme-option"
+              role="radio"
+              [attr.aria-checked]="difficulty() === 'normal'"
+              [class.theme-option--active]="difficulty() === 'normal'"
+              (click)="selectDifficulty('normal')"
+            >
+              <span class="theme-option__badge" aria-hidden="true">{{
+                'settings.difficultyBadge.normal' | t: locale()
+              }}</span>
+              <span class="theme-option__copy">
+                <strong>{{ 'settings.difficulty.normal' | t: locale() }}</strong>
+                <small>{{ 'settings.difficultyHint.normal' | t: locale() }}</small>
+              </span>
+            </button>
+
+            <button
+              type="button"
+              class="theme-option"
+              role="radio"
+              [attr.aria-checked]="difficulty() === 'hard'"
+              [class.theme-option--active]="difficulty() === 'hard'"
+              (click)="selectDifficulty('hard')"
+            >
+              <span class="theme-option__badge" aria-hidden="true">{{
+                'settings.difficultyBadge.hard' | t: locale()
+              }}</span>
+              <span class="theme-option__copy">
+                <strong>{{ 'settings.difficulty.hard' | t: locale() }}</strong>
+                <small>{{ 'settings.difficultyHint.hard' | t: locale() }}</small>
+              </span>
+            </button>
+          </div>
+        </section>
+
+        <section class="section">
           <h3>{{ 'settings.interfaceLanguage' | t: locale() }}</h3>
           <p class="section__hint">{{ 'settings.interfaceLanguageHint' | t: locale() }}</p>
 
