@@ -1,7 +1,9 @@
 import { TestBed } from '@angular/core/testing';
+import { provideRouter, Router } from '@angular/router';
 import { provideTaiga } from '@taiga-ui/core';
 
 import { App } from './app';
+import { routes } from './app.routes';
 
 describe('App', () => {
   beforeEach(async () => {
@@ -21,7 +23,7 @@ describe('App', () => {
     });
     await TestBed.configureTestingModule({
       imports: [App],
-      providers: [provideTaiga()],
+      providers: [provideTaiga(), provideRouter(routes)],
     }).compileComponents();
   });
 
@@ -32,6 +34,9 @@ describe('App', () => {
 
   it('should render the home screen with Word Play branding', async () => {
     const fixture = TestBed.createComponent(App);
+    const router = TestBed.inject(Router);
+    await router.navigateByUrl('/');
+    fixture.detectChanges();
     await fixture.whenStable();
     fixture.detectChanges();
     const compiled = fixture.nativeElement as HTMLElement;

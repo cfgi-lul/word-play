@@ -1,0 +1,141 @@
+:host {
+  display: block;
+  min-height: 100dvh;
+  color: var(--wp-text);
+  --wp-keyboard-space: 13.5rem;
+}
+
+@media (max-width: 420px) {
+  :host {
+    --wp-keyboard-space: 12.25rem;
+  }
+}
+
+.app {
+  position: relative;
+  height: 100dvh;
+  max-height: 100dvh;
+  max-width: 40rem;
+  margin: 0 auto;
+  padding: 1rem 1rem 0;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 1rem;
+  overflow: hidden;
+}
+
+.hidden-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  border: 0;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  caret-color: transparent;
+  pointer-events: none;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.header__brand {
+  display: flex;
+  align-items: center;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.header__titles {
+  min-width: 0;
+}
+
+.header__brand h1 {
+  margin: 0;
+  font-size: clamp(1.35rem, 4.5vw, 1.85rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--wp-text);
+  line-height: 1.1;
+}
+
+.header__mode {
+  margin: 0.1rem 0 0;
+  color: var(--wp-text-muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.header__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.15rem;
+}
+
+.main {
+  min-height: 0;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  justify-items: stretch;
+  align-items: stretch;
+  gap: 0.75rem;
+  padding-block: 0.35rem;
+  padding-bottom: calc(var(--wp-keyboard-space) + env(safe-area-inset-bottom, 0px));
+  overflow: hidden;
+  overscroll-behavior: contain;
+}
+
+.main > app-game-board {
+  min-height: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.result {
+  display: grid;
+  justify-items: center;
+  gap: 0.75rem;
+  text-align: center;
+  color: var(--wp-text-muted);
+  font-weight: 600;
+}
+
+.result p {
+  margin: 0;
+}
+
+.result__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.65rem;
+}
+
+.result__daily {
+  font-size: 0.9rem;
+}
+
+.result strong {
+  color: var(--wp-text);
+}
+
+.footer {
+  position: fixed;
+  z-index: 15;
+  left: 50%;
+  bottom: 0;
+  transform: translateX(-50%);
+  width: min(100%, 40rem);
+  padding: 0.55rem 0.75rem max(0.55rem, env(safe-area-inset-bottom, 0px));
+  background: color-mix(in srgb, var(--wp-bg) 92%, transparent);
+  backdrop-filter: blur(10px);
+  border-top: 1px solid var(--wp-border);
+  box-shadow: 0 -8px 24px rgb(16 24 40 / 8%);
+}

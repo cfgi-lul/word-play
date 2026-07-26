@@ -31,6 +31,8 @@ const EN = {
   'app.shareHardMode': 'Hard mode hints',
   'app.shareHardModeOn': 'required',
   'app.shareHints': 'Hints used',
+  'app.sharePlayLink': 'Play this puzzle',
+  'app.invalidSeed': 'This puzzle link is invalid or outdated',
   'app.hintAria': 'Use a hint',
   'app.hintRevealed': 'A correct letter was revealed',
   'app.hintNoneLeft': 'No hints left for this game',
@@ -190,6 +192,8 @@ const EN = {
     'Daily word is the same for everyone today and ignores difficulty settings. Open Statistics from the home screen.',
   'help.tip8':
     'You can use one hint per game to reveal a correct letter. Hints are shown in your shared result and statistics.',
+  'help.tip9':
+    'Share your result to send a puzzle link — friends open the same word from the URL seed.',
 } as const;
 
 const RU: Record<TranslationKey, string> = {
@@ -221,6 +225,8 @@ const RU: Record<TranslationKey, string> = {
   'app.shareHardMode': 'Подсказки сложного режима',
   'app.shareHardModeOn': 'обязательны',
   'app.shareHints': 'Использовано подсказок',
+  'app.sharePlayLink': 'Сыграть в эту загадку',
+  'app.invalidSeed': 'Ссылка на загадку недействительна или устарела',
   'app.hintAria': 'Использовать подсказку',
   'app.hintRevealed': 'Открыта верная буква',
   'app.hintNoneLeft': 'Подсказки в этой игре закончились',
@@ -381,6 +387,7 @@ const RU: Record<TranslationKey, string> = {
     'Ежедневное слово одно на всех и без настроек сложности. Статистику открывайте с главного экрана.',
   'help.tip8':
     'За игру можно взять одну подсказку — она откроет верную букву. Подсказки отображаются в шаринге и статистике.',
+  'help.tip9': 'В шаринге есть ссылка на загадку — друг откроет то же слово по seed в адресе.',
 };
 
 export const TRANSLATIONS: Record<AppLocale, Record<TranslationKey, string>> = {

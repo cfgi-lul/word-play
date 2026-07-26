@@ -1,5 +1,5 @@
 import { type ApplicationConfig, provideBrowserGlobalErrorListeners } from '@angular/core';
-import { provideRouter } from '@angular/router';
+import { provideRouter, withComponentInputBinding } from '@angular/router';
 import { provideTaiga, tuiNotificationOptionsProvider } from '@taiga-ui/core';
 
 import { routes } from './app.routes';
@@ -7,7 +7,7 @@ import { routes } from './app.routes';
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
-    provideRouter(routes),
+    provideRouter(routes, withComponentInputBinding()),
     provideTaiga({ scrollbars: 'custom' }),
     tuiNotificationOptionsProvider({
       block: 'start',

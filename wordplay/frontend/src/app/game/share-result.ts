@@ -22,6 +22,7 @@ export interface ShareResultLabels {
   hintsLabel: string;
   hardModeLabel: string;
   hardModeOn: string;
+  playLinkLabel: string;
   difficulty: Record<Difficulty, string>;
   dictionary: Record<WordTier, string>;
   language: Record<GameLanguage, string>;
@@ -37,6 +38,8 @@ export interface ShareResultInput {
   maxAttempts: number;
   hintsUsed: number;
   dailyDate?: string;
+  /** Absolute URL friends can open to play the same puzzle. */
+  playUrl?: string;
   labels: ShareResultLabels;
 }
 
@@ -210,6 +213,9 @@ function metaLines(input: ShareResultInput): string[] {
   }
   if (input.difficulty === 'hard') {
     lines.push(`${input.labels.hardModeLabel}: ${input.labels.hardModeOn}`);
+  }
+  if (input.playUrl) {
+    lines.push(`${input.labels.playLinkLabel}: ${input.playUrl}`);
   }
   return lines;
 }
