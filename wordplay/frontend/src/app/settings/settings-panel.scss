@@ -1,52 +1,46 @@
-.settings-backdrop {
-  position: fixed;
-  inset: 0;
-  z-index: 30;
-  background: var(--wp-overlay);
+:host {
+  display: block;
+  min-height: 100dvh;
 }
 
-.settings-modal {
-  position: fixed;
-  z-index: 31;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: min(28rem, calc(100vw - 2rem));
-  max-height: min(85dvh, 40rem);
-  overflow: hidden;
-  border-radius: 1rem;
-  background: var(--wp-surface-elevated);
-  color: var(--wp-text);
-  box-shadow: var(--wp-shadow);
-  border: 1px solid var(--wp-border);
-}
-
-.settings-modal__scroll {
-  max-block-size: min(85dvh, 40rem);
-}
-
-.settings-modal__content {
+.settings-page {
+  min-height: 100dvh;
+  max-width: 40rem;
+  margin: 0 auto;
   display: grid;
-  gap: 1.25rem;
-  padding: 1.25rem 1.25rem 1rem;
+  grid-template-rows: auto minmax(0, 1fr);
+  background:
+    radial-gradient(100% 60% at 100% 0%, color-mix(in srgb, var(--game-present) 12%, transparent), transparent 55%),
+    var(--wp-bg);
 }
 
-.panel__title-row {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 0.5rem;
+.settings-page__bar {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.75rem 0.85rem 0.35rem;
 }
 
-.panel__header h2 {
+.settings-page__bar h1 {
   margin: 0;
-  font-size: 1.4rem;
+  font-size: 1.25rem;
   font-weight: 800;
   letter-spacing: -0.02em;
 }
 
+.settings-page__scroll {
+  max-block-size: calc(100dvh - 3.5rem);
+}
+
+.settings-page__content {
+  display: grid;
+  gap: 1.25rem;
+  padding: 0.5rem 1.25rem 1.5rem;
+}
+
 .panel__header p {
-  margin: 0.3rem 0 0;
+  margin: 0;
   color: var(--wp-text-muted);
   font-weight: 600;
 }
@@ -281,9 +275,4 @@
 .chip--absent {
   background: var(--game-absent);
   color: var(--game-absent-text);
-}
-
-.dialog-actions {
-  display: flex;
-  justify-content: flex-end;
 }

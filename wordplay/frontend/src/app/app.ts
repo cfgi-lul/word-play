@@ -68,7 +68,6 @@ export class App {
   readonly canPlayAgain = this.game.canPlayAgain;
   readonly updateAvailable = this.updates.updateAvailable;
   readonly helpOpen = signal(false);
-  readonly settingsOpen = signal(false);
 
   constructor() {
     void this.themes.theme();
@@ -82,13 +81,9 @@ export class App {
   }
 
   onWindowKeydown(event: KeyboardEvent): void {
-    if (this.helpOpen() || this.settingsOpen() || this.screen() !== 'game') {
-      if (event.key === 'Escape') {
-        if (this.settingsOpen()) {
-          this.closeSettings();
-        } else if (this.helpOpen()) {
-          this.closeHelp();
-        }
+    if (this.helpOpen() || this.screen() !== 'game') {
+      if (event.key === 'Escape' && this.helpOpen()) {
+        this.closeHelp();
       }
       return;
     }
@@ -112,6 +107,10 @@ export class App {
     this.navigation.openStats();
   }
 
+  openSettings(): void {
+    this.navigation.openSettings();
+  }
+
   goHome(): void {
     this.navigation.goHome();
   }
@@ -123,17 +122,6 @@ export class App {
   closeHelp(): void {
     this.markIntroSeen();
     this.helpOpen.set(false);
-    if (this.screen() === 'game') {
-      queueMicrotask(() => this.focusInput());
-    }
-  }
-
-  openSettings(): void {
-    this.settingsOpen.set(true);
-  }
-
-  closeSettings(): void {
-    this.settingsOpen.set(false);
     if (this.screen() === 'game') {
       queueMicrotask(() => this.focusInput());
     }
@@ -205,7 +193,6 @@ export class App {
       this.screen() !== 'game' ||
       !this.isPlaying() ||
       this.helpOpen() ||
-      this.settingsOpen() ||
       event.metaKey ||
       event.ctrlKey ||
       event.altKey

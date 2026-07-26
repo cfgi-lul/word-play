@@ -33,7 +33,7 @@ const EN = {
   'settings.closeAria': 'Close settings',
   'settings.update': 'App update',
   'settings.updateHint':
-    'Install the latest version from this App tab when a green dot appears on Settings.',
+    'Install the latest version from this App tab when a green dot appears on the Settings menu item.',
   'settings.updateAvailable': 'A new version is ready to install.',
   'settings.updateNow': 'Update now',
   'settings.updateChecking': 'Updating…',
@@ -101,6 +101,8 @@ const EN = {
   'home.dailyHint': 'One seeded puzzle for everyone today — no difficulty settings.',
   'home.stats': 'Statistics',
   'home.statsHint': 'Win rate, streaks, and guess distribution by mode.',
+  'home.settings': 'Settings',
+  'home.settingsHint': 'Word length, difficulty, language, theme, and updates.',
   'home.back': 'Back to home',
   'home.backAria': 'Back to home',
 
@@ -198,7 +200,7 @@ const RU: Record<TranslationKey, string> = {
   'settings.closeAria': 'Закрыть настройки',
   'settings.update': 'Обновление приложения',
   'settings.updateHint':
-    'Установите новую версию на этой вкладке «Приложение», когда над настройками появится зелёная точка.',
+    'Установите новую версию на этой вкладке «Приложение», когда у пункта «Настройки» появится зелёная точка.',
   'settings.updateAvailable': 'Новая версия готова к установке.',
   'settings.updateNow': 'Обновить сейчас',
   'settings.updateChecking': 'Обновление…',
@@ -266,6 +268,8 @@ const RU: Record<TranslationKey, string> = {
   'home.dailyHint': 'Одна загадка на всех сегодня — без настроек сложности.',
   'home.stats': 'Статистика',
   'home.statsHint': 'Доля побед, серии и распределение попыток по режимам.',
+  'home.settings': 'Настройки',
+  'home.settingsHint': 'Длина слова, сложность, язык, тема и обновления.',
   'home.back': 'На главный экран',
   'home.backAria': 'На главный экран',
 

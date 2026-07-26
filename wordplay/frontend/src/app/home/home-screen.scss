@@ -40,25 +40,6 @@
   gap: 0.15rem;
 }
 
-.home__settings {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.home__update-dot {
-  position: absolute;
-  top: 0.4rem;
-  right: 0.4rem;
-  width: 0.55rem;
-  height: 0.55rem;
-  border-radius: 50%;
-  background: var(--wp-update-dot);
-  box-shadow: 0 0 0 2px var(--wp-bg);
-  pointer-events: none;
-}
-
 .home__hero {
   align-self: center;
   display: grid;
@@ -131,6 +112,24 @@
 
 .home__choice--stats {
   animation-delay: 280ms;
+}
+
+.home__choice--settings {
+  animation-delay: 340ms;
+}
+
+.home__choice-label-row {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.home__choice-dot {
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  background: var(--wp-update-dot);
+  flex: 0 0 auto;
 }
 
 .home__choice:hover,

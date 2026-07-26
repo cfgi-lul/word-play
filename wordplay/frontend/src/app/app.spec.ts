@@ -39,5 +39,6 @@ describe('App', () => {
     expect(compiled.textContent).toContain('Classic');
     expect(compiled.textContent).toContain('Daily word');
     expect(compiled.textContent).toContain('Statistics');
+    expect(compiled.textContent).toContain('Settings');
   });
 });

@@ -34,7 +34,6 @@ describe('SettingsPanel', () => {
 
   it('starts on the game tab and switches to app settings', async () => {
     const fixture = TestBed.createComponent(SettingsPanel);
-    fixture.componentRef.setInput('open', true);
     fixture.componentRef.setInput('initialTab', 'game');
     await fixture.whenStable();
     fixture.detectChanges();
@@ -66,7 +65,6 @@ describe('SettingsPanel', () => {
   it('opens on the app tab when requested', async () => {
     const fixture = TestBed.createComponent(SettingsPanel);
     fixture.componentRef.setInput('initialTab', 'system');
-    fixture.componentRef.setInput('open', true);
     await fixture.whenStable();
     fixture.detectChanges();
 
@@ -76,7 +74,6 @@ describe('SettingsPanel', () => {
 
   it('updates dictionary and attempts from the game tab', async () => {
     const fixture = TestBed.createComponent(SettingsPanel);
-    fixture.componentRef.setInput('open', true);
     await fixture.whenStable();
     fixture.detectChanges();
 

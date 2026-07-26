@@ -5,7 +5,7 @@ export type GameLanguage = AppLocale;
 export type Difficulty = 'easy' | 'normal' | 'hard';
 export type WordTier = 'easy' | 'medium' | 'hard';
 export type GameMode = 'classic' | 'daily';
-export type AppScreen = 'home' | 'game' | 'stats';
+export type AppScreen = 'home' | 'game' | 'stats' | 'settings';
 
 export const WORD_LENGTHS: readonly WordLength[] = [4, 5, 6, 7];
 export const DEFAULT_WORD_LENGTH: WordLength = 5;

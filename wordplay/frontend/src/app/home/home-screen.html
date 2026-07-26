@@ -3,22 +3,6 @@
 
   <header class="home__top">
     <div class="home__actions">
-      <span class="home__settings">
-        <button
-          tuiIconButton
-          type="button"
-          appearance="flat"
-          size="m"
-          iconStart="@tui.settings"
-          [attr.aria-label]="
-            (updateAvailable() ? 'app.settingsUpdateAria' : 'app.settingsAria') | t: locale()
-          "
-          (click)="settings.emit()"
-        ></button>
-        @if (updateAvailable()) {
-          <span class="home__update-dot" aria-hidden="true"></span>
-        }
-      </span>
       <button
         tuiIconButton
         type="button"
@@ -51,6 +35,16 @@
     <button type="button" class="home__choice home__choice--stats" (click)="stats.emit()">
       <span class="home__choice-label">{{ 'home.stats' | t: locale() }}</span>
       <span class="home__choice-hint">{{ 'home.statsHint' | t: locale() }}</span>
+    </button>
+
+    <button type="button" class="home__choice home__choice--settings" (click)="settings.emit()">
+      <span class="home__choice-label-row">
+        <span class="home__choice-label">{{ 'home.settings' | t: locale() }}</span>
+        @if (updateAvailable()) {
+          <span class="home__choice-dot" aria-hidden="true"></span>
+        }
+      </span>
+      <span class="home__choice-hint">{{ 'home.settingsHint' | t: locale() }}</span>
     </button>
   </nav>
 </section>

@@ -19,4 +19,8 @@ export class NavigationService {
   openStats(): void {
     this.screenSignal.set('stats');
   }
+
+  openSettings(): void {
+    this.screenSignal.set('settings');
+  }
 }
