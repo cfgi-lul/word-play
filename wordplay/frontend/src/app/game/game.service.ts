@@ -186,6 +186,8 @@ export class GameService {
         word: current.solution,
         language: current.language,
         length: current.wordLength,
+        difficulty: current.difficulty,
+        wordTier: current.wordTier,
         status,
         attempts: guesses.length,
       });
@@ -295,6 +297,8 @@ export class GameService {
           word: solution,
           language,
           length,
+          difficulty,
+          wordTier,
           status,
           attempts: parsed.guesses.length,
         });

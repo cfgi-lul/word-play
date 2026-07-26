@@ -44,6 +44,20 @@
   font-weight: 600;
 }
 
+.panel__mode {
+  margin-top: 0.55rem !important;
+  font-size: 0.88rem;
+  font-weight: 800 !important;
+  color: var(--wp-text) !important;
+}
+
+.stats__scope {
+  margin: 0;
+  color: var(--wp-text-muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
 .stats {
   display: grid;
   gap: 0.85rem;

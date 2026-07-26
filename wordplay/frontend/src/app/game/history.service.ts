@@ -1,18 +1,28 @@
-import { computed, Injectable, signal } from '@angular/core';
+import { computed, inject, Injectable, signal } from '@angular/core';
 
+import { DifficultyService } from './difficulty.service';
 import {
-  DIFFICULTY_ATTEMPTS,
+  attemptsForDifficulty,
+  DEFAULT_DIFFICULTY,
+  DEFAULT_WORD_TIER,
+  type Difficulty,
   type GameLanguage,
   type GameStatus,
+  isDifficulty,
   isGameLanguage,
   isWordLength,
+  isWordTier,
   type WordLength,
+  type WordTier,
 } from './game.types';
+import { WordTierService } from './word-tier.service';
 
 export interface HistoryEntry {
   word: string;
   language: GameLanguage;
   length: WordLength;
+  difficulty: Difficulty;
+  wordTier: WordTier;
   status: Exclude<GameStatus, 'playing'>;
   attempts: number;
   finishedAt: string;
@@ -37,15 +47,28 @@ export interface GameStats {
 }
 
 const STORAGE_KEY = 'word-play-history';
-const DISTRIBUTION_MAX_ATTEMPTS = DIFFICULTY_ATTEMPTS.easy;
 
 @Injectable({ providedIn: 'root' })
 export class HistoryService {
+  private readonly difficulties = inject(DifficultyService);
+  private readonly wordTiers = inject(WordTierService);
   private readonly entries = signal<HistoryEntry[]>(this.read());
 
   readonly all = this.entries.asReadonly();
   readonly count = computed(() => this.entries().length);
-  readonly stats = computed(() => computeGameStats(this.entries()));
+
+  /** Finished games for the currently selected attempts mode + dictionary tier. */
+  readonly forCurrentMode = computed(() => {
+    const difficulty = this.difficulties.difficulty();
+    const wordTier = this.wordTiers.wordTier();
+    return this.entries().filter(
+      (entry) => entry.difficulty === difficulty && entry.wordTier === wordTier,
+    );
+  });
+
+  readonly stats = computed(() =>
+    computeGameStats(this.forCurrentMode(), attemptsForDifficulty(this.difficulties.difficulty())),
+  );
 
   usedWords(length: WordLength, language: GameLanguage): ReadonlySet<string> {
     return new Set(
@@ -68,7 +91,11 @@ export class HistoryService {
       if (
         current.some(
           (item) =>
-            item.word === word && item.length === entry.length && item.language === entry.language,
+            item.word === word &&
+            item.length === entry.length &&
+            item.language === entry.language &&
+            item.difficulty === entry.difficulty &&
+            item.wordTier === entry.wordTier,
         )
       ) {
         return current;
@@ -97,6 +124,8 @@ export class HistoryService {
           }
           const entry = item as Partial<HistoryEntry>;
           const language = isGameLanguage(entry.language) ? entry.language : 'en';
+          const difficulty = isDifficulty(entry.difficulty) ? entry.difficulty : DEFAULT_DIFFICULTY;
+          const wordTier = isWordTier(entry.wordTier) ? entry.wordTier : DEFAULT_WORD_TIER;
           if (
             typeof entry.word !== 'string' ||
             !isWordLength(entry.length) ||
@@ -110,6 +139,8 @@ export class HistoryService {
             word: entry.word.toLowerCase(),
             language,
             length: entry.length,
+            difficulty,
+            wordTier,
             status: entry.status,
             attempts: entry.attempts,
             finishedAt: entry.finishedAt,
@@ -126,7 +157,10 @@ export class HistoryService {
   }
 }
 
-export function computeGameStats(entries: readonly HistoryEntry[]): GameStats {
+export function computeGameStats(
+  entries: readonly HistoryEntry[],
+  maxAttempts = attemptsForDifficulty('easy'),
+): GameStats {
   const played = entries.length;
   const wins = entries.filter((entry) => entry.status === 'won').length;
   const losses = played - wins;
@@ -153,7 +187,7 @@ export function computeGameStats(entries: readonly HistoryEntry[]): GameStats {
     currentWinStreak += 1;
   }
 
-  const counts = Array.from({ length: DISTRIBUTION_MAX_ATTEMPTS }, () => 0);
+  const counts = Array.from({ length: maxAttempts }, () => 0);
   for (const entry of entries) {
     if (entry.status !== 'won') {
       continue;

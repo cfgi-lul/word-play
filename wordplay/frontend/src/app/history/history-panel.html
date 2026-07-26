@@ -12,11 +12,17 @@
         <header class="panel__header">
           <h2 id="history-title">{{ 'history.title' | t: locale() }}</h2>
           <p>{{ 'history.subtitle' | t: locale() }}</p>
+          <p class="panel__mode">
+            {{ difficultyKey(difficulty()) | t: locale() }}
+            ·
+            {{ dictionaryKey(wordTier()) | t: locale() }}
+          </p>
         </header>
 
         @if (stats().played > 0) {
           <section class="stats" [attr.aria-label]="'history.statsAria' | t: locale()">
             <h3>{{ 'history.stats' | t: locale() }}</h3>
+            <p class="stats__scope">{{ 'history.statsScope' | t: locale() }}</p>
 
             <div class="stats__grid">
               <div class="stats__card">
@@ -67,12 +73,17 @@
         }
 
         @if (entries().length === 0) {
-          <p class="history-empty">{{ 'history.empty' | t: locale() }}</p>
+          <p class="history-empty">{{ 'history.emptyMode' | t: locale() }}</p>
         } @else {
           <ul class="history-list">
             @for (
               entry of entries();
-              track entry.word + entry.language + entry.length + entry.finishedAt
+              track entry.word +
+                entry.language +
+                entry.length +
+                entry.difficulty +
+                entry.wordTier +
+                entry.finishedAt
             ) {
               <li class="history-item">
                 <span class="history-item__word">{{ entry.word }}</span>
@@ -93,6 +104,8 @@
                     }}
                   </span>
                   <span>{{ 'history.letters' | t: locale() : { length: entry.length } }}</span>
+                  <span>{{ difficultyKey(entry.difficulty) | t: locale() }}</span>
+                  <span>{{ dictionaryKey(entry.wordTier) | t: locale() }}</span>
                   <span>
                     {{ 'history.attempts' | t: locale() : { count: entry.attempts } }}
                   </span>

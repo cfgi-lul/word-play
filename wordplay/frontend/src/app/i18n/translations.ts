@@ -92,6 +92,8 @@ const EN = {
   'history.title': 'History',
   'history.subtitle': 'Words you already played stay out of future games.',
   'history.empty': 'No finished words yet. Play a round to build your history.',
+  'history.emptyMode':
+    'No finished games for this attempts mode and dictionary yet. Play a round or switch settings.',
   'history.won': 'Solved',
   'history.lost': 'Missed',
   'history.letters': '{{length}} letters',
@@ -100,6 +102,7 @@ const EN = {
   'history.languageRu': 'RU',
   'history.done': 'Done',
   'history.stats': 'Statistics',
+  'history.statsScope': 'For the selected attempts mode and dictionary.',
   'history.statsAria': 'Game statistics',
   'history.statsPlayed': 'Played',
   'history.statsWinRate': 'Win rate',
@@ -224,6 +227,8 @@ const RU: Record<TranslationKey, string> = {
   'history.title': 'История',
   'history.subtitle': 'Сыгранные слова больше не появляются в новых играх.',
   'history.empty': 'Пока пусто. Завершите игру, чтобы появилась история.',
+  'history.emptyMode':
+    'Для этого режима попыток и словаря пока нет игр. Сыграйте партию или смените настройки.',
   'history.won': 'Угадано',
   'history.lost': 'Не угадано',
   'history.letters': '{{length}} букв',
@@ -232,6 +237,7 @@ const RU: Record<TranslationKey, string> = {
   'history.languageRu': 'RU',
   'history.done': 'Готово',
   'history.stats': 'Статистика',
+  'history.statsScope': 'Для выбранного режима попыток и словаря.',
   'history.statsAria': 'Игровая статистика',
   'history.statsPlayed': 'Сыграно',
   'history.statsWinRate': 'Доля побед',
