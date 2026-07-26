@@ -1,6 +1,7 @@
 <tui-root>
   @if (screen() === 'home') {
     <app-home-screen
+      [updateAvailable]="updateAvailable()"
       (classic)="openClassic()"
       (daily)="openDaily()"
       (stats)="openStats()"
@@ -157,5 +158,9 @@
     </div>
   }
 
-  <app-settings-panel [open]="settingsOpen()" (closed)="closeSettings()" />
+  <app-settings-panel
+    [open]="settingsOpen()"
+    [initialTab]="updateAvailable() ? 'system' : 'game'"
+    (closed)="closeSettings()"
+  />
 </tui-root>

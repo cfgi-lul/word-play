@@ -2,10 +2,12 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  effect,
   inject,
   input,
   output,
   signal,
+  untracked,
 } from '@angular/core';
 import { TuiButton, TuiScrollbar } from '@taiga-ui/core';
 
@@ -47,6 +49,8 @@ export class SettingsPanel {
   private readonly updates = inject(PwaUpdateService);
 
   readonly open = input(false);
+  /** Which tab to show when the dialog opens. */
+  readonly initialTab = input<SettingsTab>('game');
   readonly closed = output<void>();
 
   readonly tab = signal<SettingsTab>('game');
@@ -62,6 +66,14 @@ export class SettingsPanel {
   readonly showDifficultySettings = computed(
     () => this.navigation.screen() !== 'game' || this.modes.mode() !== 'daily',
   );
+
+  constructor() {
+    effect(() => {
+      if (this.open()) {
+        this.tab.set(untracked(this.initialTab));
+      }
+    });
+  }
 
   selectTab(tab: SettingsTab): void {
     this.tab.set(tab);

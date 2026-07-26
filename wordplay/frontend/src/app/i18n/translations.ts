@@ -32,7 +32,8 @@ const EN = {
   'settings.subtitle.system': 'Updates, interface language, and theme',
   'settings.closeAria': 'Close settings',
   'settings.update': 'App update',
-  'settings.updateHint': 'Install the latest version when a green dot appears on Settings.',
+  'settings.updateHint':
+    'Install the latest version from this App tab when a green dot appears on Settings.',
   'settings.updateAvailable': 'A new version is ready to install.',
   'settings.updateNow': 'Update now',
   'settings.updateChecking': 'Updating…',
@@ -196,7 +197,8 @@ const RU: Record<TranslationKey, string> = {
   'settings.subtitle.system': 'Обновления, язык интерфейса и тема',
   'settings.closeAria': 'Закрыть настройки',
   'settings.update': 'Обновление приложения',
-  'settings.updateHint': 'Установите новую версию, когда над настройками появится зелёная точка.',
+  'settings.updateHint':
+    'Установите новую версию на этой вкладке «Приложение», когда над настройками появится зелёная точка.',
   'settings.updateAvailable': 'Новая версия готова к установке.',
   'settings.updateNow': 'Обновить сейчас',
   'settings.updateChecking': 'Обновление…',

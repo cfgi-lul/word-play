@@ -35,6 +35,7 @@ describe('SettingsPanel', () => {
   it('starts on the game tab and switches to app settings', async () => {
     const fixture = TestBed.createComponent(SettingsPanel);
     fixture.componentRef.setInput('open', true);
+    fixture.componentRef.setInput('initialTab', 'game');
     await fixture.whenStable();
     fixture.detectChanges();
 
@@ -60,6 +61,17 @@ describe('SettingsPanel', () => {
     expect(compiled.textContent).not.toContain('Word length');
     expect(compiled.textContent).not.toContain('Dictionary');
     expect(compiled.textContent).not.toContain('Attempts');
+  });
+
+  it('opens on the app tab when requested', async () => {
+    const fixture = TestBed.createComponent(SettingsPanel);
+    fixture.componentRef.setInput('initialTab', 'system');
+    fixture.componentRef.setInput('open', true);
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.tab()).toBe('system');
+    expect((fixture.nativeElement as HTMLElement).textContent).toContain('App update');
   });
 
   it('updates dictionary and attempts from the game tab', async () => {

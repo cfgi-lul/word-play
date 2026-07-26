@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input, output } from '@angular/core';
 import { TuiButton } from '@taiga-ui/core';
 
 import { LocaleService } from '../i18n/locale.service';
@@ -15,6 +15,7 @@ export class HomeScreen {
   private readonly i18n = inject(LocaleService);
 
   readonly locale = this.i18n.current;
+  readonly updateAvailable = input(false);
   readonly classic = output<void>();
   readonly daily = output<void>();
   readonly stats = output<void>();

@@ -3,15 +3,22 @@
 
   <header class="home__top">
     <div class="home__actions">
-      <button
-        tuiIconButton
-        type="button"
-        appearance="flat"
-        size="m"
-        iconStart="@tui.settings"
-        [attr.aria-label]="'app.settingsAria' | t: locale()"
-        (click)="settings.emit()"
-      ></button>
+      <span class="home__settings">
+        <button
+          tuiIconButton
+          type="button"
+          appearance="flat"
+          size="m"
+          iconStart="@tui.settings"
+          [attr.aria-label]="
+            (updateAvailable() ? 'app.settingsUpdateAria' : 'app.settingsAria') | t: locale()
+          "
+          (click)="settings.emit()"
+        ></button>
+        @if (updateAvailable()) {
+          <span class="home__update-dot" aria-hidden="true"></span>
+        }
+      </span>
       <button
         tuiIconButton
         type="button"
