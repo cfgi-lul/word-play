@@ -82,6 +82,28 @@
   gap: 0.65rem;
 }
 
+.section--update {
+  padding: 0.85rem;
+  border-radius: 0.9rem;
+  border: 1.5px solid color-mix(in srgb, var(--wp-update-dot) 55%, var(--wp-border));
+  background: color-mix(in srgb, var(--wp-update-dot) 10%, var(--wp-surface));
+}
+
+.update-button {
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.update-button__dot {
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  background: var(--wp-update-dot);
+  flex: 0 0 auto;
+}
+
 .section h3 {
   margin: 0;
   font-size: 0.95rem;
