@@ -1,6 +1,6 @@
 import { Injectable, signal } from '@angular/core';
 
-import { DEFAULT_DIFFICULTY, isDifficulty, type Difficulty } from './game.types';
+import { DEFAULT_DIFFICULTY, type Difficulty, isDifficulty } from './game.types';
 
 const STORAGE_KEY = 'word-play-difficulty';
 

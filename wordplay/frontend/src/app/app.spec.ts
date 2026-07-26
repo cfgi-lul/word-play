@@ -6,6 +6,19 @@ import { App } from './app';
 describe('App', () => {
   beforeEach(async () => {
     localStorage.setItem('word-play-locale', 'en');
+    Object.defineProperty(window, 'matchMedia', {
+      writable: true,
+      value: (query: string) => ({
+        matches: false,
+        media: query,
+        onchange: null,
+        addListener: () => {},
+        removeListener: () => {},
+        addEventListener: () => {},
+        removeEventListener: () => {},
+        dispatchEvent: () => false,
+      }),
+    });
     await TestBed.configureTestingModule({
       imports: [App],
       providers: [provideTaiga()],

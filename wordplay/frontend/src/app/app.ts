@@ -146,11 +146,11 @@ export class App {
     const result = this.game.submitGuess();
 
     switch (result) {
-      case 'invalid':
-        this.notify(this.i18n.t('app.notInWordList'), 'warning');
-        break;
       case 'hard-mode':
         this.notify(this.i18n.t('app.hardModeViolation'), 'warning');
+        break;
+      case 'invalid':
+        this.notify(this.i18n.t('app.notInWordList'), 'warning');
         break;
       case 'ok':
         if (this.status() === 'won') {

@@ -21,11 +21,8 @@ import { HistoryService } from './history.service';
 import { WordLengthService } from './word-length.service';
 import { isPlayableLetter, isValidGuess, normalizeLetter, pickRandomWord } from './words';
 
-const storageKey = (
-  language: GameLanguage,
-  length: WordLength,
-  difficulty: Difficulty,
-): string => `word-play-game-${language}-${length}-${difficulty}`;
+const storageKey = (language: GameLanguage, length: WordLength, difficulty: Difficulty): string =>
+  `word-play-game-${language}-${length}-${difficulty}`;
 
 @Injectable({ providedIn: 'root' })
 export class GameService {
@@ -352,7 +349,11 @@ export function evaluateGuess(guess: string, solution: string): LetterStatus[] {
   return result;
 }
 
-export function satisfiesHardMode(guess: string, previousGuesses: string[], solution: string): boolean {
+export function satisfiesHardMode(
+  guess: string,
+  previousGuesses: string[],
+  solution: string,
+): boolean {
   for (const previous of previousGuesses) {
     const evaluation = evaluateGuess(previous, solution);
     const required = guess.split('');
@@ -399,11 +400,7 @@ function mergeKeyboard(
   return next;
 }
 
-function resolveStatus(
-  guesses: string[],
-  solution: string,
-  maxAttempts: number,
-): GameStatus {
+function resolveStatus(guesses: string[], solution: string, maxAttempts: number): GameStatus {
   if (guesses[guesses.length - 1] === solution) {
     return 'won';
   }
