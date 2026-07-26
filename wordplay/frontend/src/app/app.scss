@@ -73,6 +73,7 @@
 }
 
 .main {
+  min-height: 0;
   display: grid;
   align-content: start;
   justify-items: center;
@@ -81,6 +82,7 @@
   /* Keep board above the fixed on-screen keyboard */
   padding-bottom: calc(var(--wp-keyboard-space) + env(safe-area-inset-bottom, 0px));
   overflow: auto;
+  overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
 }
 
@@ -95,6 +97,13 @@
 
 .result p {
   margin: 0;
+}
+
+.result__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.65rem;
 }
 
 .result__daily {
