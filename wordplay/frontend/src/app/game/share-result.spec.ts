@@ -13,6 +13,7 @@ const labels: ShareResultLabels = {
   hintsLabel: 'Hints used',
   hardModeLabel: 'Hard mode hints',
   hardModeOn: 'required',
+  playLinkLabel: 'Play this puzzle',
   difficulty: {
     easy: 'Easy',
     normal: 'Normal',
@@ -80,6 +81,7 @@ describe('share-result', () => {
       language: 'en',
       maxAttempts: 5,
       hintsUsed: 1,
+      playUrl: 'https://example.com/word-play/classic/seed123',
       labels,
     });
 
@@ -92,6 +94,7 @@ describe('share-result', () => {
     expect(text).toContain('Language: EN');
     expect(text).toContain('Hints used: 1');
     expect(text).toContain('Hard mode hints: required');
+    expect(text).toContain('Play this puzzle: https://example.com/word-play/classic/seed123');
   });
 
   it('includes the daily date for daily shares', () => {

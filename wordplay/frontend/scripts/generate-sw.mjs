@@ -1,4 +1,5 @@
 import { generateSW } from 'workbox-build';
+import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -8,6 +9,13 @@ const browserDir = path.join(root, 'dist/word-play/browser');
 
 const ghPages = process.argv.includes('--gh-pages');
 const urlPrefix = ghPages ? '/word-play/' : '/';
+
+// GitHub Pages: unknown paths (e.g. /classic/:seed) should serve the SPA shell.
+const indexHtml = path.join(browserDir, 'index.html');
+const notFoundHtml = path.join(browserDir, '404.html');
+if (fs.existsSync(indexHtml)) {
+  fs.copyFileSync(indexHtml, notFoundHtml);
+}
 
 const { count, size, warnings } = await generateSW({
   globDirectory: browserDir,

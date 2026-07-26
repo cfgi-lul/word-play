@@ -1,26 +1,46 @@
-import { Injectable, signal } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
+import { Router } from '@angular/router';
 
-import { type AppScreen } from '../game/game.types';
+import { dailyDateKey } from '../game/daily-word';
+import { type GameLanguage, type WordLength } from '../game/game.types';
 
 @Injectable({ providedIn: 'root' })
 export class NavigationService {
-  private readonly screenSignal = signal<AppScreen>('home');
-
-  readonly screen = this.screenSignal.asReadonly();
+  private readonly router = inject(Router);
 
   goHome(): void {
-    this.screenSignal.set('home');
+    void this.router.navigateByUrl('/');
   }
 
-  openGame(): void {
-    this.screenSignal.set('game');
+  openClassic(seed?: string | null): void {
+    if (seed) {
+      void this.router.navigate(['/classic', seed]);
+      return;
+    }
+    void this.router.navigateByUrl('/classic');
+  }
+
+  openDaily(dateKey: string = dailyDateKey(), language?: GameLanguage, length?: WordLength): void {
+    const queryParams = language && length ? { lang: language, len: String(length) } : undefined;
+    void this.router.navigate(['/daily', dateKey], { queryParams });
   }
 
   openStats(): void {
-    this.screenSignal.set('stats');
+    void this.router.navigateByUrl('/stats');
   }
 
   openSettings(): void {
-    this.screenSignal.set('settings');
+    void this.router.navigateByUrl('/settings');
+  }
+
+  replaceClassicSeed(seed: string): void {
+    void this.router.navigate(['/classic', seed], { replaceUrl: true });
+  }
+
+  replaceDailyDate(dateKey: string, language: GameLanguage, length: WordLength): void {
+    void this.router.navigate(['/daily', dateKey], {
+      replaceUrl: true,
+      queryParams: { lang: language, len: String(length) },
+    });
   }
 }
