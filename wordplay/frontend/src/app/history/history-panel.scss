@@ -44,6 +44,105 @@
   font-weight: 600;
 }
 
+.stats {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.stats h3,
+.stats h4 {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 800;
+}
+
+.stats h4 {
+  color: var(--wp-text-muted);
+  font-size: 0.88rem;
+}
+
+.stats__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.55rem;
+}
+
+.stats__card {
+  display: grid;
+  gap: 0.15rem;
+  justify-items: center;
+  padding: 0.7rem 0.4rem;
+  border-radius: 0.85rem;
+  border: 1.5px solid var(--wp-option-border);
+  background: var(--wp-surface);
+  text-align: center;
+}
+
+.stats__card strong {
+  font-size: 1.25rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+.stats__card span {
+  color: var(--wp-text-muted);
+  font-size: 0.72rem;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.stats__distribution {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.dist-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.35rem;
+}
+
+.dist-row {
+  display: grid;
+  grid-template-columns: 1.1rem minmax(0, 1fr) 1.4rem;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.dist-row__label,
+.dist-row__count {
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: var(--wp-text-muted);
+}
+
+.dist-row__count {
+  text-align: right;
+}
+
+.dist-row__track {
+  height: 1.15rem;
+  border-radius: 0.35rem;
+  background: var(--wp-surface);
+  border: 1px solid var(--wp-border);
+  overflow: hidden;
+}
+
+.dist-row__bar {
+  height: 100%;
+  width: 0;
+  border-radius: inherit;
+  background: var(--game-correct);
+  transition: width 180ms ease;
+}
+
+.dist-row__bar--filled {
+  min-width: 0.45rem;
+}
+
 .history-empty {
   margin: 0;
   padding: 1.25rem 0.25rem;

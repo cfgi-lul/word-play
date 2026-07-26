@@ -21,6 +21,7 @@ export class HistoryPanel {
 
   readonly locale = this.i18n.current;
   readonly entries = this.history.all;
+  readonly stats = this.history.stats;
 
   close(): void {
     this.closed.emit();

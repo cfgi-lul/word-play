@@ -14,6 +14,58 @@
           <p>{{ 'history.subtitle' | t: locale() }}</p>
         </header>
 
+        @if (stats().played > 0) {
+          <section class="stats" [attr.aria-label]="'history.statsAria' | t: locale()">
+            <h3>{{ 'history.stats' | t: locale() }}</h3>
+
+            <div class="stats__grid">
+              <div class="stats__card">
+                <strong>{{ stats().played }}</strong>
+                <span>{{ 'history.statsPlayed' | t: locale() }}</span>
+              </div>
+              <div class="stats__card">
+                <strong>{{ stats().winRate }}%</strong>
+                <span>{{ 'history.statsWinRate' | t: locale() }}</span>
+              </div>
+              <div class="stats__card">
+                <strong>{{ stats().lossRate }}%</strong>
+                <span>{{ 'history.statsLossRate' | t: locale() }}</span>
+              </div>
+              <div class="stats__card">
+                <strong>{{ stats().maxWinStreak }}</strong>
+                <span>{{ 'history.statsMaxStreak' | t: locale() }}</span>
+              </div>
+              <div class="stats__card">
+                <strong>{{ stats().currentWinStreak }}</strong>
+                <span>{{ 'history.statsCurrentStreak' | t: locale() }}</span>
+              </div>
+              <div class="stats__card">
+                <strong>{{ stats().wins }}/{{ stats().losses }}</strong>
+                <span>{{ 'history.statsWinsLosses' | t: locale() }}</span>
+              </div>
+            </div>
+
+            <div class="stats__distribution">
+              <h4>{{ 'history.statsDistribution' | t: locale() }}</h4>
+              <ul class="dist-list">
+                @for (bucket of stats().attemptDistribution; track bucket.attempts) {
+                  <li class="dist-row">
+                    <span class="dist-row__label">{{ bucket.attempts }}</span>
+                    <div class="dist-row__track" aria-hidden="true">
+                      <div
+                        class="dist-row__bar"
+                        [class.dist-row__bar--filled]="bucket.count > 0"
+                        [style.width.%]="bucket.share"
+                      ></div>
+                    </div>
+                    <span class="dist-row__count">{{ bucket.count }}</span>
+                  </li>
+                }
+              </ul>
+            </div>
+          </section>
+        }
+
         @if (entries().length === 0) {
           <p class="history-empty">{{ 'history.empty' | t: locale() }}</p>
         } @else {
