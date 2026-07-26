@@ -1,11 +1,53 @@
-import { evaluateGuess, satisfiesHardMode } from './game.service';
-import { attemptsForDifficulty } from './game.types';
+import { TestBed } from '@angular/core/testing';
 
-describe('difficulty helpers', () => {
+import { evaluateGuess, GameService, satisfiesHardMode } from './game.service';
+import { attemptsForDifficulty, type GameState } from './game.types';
+import { HistoryService } from './history.service';
+
+describe('GameService', () => {
+  afterEach(() => {
+    localStorage.clear();
+    TestBed.resetTestingModule();
+  });
+
   it('maps difficulty to attempt counts', () => {
     expect(attemptsForDifficulty('easy')).toBe(8);
     expect(attemptsForDifficulty('normal')).toBe(6);
     expect(attemptsForDifficulty('hard')).toBe(5);
+  });
+
+  it('evaluates correct, present, and absent letters', () => {
+    expect(evaluateGuess('crane', 'crane')).toEqual([
+      'correct',
+      'correct',
+      'correct',
+      'correct',
+      'correct',
+    ]);
+    expect(evaluateGuess('trace', 'crane')).toEqual([
+      'absent',
+      'correct',
+      'correct',
+      'present',
+      'correct',
+    ]);
+    expect(evaluateGuess('zzzzz', 'crane')).toEqual([
+      'absent',
+      'absent',
+      'absent',
+      'absent',
+      'absent',
+    ]);
+  });
+
+  it('handles duplicate letters in evaluation', () => {
+    expect(evaluateGuess('apple', 'plead')).toEqual([
+      'present',
+      'present',
+      'absent',
+      'present',
+      'present',
+    ]);
   });
 
   it('requires green letters to stay in place on hard mode', () => {
@@ -29,4 +71,161 @@ describe('difficulty helpers', () => {
     expect(satisfiesHardMode('plaid', previous, solution)).toBe(false);
     expect(satisfiesHardMode('reach', previous, solution)).toBe(true);
   });
+
+  it('accepts typed letters and rejects too-short submits', () => {
+    const game = createGame({ solution: 'crane' });
+
+    game.addLetter('c');
+    game.addLetter('r');
+    expect(game.currentGuess()).toBe('cr');
+    expect(game.submitGuess()).toBe('too-short');
+
+    game.removeLetter();
+    expect(game.currentGuess()).toBe('c');
+  });
+
+  it('rejects guesses that are not in the dictionary', () => {
+    const game = createGame({ solution: 'crane' });
+
+    typeWord(game, 'zzzzz');
+    expect(game.submitGuess()).toBe('invalid');
+    expect(game.status()).toBe('playing');
+    expect(game.guessesCount()).toBe(0);
+  });
+
+  it('wins when the solution is guessed', () => {
+    const game = createGame({ solution: 'crane' });
+    const history = TestBed.inject(HistoryService);
+
+    typeWord(game, 'crane');
+    expect(game.submitGuess()).toBe('ok');
+    expect(game.status()).toBe('won');
+    expect(game.isPlaying()).toBe(false);
+    expect(history.all().some((entry) => entry.word === 'crane' && entry.status === 'won')).toBe(
+      true,
+    );
+  });
+
+  it('marks a wrong valid guess and updates keyboard colors', () => {
+    const game = createGame({ solution: 'crane' });
+
+    typeWord(game, 'about');
+    expect(game.submitGuess()).toBe('ok');
+    expect(game.status()).toBe('playing');
+    expect(game.guessesCount()).toBe(1);
+    expect(game.keyboard()['a']).toBe('present');
+    expect(game.keyboard()['b']).toBe('absent');
+    expect(game.board()).toHaveLength(6);
+    expect(game.board().at(0)?.at(0)?.status).toBe('present');
+  });
+
+  it('loses after the maximum number of attempts', () => {
+    const game = createGame({ solution: 'crane' });
+    const history = TestBed.inject(HistoryService);
+    const misses = ['about', 'slate', 'flame', 'grape', 'bloom', 'humid'];
+
+    for (const word of misses) {
+      typeWord(game, word);
+      expect(game.submitGuess()).toBe('ok');
+    }
+
+    expect(game.status()).toBe('lost');
+    expect(game.maxAttempts()).toBe(6);
+    expect(game.board()).toHaveLength(6);
+    expect(history.all().some((entry) => entry.word === 'crane' && entry.status === 'lost')).toBe(
+      true,
+    );
+  });
+
+  it('enforces hard-mode constraints after a revealing guess', () => {
+    const game = createGame({
+      solution: 'crane',
+      difficulty: 'hard',
+      maxAttempts: 5,
+    });
+
+    typeWord(game, 'crate');
+    expect(game.submitGuess()).toBe('ok');
+
+    typeWord(game, 'plane');
+    expect(game.submitGuess()).toBe('hard-mode');
+    expect(game.guessesCount()).toBe(1);
+    expect(game.status()).toBe('playing');
+  });
+
+  it('switches difficulty and rebuilds the board attempt count', () => {
+    const game = createGame({ solution: 'crane' });
+
+    expect(game.maxAttempts()).toBe(6);
+    game.setDifficulty('easy');
+    expect(game.difficulty()).toBe('easy');
+    expect(game.maxAttempts()).toBe(8);
+    expect(game.board()).toHaveLength(8);
+
+    game.setDifficulty('hard');
+    expect(game.difficulty()).toBe('hard');
+    expect(game.maxAttempts()).toBe(5);
+    expect(game.board()).toHaveLength(5);
+  });
+
+  it('switches word length and language settings', () => {
+    const game = createGame({ solution: 'crane' });
+
+    game.setWordLength(4);
+    expect(game.wordLength()).toBe(4);
+    expect(game.board().at(0)).toHaveLength(4);
+
+    game.setLanguage('ru');
+    expect(game.language()).toBe('ru');
+    expect(game.isPlaying()).toBe(true);
+  });
+
+  it('starts a new game after a win', () => {
+    const game = createGame({ solution: 'crane' });
+
+    typeWord(game, 'crane');
+    expect(game.submitGuess()).toBe('ok');
+    expect(game.status()).toBe('won');
+
+    game.startNewGame();
+    expect(game.status()).toBe('playing');
+    expect(game.guessesCount()).toBe(0);
+    expect(game.currentGuess()).toBe('');
+    expect(game.solution().length).toBe(5);
+  });
 });
+
+function createGame(partial: Partial<GameState> = {}): GameService {
+  const difficulty = partial.difficulty ?? 'normal';
+  const maxAttempts = partial.maxAttempts ?? attemptsForDifficulty(difficulty);
+
+  localStorage.clear();
+  localStorage.setItem('word-play-word-length', '5');
+  localStorage.setItem('word-play-game-language', 'en');
+  localStorage.setItem('word-play-difficulty', difficulty);
+  localStorage.setItem(
+    `word-play-game-en-5-${difficulty}`,
+    JSON.stringify({
+      language: 'en',
+      wordLength: 5,
+      difficulty,
+      maxAttempts,
+      solution: 'crane',
+      guesses: [],
+      currentGuess: '',
+      status: 'playing',
+      keyboard: {},
+      ...partial,
+    } satisfies GameState),
+  );
+
+  TestBed.resetTestingModule();
+  TestBed.configureTestingModule({});
+  return TestBed.inject(GameService);
+}
+
+function typeWord(game: GameService, word: string): void {
+  for (const letter of word) {
+    game.addLetter(letter);
+  }
+}
