@@ -34,6 +34,17 @@
     </div>
 
     <div class="header__actions">
+      @if (canPlayAgain()) {
+        <button
+          tuiIconButton
+          type="button"
+          appearance="flat"
+          size="m"
+          iconStart="@tui.refresh-cw"
+          [attr.aria-label]="'app.newGameAria' | t: locale()"
+          (click)="newGame(); $event.stopPropagation()"
+        ></button>
+      }
       <button
         tuiIconButton
         type="button"
@@ -86,7 +97,7 @@
               type="button"
               appearance="primary"
               size="m"
-              (click)="playAgain(); $event.stopPropagation()"
+              (click)="newGame(); $event.stopPropagation()"
             >
               {{ 'app.playAgain' | t: locale() }}
             </button>
