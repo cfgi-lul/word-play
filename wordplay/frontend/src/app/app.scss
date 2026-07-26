@@ -6,13 +6,15 @@
 
 .app {
   position: relative;
-  min-height: 100dvh;
+  height: 100dvh;
+  max-height: 100dvh;
   max-width: 40rem;
   margin: 0 auto;
   padding: 1rem 1rem 0;
   display: grid;
   grid-template-rows: auto minmax(0, 1fr);
   gap: 1rem;
+  overflow: hidden;
 }
 
 .hidden-input {
@@ -71,15 +73,23 @@
 }
 
 .main {
+  min-height: 0;
   display: grid;
-  align-content: start;
-  justify-items: center;
-  gap: 1rem;
-  padding-block: 0.5rem;
+  grid-template-rows: minmax(0, 1fr) auto;
+  justify-items: stretch;
+  align-items: stretch;
+  gap: 0.75rem;
+  padding-block: 0.35rem;
   /* Keep board above the fixed on-screen keyboard */
   padding-bottom: calc(var(--wp-keyboard-space) + env(safe-area-inset-bottom, 0px));
-  overflow: auto;
-  -webkit-overflow-scrolling: touch;
+  overflow: hidden;
+  overscroll-behavior: contain;
+}
+
+.main > app-game-board {
+  min-height: 0;
+  width: 100%;
+  height: 100%;
 }
 
 .result {
@@ -93,6 +103,13 @@
 
 .result p {
   margin: 0;
+}
+
+.result__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.65rem;
 }
 
 .result__daily {

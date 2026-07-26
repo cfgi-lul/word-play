@@ -16,6 +16,9 @@ export const DEFAULT_WORD_TIER: WordTier = 'medium';
 export const DAILY_DIFFICULTY: Difficulty = 'normal';
 export const DAILY_WORD_TIER: WordTier = 'medium';
 
+/** Player-requested letter reveals allowed per game. */
+export const MAX_HINTS_PER_GAME = 1;
+
 /** Kept for older imports; prefer attemptsForDifficulty(). */
 export const MAX_ATTEMPTS = 6;
 
@@ -56,6 +59,10 @@ export interface GameState {
   currentGuess: string;
   status: GameStatus;
   keyboard: Record<string, KeyStatus>;
+  /** 0-based solution indexes revealed via a player hint. */
+  hintedPositions: number[];
+  /** How many player hints were used in this game. */
+  hintsUsed: number;
 }
 
 export function isGameLanguage(value: unknown): value is GameLanguage {

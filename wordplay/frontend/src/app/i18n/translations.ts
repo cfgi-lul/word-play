@@ -16,6 +16,25 @@ const EN = {
   'app.won': 'You found the word!',
   'app.lost': 'Out of tries. The word was {{word}}',
   'app.playAgain': 'Play again',
+  'app.share': 'Share result',
+  'app.shareAria': 'Share result',
+  'app.shareCopied': 'Result copied',
+  'app.shareShared': 'Result shared',
+  'app.shareFailed': 'Could not share the result',
+  'app.shareModeClassic': 'Classic',
+  'app.shareModeDaily': 'Daily word',
+  'app.shareWon': 'Solved',
+  'app.shareLost': 'Missed',
+  'app.shareAttempts': 'Attempts',
+  'app.shareDictionary': 'Dictionary',
+  'app.shareLanguage': 'Language',
+  'app.shareHardMode': 'Hard mode hints',
+  'app.shareHardModeOn': 'required',
+  'app.shareHints': 'Hints used',
+  'app.hintAria': 'Use a hint',
+  'app.hintRevealed': 'A correct letter was revealed',
+  'app.hintNoneLeft': 'No hints left for this game',
+  'app.hintUnavailable': 'No unknown letters left to reveal',
   'app.gotIt': 'Got it',
   'app.notEnoughLetters': 'Not enough letters',
   'app.notInWordList': 'Not in word list',
@@ -124,6 +143,7 @@ const EN = {
   'history.lost': 'Missed',
   'history.letters': '{{length}} letters',
   'history.attempts': '{{count}} tries',
+  'history.hints': '{{count}} hints',
   'history.languageEn': 'EN',
   'history.languageRu': 'RU',
   'history.done': 'Done',
@@ -137,6 +157,7 @@ const EN = {
   'history.statsMaxStreak': 'Best streak',
   'history.statsCurrentStreak': 'Current streak',
   'history.statsWinsLosses': 'Wins / losses',
+  'history.statsHints': 'With hints',
   'history.statsDistribution': 'Guess distribution',
 
   'help.title': 'How to Play',
@@ -167,6 +188,8 @@ const EN = {
     'Classic history and stats are separate for each attempts mode and dictionary — switch them in Settings to compare.',
   'help.tip7':
     'Daily word is the same for everyone today and ignores difficulty settings. Open Statistics from the home screen.',
+  'help.tip8':
+    'You can use one hint per game to reveal a correct letter. Hints are shown in your shared result and statistics.',
 } as const;
 
 const RU: Record<TranslationKey, string> = {
@@ -183,6 +206,25 @@ const RU: Record<TranslationKey, string> = {
   'app.won': 'Вы угадали слово!',
   'app.lost': 'Попытки закончились. Загаданное слово: {{word}}',
   'app.playAgain': 'Играть снова',
+  'app.share': 'Поделиться результатом',
+  'app.shareAria': 'Поделиться результатом',
+  'app.shareCopied': 'Результат скопирован',
+  'app.shareShared': 'Результат отправлен',
+  'app.shareFailed': 'Не удалось поделиться результатом',
+  'app.shareModeClassic': 'Обычная игра',
+  'app.shareModeDaily': 'Ежедневное слово',
+  'app.shareWon': 'Угадано',
+  'app.shareLost': 'Не угадано',
+  'app.shareAttempts': 'Попытки',
+  'app.shareDictionary': 'Словарь',
+  'app.shareLanguage': 'Язык',
+  'app.shareHardMode': 'Подсказки сложного режима',
+  'app.shareHardModeOn': 'обязательны',
+  'app.shareHints': 'Использовано подсказок',
+  'app.hintAria': 'Использовать подсказку',
+  'app.hintRevealed': 'Открыта верная буква',
+  'app.hintNoneLeft': 'Подсказки в этой игре закончились',
+  'app.hintUnavailable': 'Нечего открывать — все буквы уже известны',
   'app.gotIt': 'Понятно',
   'app.notEnoughLetters': 'Недостаточно букв',
   'app.notInWordList': 'Слова нет в словаре',
@@ -292,6 +334,7 @@ const RU: Record<TranslationKey, string> = {
   'history.lost': 'Не угадано',
   'history.letters': '{{length}} букв',
   'history.attempts': '{{count}} попыток',
+  'history.hints': '{{count}} подсказок',
   'history.languageEn': 'EN',
   'history.languageRu': 'RU',
   'history.done': 'Готово',
@@ -305,6 +348,7 @@ const RU: Record<TranslationKey, string> = {
   'history.statsMaxStreak': 'Лучшая серия',
   'history.statsCurrentStreak': 'Текущая серия',
   'history.statsWinsLosses': 'Победы / поражения',
+  'history.statsHints': 'С подсказками',
   'history.statsDistribution': 'Распределение попыток',
 
   'help.title': 'Как играть',
@@ -335,6 +379,8 @@ const RU: Record<TranslationKey, string> = {
     'В обычной игре история и статистика разделены по режиму попыток и словарю — переключайте их в настройках, чтобы сравнивать.',
   'help.tip7':
     'Ежедневное слово одно на всех и без настроек сложности. Статистику открывайте с главного экрана.',
+  'help.tip8':
+    'За игру можно взять одну подсказку — она откроет верную букву. Подсказки отображаются в шаринге и статистике.',
 };
 
 export const TRANSLATIONS: Record<AppLocale, Record<TranslationKey, string>> = {

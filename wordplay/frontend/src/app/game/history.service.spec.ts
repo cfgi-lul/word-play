@@ -24,6 +24,7 @@ describe('HistoryService', () => {
       wordTier: 'medium',
       status: 'won',
       attempts: 3,
+      hintsUsed: 0,
     });
 
     expect(history.count()).toBe(1);
@@ -46,6 +47,7 @@ describe('HistoryService', () => {
       wordTier: 'medium',
       status: 'won',
       attempts: 2,
+      hintsUsed: 0,
     });
     history.record({
       word: 'crane',
@@ -56,6 +58,7 @@ describe('HistoryService', () => {
       wordTier: 'medium',
       status: 'lost',
       attempts: 6,
+      hintsUsed: 0,
     });
 
     expect(history.count()).toBe(1);
@@ -76,6 +79,7 @@ describe('HistoryService', () => {
       wordTier: 'medium',
       status: 'won',
       attempts: 2,
+      hintsUsed: 0,
     });
     history.record({
       word: 'crane',
@@ -86,6 +90,7 @@ describe('HistoryService', () => {
       wordTier: 'medium',
       status: 'lost',
       attempts: 5,
+      hintsUsed: 0,
     });
     history.record({
       word: 'crane',
@@ -96,6 +101,7 @@ describe('HistoryService', () => {
       wordTier: 'hard',
       status: 'won',
       attempts: 4,
+      hintsUsed: 0,
     });
 
     expect(history.count()).toBe(3);
@@ -117,6 +123,7 @@ describe('HistoryService', () => {
       wordTier: 'medium',
       status: 'won',
       attempts: 2,
+      hintsUsed: 0,
     });
     history.record({
       word: 'apple',
@@ -127,6 +134,7 @@ describe('HistoryService', () => {
       wordTier: 'medium',
       status: 'lost',
       attempts: 5,
+      hintsUsed: 0,
     });
     history.record({
       word: 'bloom',
@@ -137,6 +145,7 @@ describe('HistoryService', () => {
       wordTier: 'easy',
       status: 'won',
       attempts: 3,
+      hintsUsed: 0,
     });
     history.record({
       word: 'crane',
@@ -148,6 +157,7 @@ describe('HistoryService', () => {
       dailyDate: '2026-07-26',
       status: 'won',
       attempts: 4,
+      hintsUsed: 0,
     });
 
     history.setStatsMode('classic');
@@ -185,6 +195,7 @@ describe('HistoryService', () => {
       dailyDate: '2026-07-26',
       status: 'won',
       attempts: 3,
+      hintsUsed: 0,
     });
 
     expect(history.usedWords(5, 'en').has('crane')).toBe(false);
@@ -200,6 +211,7 @@ describe('HistoryService', () => {
           length: 5,
           status: 'won',
           attempts: 3,
+          hintsUsed: 0,
           finishedAt: '2026-01-01T10:00:00.000Z',
         },
       ]),
@@ -228,6 +240,7 @@ describe('HistoryService', () => {
       lossRate: 0,
       currentWinStreak: 0,
       maxWinStreak: 0,
+      gamesWithHints: 0,
       attemptDistribution: Array.from({ length: 6 }, (_, index) => ({
         attempts: index + 1,
         count: 0,
@@ -248,6 +261,7 @@ describe('HistoryService', () => {
           wordTier: 'medium',
           status: 'won',
           attempts: 3,
+          hintsUsed: 0,
           finishedAt: '2026-01-01T10:00:00.000Z',
         },
         {
@@ -259,6 +273,7 @@ describe('HistoryService', () => {
           wordTier: 'medium',
           status: 'won',
           attempts: 2,
+          hintsUsed: 0,
           finishedAt: '2026-01-02T10:00:00.000Z',
         },
         {
@@ -270,6 +285,7 @@ describe('HistoryService', () => {
           wordTier: 'medium',
           status: 'lost',
           attempts: 6,
+          hintsUsed: 0,
           finishedAt: '2026-01-03T10:00:00.000Z',
         },
         {
@@ -281,6 +297,7 @@ describe('HistoryService', () => {
           wordTier: 'medium',
           status: 'won',
           attempts: 3,
+          hintsUsed: 0,
           finishedAt: '2026-01-04T10:00:00.000Z',
         },
         {
@@ -292,6 +309,7 @@ describe('HistoryService', () => {
           wordTier: 'medium',
           status: 'won',
           attempts: 4,
+          hintsUsed: 0,
           finishedAt: '2026-01-05T10:00:00.000Z',
         },
       ],
@@ -305,6 +323,7 @@ describe('HistoryService', () => {
     expect(stats.lossRate).toBe(20);
     expect(stats.maxWinStreak).toBe(2);
     expect(stats.currentWinStreak).toBe(2);
+    expect(stats.gamesWithHints).toBe(0);
     expect(stats.attemptDistribution).toHaveLength(6);
     expect(stats.attemptDistribution.find((bucket) => bucket.attempts === 2)?.count).toBe(1);
     expect(stats.attemptDistribution.find((bucket) => bucket.attempts === 3)?.count).toBe(2);

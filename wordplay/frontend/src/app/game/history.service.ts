@@ -30,6 +30,7 @@ export interface HistoryEntry {
   dailyDate?: string;
   status: Exclude<GameStatus, 'playing'>;
   attempts: number;
+  hintsUsed: number;
   finishedAt: string;
 }
 
@@ -48,6 +49,7 @@ export interface GameStats {
   lossRate: number;
   currentWinStreak: number;
   maxWinStreak: number;
+  gamesWithHints: number;
   attemptDistribution: readonly AttemptBucket[];
 }
 
@@ -158,6 +160,13 @@ export class HistoryService {
           ) {
             return null;
           }
+          const hintsUsed =
+            typeof entry.hintsUsed === 'number' &&
+            Number.isFinite(entry.hintsUsed) &&
+            entry.hintsUsed > 0
+              ? Math.floor(entry.hintsUsed)
+              : 0;
+
           return {
             word: entry.word.toLowerCase(),
             language,
@@ -168,6 +177,7 @@ export class HistoryService {
             dailyDate,
             status: entry.status,
             attempts: entry.attempts,
+            hintsUsed,
             finishedAt: entry.finishedAt,
           };
         })
@@ -249,6 +259,8 @@ export function computeGameStats(
     share: wins === 0 ? 0 : Math.round((count / wins) * 100),
   }));
 
+  const gamesWithHints = entries.filter((entry) => entry.hintsUsed > 0).length;
+
   return {
     played,
     wins,
@@ -257,6 +269,7 @@ export function computeGameStats(
     lossRate,
     currentWinStreak,
     maxWinStreak,
+    gamesWithHints,
     attemptDistribution,
   };
 }

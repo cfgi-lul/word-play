@@ -15,6 +15,7 @@ import { type GameMode } from './game/game.types';
 import { GameBoard } from './game/game-board/game-board';
 import { HowToPlay } from './game/how-to-play/how-to-play';
 import { Keyboard } from './game/keyboard/keyboard';
+import { shareGameResult } from './game/share-result';
 import { HistoryPanel } from './history/history-panel';
 import { HomeScreen } from './home/home-screen';
 import { LocaleService } from './i18n/locale.service';
@@ -65,9 +66,15 @@ export class App {
   readonly maxAttempts = this.game.maxAttempts;
   readonly wordLanguage = this.game.language;
   readonly gameMode = this.game.mode;
+  readonly difficulty = this.game.difficulty;
+  readonly wordTier = this.game.wordTier;
+  readonly dailyDate = this.game.dailyDate;
   readonly canPlayAgain = this.game.canPlayAgain;
+  readonly canUseHint = this.game.canUseHint;
+  readonly hintsUsed = this.game.hintsUsed;
   readonly updateAvailable = this.updates.updateAvailable;
   readonly helpOpen = signal(false);
+  readonly sharing = signal(false);
 
   constructor() {
     void this.themes.theme();
@@ -147,6 +154,24 @@ export class App {
     this.focusInput();
   }
 
+  useHint(): void {
+    const result = this.game.useHint();
+    switch (result) {
+      case 'no-unknown':
+        this.notify(this.i18n.t('app.hintUnavailable'), 'warning');
+        break;
+      case 'none-left':
+        this.notify(this.i18n.t('app.hintNoneLeft'), 'warning');
+        break;
+      case 'ok':
+        this.notify(this.i18n.t('app.hintRevealed'), 'positive');
+        break;
+      default:
+        break;
+    }
+    this.focusInput();
+  }
+
   submit(): void {
     const result = this.game.submitGuess();
 
@@ -180,6 +205,65 @@ export class App {
   playAgain(): void {
     this.game.startNewGame();
     queueMicrotask(() => this.focusInput());
+  }
+
+  async shareResult(): Promise<void> {
+    const status = this.status();
+    if (status === 'playing' || this.sharing()) {
+      return;
+    }
+
+    this.sharing.set(true);
+    try {
+      const outcome = await shareGameResult({
+        board: this.board(),
+        status,
+        mode: this.gameMode(),
+        difficulty: this.difficulty(),
+        wordTier: this.wordTier(),
+        language: this.wordLanguage(),
+        maxAttempts: this.maxAttempts(),
+        hintsUsed: this.hintsUsed(),
+        dailyDate: this.dailyDate(),
+        labels: {
+          title: this.i18n.t('app.title'),
+          modeClassic: this.i18n.t('app.shareModeClassic'),
+          modeDaily: this.i18n.t('app.shareModeDaily'),
+          won: this.i18n.t('app.shareWon'),
+          lost: this.i18n.t('app.shareLost'),
+          attemptsLabel: this.i18n.t('app.shareAttempts'),
+          dictionaryLabel: this.i18n.t('app.shareDictionary'),
+          languageLabel: this.i18n.t('app.shareLanguage'),
+          hintsLabel: this.i18n.t('app.shareHints'),
+          hardModeLabel: this.i18n.t('app.shareHardMode'),
+          hardModeOn: this.i18n.t('app.shareHardModeOn'),
+          difficulty: {
+            easy: this.i18n.t('settings.difficulty.easy'),
+            normal: this.i18n.t('settings.difficulty.normal'),
+            hard: this.i18n.t('settings.difficulty.hard'),
+          },
+          dictionary: {
+            easy: this.i18n.t('settings.dictionary.easy'),
+            medium: this.i18n.t('settings.dictionary.medium'),
+            hard: this.i18n.t('settings.dictionary.hard'),
+          },
+          language: {
+            en: this.i18n.t('history.languageEn'),
+            ru: this.i18n.t('history.languageRu'),
+          },
+        },
+      });
+
+      if (outcome === 'shared') {
+        this.notify(this.i18n.t('app.shareShared'), 'positive');
+      } else if (outcome === 'copied') {
+        this.notify(this.i18n.t('app.shareCopied'), 'positive');
+      }
+    } catch {
+      this.notify(this.i18n.t('app.shareFailed'), 'warning');
+    } finally {
+      this.sharing.set(false);
+    }
   }
 
   private openGame(mode: GameMode): void {

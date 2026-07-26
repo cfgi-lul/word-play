@@ -1,29 +1,41 @@
 :host {
-  display: block;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  container-type: size;
 }
 
 .board {
+  --gap: clamp(0.28rem, 1.4cqi, 0.55rem);
+  /* Fill available board area: limited by width, height, and a soft max. */
+  --tile: min(
+    5.25rem,
+    calc((100cqi - (var(--wp-cols, 5) - 1) * var(--gap)) / var(--wp-cols, 5)),
+    calc((100cqb - (var(--wp-rows, 6) - 1) * var(--gap)) / var(--wp-rows, 6))
+  );
   display: grid;
-  gap: 0.45rem;
+  gap: var(--gap);
   justify-content: center;
 }
 
 .row {
   display: grid;
-  grid-template-columns: repeat(var(--wp-cols, 5), minmax(0, 1fr));
-  gap: 0.45rem;
+  grid-template-columns: repeat(var(--wp-cols, 5), var(--tile));
+  gap: var(--gap);
 }
 
 .tile {
-  width: clamp(2.35rem, calc(56vw / var(--wp-cols, 5)), 3.75rem);
-  height: clamp(2.35rem, calc(56vw / var(--wp-cols, 5)), 3.75rem);
+  width: var(--tile);
+  height: var(--tile);
   display: grid;
   place-items: center;
-  border-radius: 0.55rem;
+  border-radius: calc(var(--tile) * 0.14);
   border: 2px solid var(--wp-border);
   background: var(--wp-tile);
   color: var(--wp-tile-text);
-  font-size: clamp(1.05rem, calc(22vw / var(--wp-cols, 5)), 1.65rem);
+  font-size: calc(var(--tile) * 0.44);
   font-weight: 800;
   letter-spacing: 0.02em;
   text-transform: uppercase;
@@ -63,5 +75,25 @@
   }
   to {
     transform: scale(1);
+  }
+}
+
+/* Fallback when container size queries are unavailable */
+@supports not (width: 1cqi) {
+  .board {
+    --tile: min(
+      5.25rem,
+      calc((min(100vw, 40rem) - 2rem - (var(--wp-cols, 5) - 1) * 0.45rem) / var(--wp-cols, 5)),
+      calc(
+        (
+            100dvh - 5.5rem - var(--wp-keyboard-space, 13.5rem) - env(safe-area-inset-bottom, 0px) -
+              (var(--wp-rows, 6) - 1) * 0.45rem
+          ) / var(--wp-rows, 6)
+      )
+    );
+  }
+
+  .row {
+    grid-template-columns: repeat(var(--wp-cols, 5), var(--tile));
   }
 }

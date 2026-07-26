@@ -65,6 +65,16 @@
             type="button"
             appearance="flat"
             size="m"
+            iconStart="@tui.sparkles"
+            [attr.aria-label]="'app.hintAria' | t: locale()"
+            [disabled]="!canUseHint()"
+            (click)="useHint(); $event.stopPropagation()"
+          ></button>
+          <button
+            tuiIconButton
+            type="button"
+            appearance="flat"
+            size="m"
             iconStart="@tui.circle-help"
             [attr.aria-label]="'app.helpAria' | t: locale()"
             (click)="openHelp(); $event.stopPropagation()"
@@ -82,27 +92,45 @@
             } @else {
               <p>{{ 'app.lost' | t: locale() : { word: solution() | uppercase } }}</p>
             }
-            @if (canPlayAgain()) {
+
+            <div class="result__actions">
               <button
                 tuiButton
                 type="button"
-                appearance="primary"
+                appearance="secondary"
                 size="m"
-                (click)="playAgain(); $event.stopPropagation()"
+                [attr.aria-label]="'app.shareAria' | t: locale()"
+                [disabled]="sharing()"
+                (click)="shareResult(); $event.stopPropagation()"
               >
-                {{ 'app.playAgain' | t: locale() }}
+                {{ 'app.share' | t: locale() }}
               </button>
-            } @else {
+
+              @if (canPlayAgain()) {
+                <button
+                  tuiButton
+                  type="button"
+                  appearance="primary"
+                  size="m"
+                  (click)="playAgain(); $event.stopPropagation()"
+                >
+                  {{ 'app.playAgain' | t: locale() }}
+                </button>
+              } @else {
+                <button
+                  tuiButton
+                  type="button"
+                  appearance="primary"
+                  size="m"
+                  (click)="goHome(); $event.stopPropagation()"
+                >
+                  {{ 'home.back' | t: locale() }}
+                </button>
+              }
+            </div>
+
+            @if (!canPlayAgain()) {
               <p class="result__daily">{{ 'daily.finishedHint' | t: locale() }}</p>
-              <button
-                tuiButton
-                type="button"
-                appearance="primary"
-                size="m"
-                (click)="goHome(); $event.stopPropagation()"
-              >
-                {{ 'home.back' | t: locale() }}
-              </button>
             }
           </div>
         }
