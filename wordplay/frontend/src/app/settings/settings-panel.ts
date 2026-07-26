@@ -1,7 +1,6 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  computed,
   inject,
   input,
   linkedSignal,
@@ -18,7 +17,6 @@ import {
   type WordLength,
   type WordTier,
 } from '../game/game.types';
-import { GameModeService } from '../game/game-mode.service';
 import { WordTierService } from '../game/word-tier.service';
 import { LocaleService } from '../i18n/locale.service';
 import { TranslatePipe } from '../i18n/translate.pipe';
@@ -41,7 +39,6 @@ export class SettingsPanel {
   private readonly game = inject(GameService);
   private readonly difficulties = inject(DifficultyService);
   private readonly wordTiers = inject(WordTierService);
-  private readonly modes = inject(GameModeService);
   private readonly updates = inject(PwaUpdateService);
 
   /** Which tab to show when the page opens. */
@@ -58,8 +55,6 @@ export class SettingsPanel {
   readonly wordLengths = WORD_LENGTHS;
   readonly updateAvailable = this.updates.updateAvailable;
   readonly isApplyingUpdate = this.updates.isApplyingUpdate;
-  /** Daily puzzles ignore attempts/dictionary — hide those controls in daily context. */
-  readonly showDifficultySettings = computed(() => this.modes.mode() !== 'daily');
 
   selectTab(tab: SettingsTab): void {
     this.tab.set(tab);

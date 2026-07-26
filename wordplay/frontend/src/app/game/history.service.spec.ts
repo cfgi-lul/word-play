@@ -29,8 +29,9 @@ describe('HistoryService', () => {
 
     expect(history.count()).toBe(1);
     expect(history.all().at(0)?.word).toBe('crane');
-    expect(history.usedWords(5, 'en').has('crane')).toBe(true);
-    expect(history.usedWords(4, 'en').has('crane')).toBe(false);
+    expect(history.usedWords(5, 'en', 'normal', 'medium').has('crane')).toBe(true);
+    expect(history.usedWords(4, 'en', 'normal', 'medium').has('crane')).toBe(false);
+    expect(history.usedWords(5, 'en', 'hard', 'medium').has('crane')).toBe(false);
   });
 
   it('does not duplicate the same finished classic word for a mode', () => {
@@ -198,7 +199,7 @@ describe('HistoryService', () => {
       hintsUsed: 0,
     });
 
-    expect(history.usedWords(5, 'en').has('crane')).toBe(false);
+    expect(history.usedWords(5, 'en', 'normal', 'medium').has('crane')).toBe(false);
   });
 
   it('loads legacy history entries as classic with default difficulty and dictionary', () => {

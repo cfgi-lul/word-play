@@ -1,4 +1,12 @@
-import { afterNextRender, ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import {
+  afterNextRender,
+  ChangeDetectionStrategy,
+  Component,
+  effect,
+  type ElementRef,
+  inject,
+  viewChild,
+} from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { TuiButton, TuiRoot, TuiScrollbar } from '@taiga-ui/core';
 
@@ -22,6 +30,7 @@ export class App {
   private readonly i18n = inject(LocaleService);
   private readonly help = inject(HelpService);
   private readonly game = inject(GameService);
+  private readonly gotItButton = viewChild<ElementRef<HTMLButtonElement>>('gotIt');
 
   readonly locale = this.i18n.current;
   readonly helpOpen = this.help.open;
@@ -29,6 +38,7 @@ export class App {
   readonly maxAttempts = this.game.maxAttempts;
 
   constructor() {
+    // Touch theme/locale providers so stored preferences apply before first paint consumers.
     void this.themes.theme();
     void this.i18n.current();
 
@@ -36,6 +46,13 @@ export class App {
       if (this.shouldShowIntro()) {
         this.help.show();
       }
+    });
+
+    effect(() => {
+      if (!this.helpOpen()) {
+        return;
+      }
+      queueMicrotask(() => this.gotItButton()?.nativeElement.focus());
     });
   }
 

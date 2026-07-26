@@ -37,7 +37,14 @@
       <span class="home__choice-hint">{{ 'home.statsHint' | t: locale() }}</span>
     </button>
 
-    <button type="button" class="home__choice home__choice--settings" (click)="settings.emit()">
+    <button
+      type="button"
+      class="home__choice home__choice--settings"
+      [attr.aria-label]="
+        (updateAvailable() ? 'app.settingsUpdateAria' : 'app.settingsAria') | t: locale()
+      "
+      (click)="settings.emit()"
+    >
       <span class="home__choice-label-row">
         <span class="home__choice-label">{{ 'home.settings' | t: locale() }}</span>
         @if (updateAvailable()) {

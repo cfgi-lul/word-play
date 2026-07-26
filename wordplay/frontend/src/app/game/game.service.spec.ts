@@ -293,6 +293,121 @@ describe('GameService', () => {
     expect(game.activateClassicSeed('bad-seed')).toBe(false);
   });
 
+  it('keeps a seeded solution even when that word was already finished', () => {
+    const seed = encodePuzzleSeed({
+      language: 'en',
+      wordLength: 5,
+      difficulty: 'normal',
+      wordTier: 'medium',
+      solution: 'crane',
+    });
+
+    localStorage.clear();
+    localStorage.setItem('word-play-word-length', '5');
+    localStorage.setItem('word-play-game-language', 'en');
+    localStorage.setItem('word-play-difficulty', 'normal');
+    localStorage.setItem('word-play-word-tier', 'medium');
+    localStorage.setItem('word-play-game-mode', 'classic');
+    localStorage.setItem(
+      'word-play-game-en-5-normal-medium',
+      JSON.stringify({
+        mode: 'classic',
+        language: 'en',
+        wordLength: 5,
+        difficulty: 'normal',
+        wordTier: 'medium',
+        maxAttempts: 6,
+        solution: 'crane',
+        guesses: ['about'],
+        currentGuess: 'cr',
+        status: 'playing',
+        keyboard: {},
+        hintedPositions: [],
+        hintsUsed: 0,
+      }),
+    );
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({});
+    const history = TestBed.inject(HistoryService);
+    history.record({
+      word: 'crane',
+      language: 'en',
+      length: 5,
+      mode: 'classic',
+      difficulty: 'normal',
+      wordTier: 'medium',
+      status: 'won',
+      attempts: 2,
+      hintsUsed: 0,
+    });
+    const game = TestBed.inject(GameService);
+
+    expect(game.activateClassicSeed(seed)).toBe(true);
+    expect(game.solution()).toBe('crane');
+    expect(game.guessesCount()).toBe(1);
+    expect(game.currentGuess()).toBe('cr');
+  });
+
+  it('persists the in-progress current guess', () => {
+    const game = createGame({ solution: 'crane' });
+    game.addLetter('c');
+    game.addLetter('r');
+
+    const raw = localStorage.getItem('word-play-game-en-5-normal-medium');
+    expect(raw).toBeTruthy();
+    expect(JSON.parse(raw!).currentGuess).toBe('cr');
+  });
+
+  it('rebuilds keyboard colors when a save omits them', () => {
+    const game = createGame({
+      solution: 'crane',
+      guesses: ['about'],
+      keyboard: {},
+    });
+
+    expect(game.keyboard()['a']).toBe('present');
+    expect(game.keyboard()['b']).toBe('absent');
+    expect(game.keyboard()['o']).toBe('absent');
+  });
+
+  it('reconciles status from guesses when a save claims still playing', () => {
+    const game = createGame({
+      solution: 'crane',
+      guesses: ['crane'],
+      status: 'playing',
+      currentGuess: 'xx',
+    });
+
+    expect(game.status()).toBe('won');
+    expect(game.isPlaying()).toBe(false);
+    expect(game.currentGuess()).toBe('');
+  });
+
+  it('ignores corrupt classic saves when opening a seed', () => {
+    const seed = encodePuzzleSeed({
+      language: 'en',
+      wordLength: 5,
+      difficulty: 'normal',
+      wordTier: 'medium',
+      solution: 'crane',
+    });
+
+    localStorage.clear();
+    localStorage.setItem('word-play-word-length', '5');
+    localStorage.setItem('word-play-game-language', 'en');
+    localStorage.setItem('word-play-difficulty', 'normal');
+    localStorage.setItem('word-play-word-tier', 'medium');
+    localStorage.setItem('word-play-game-mode', 'classic');
+    localStorage.setItem('word-play-game-en-5-normal-medium', '{not-json');
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({});
+    const game = TestBed.inject(GameService);
+
+    expect(game.activateClassicSeed(seed)).toBe(true);
+    expect(game.solution()).toBe('crane');
+    expect(game.guessesCount()).toBe(0);
+  });
+
   it('requires hinted letters in hard mode guesses', () => {
     const game = createGame({
       solution: 'crane',

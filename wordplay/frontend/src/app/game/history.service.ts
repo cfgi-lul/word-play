@@ -95,12 +95,21 @@ export class HistoryService {
     );
   }
 
-  usedWords(length: WordLength, language: GameLanguage): ReadonlySet<string> {
+  usedWords(
+    length: WordLength,
+    language: GameLanguage,
+    difficulty: Difficulty,
+    wordTier: WordTier,
+  ): ReadonlySet<string> {
     return new Set(
       this.entries()
         .filter(
           (entry) =>
-            entry.mode === 'classic' && entry.length === length && entry.language === language,
+            entry.mode === 'classic' &&
+            entry.length === length &&
+            entry.language === language &&
+            entry.difficulty === difficulty &&
+            entry.wordTier === wordTier,
         )
         .map((entry) => entry.word),
     );
@@ -188,7 +197,11 @@ export class HistoryService {
   }
 
   private persist(): void {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(this.entries()));
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(this.entries()));
+    } catch {
+      // QuotaExceeded / private mode — keep in-memory history only.
+    }
   }
 }
 

@@ -116,28 +116,16 @@ export class GameService {
       localStorage.getItem(key) ??
       legacyRaw(payload.language, payload.wordLength, payload.difficulty, payload.wordTier);
     if (raw) {
-      try {
-        const parsed = JSON.parse(raw) as Partial<GameState>;
-
-        const savedSolution =
-          typeof parsed.solution === 'string'
-            ? [...parsed.solution]
-                .map((letter) => normalizeLetter(letter, payload.language))
-                .join('')
-            : '';
-        if (savedSolution === payload.solution) {
-          this.state.set(
-            this.loadOrCreateClassic(
-              payload.language,
-              payload.wordLength,
-              payload.difficulty,
-              payload.wordTier,
-            ),
-          );
-          return true;
-        }
-      } catch {
-        // Fall through and create a fresh seeded game.
+      const restored = this.parseClassicSave(raw, {
+        language: payload.language,
+        length: payload.wordLength,
+        difficulty: payload.difficulty,
+        wordTier: payload.wordTier,
+        allowUsedSolution: true,
+      });
+      if (restored?.solution === payload.solution) {
+        this.state.set(restored);
+        return true;
       }
     }
 
@@ -204,16 +192,17 @@ export class GameService {
   addLetter(letter: string): void {
     const current = this.state();
     const value = normalizeLetter(letter, current.language);
-    if (!isPlayableLetter(value, current.language) || !this.isPlaying()) {
+    if (
+      !isPlayableLetter(value, current.language) ||
+      !this.isPlaying() ||
+      current.currentGuess.length >= current.wordLength
+    ) {
       return;
     }
 
-    this.state.update((state) => {
-      if (state.currentGuess.length >= state.wordLength) {
-        return state;
-      }
-      return { ...state, currentGuess: `${state.currentGuess}${value}` };
-    });
+    const next = { ...current, currentGuess: `${current.currentGuess}${value}` };
+    this.state.set(next);
+    this.persist(next);
   }
 
   removeLetter(): void {
@@ -221,10 +210,17 @@ export class GameService {
       return;
     }
 
-    this.state.update((current) => ({
+    const current = this.state();
+    if (!current.currentGuess) {
+      return;
+    }
+
+    const next = {
       ...current,
       currentGuess: current.currentGuess.slice(0, -1),
-    }));
+    };
+    this.state.set(next);
+    this.persist(next);
   }
 
   useHint(): 'ok' | 'none-left' | 'finished' | 'no-unknown' {
@@ -417,81 +413,93 @@ export class GameService {
         return this.createClassicState(language, length, difficulty, wordTier);
       }
 
-      const parsed = JSON.parse(raw) as Partial<GameState>;
-      const parsedLength = isWordLength(parsed.wordLength) ? parsed.wordLength : length;
-      const parsedLanguage = isGameLanguage(parsed.language) ? parsed.language : language;
-      const parsedDifficulty = isDifficulty(parsed.difficulty) ? parsed.difficulty : difficulty;
-      const parsedTier = isWordTier(parsed.wordTier) ? parsed.wordTier : wordTier;
-      const maxAttempts = attemptsForDifficulty(difficulty);
-      if (
-        parsedLength !== length ||
-        parsedLanguage !== language ||
-        parsedDifficulty !== difficulty ||
-        parsedTier !== wordTier ||
-        typeof parsed.solution !== 'string' ||
-        parsed.solution.length !== length ||
-        !Array.isArray(parsed.guesses) ||
-        parsed.guesses.length > maxAttempts
-      ) {
-        return this.createClassicState(language, length, difficulty, wordTier);
-      }
-
-      const status =
-        parsed.status === 'won' || parsed.status === 'lost' ? parsed.status : 'playing';
-
-      const solution = [...parsed.solution]
-        .map((letter) => normalizeLetter(letter, language))
-        .join('');
-
-      const used = this.history.usedWords(length, language);
-
-      if (status === 'playing' && used.has(solution)) {
-        return this.createClassicState(language, length, difficulty, wordTier);
-      }
-
-      const hints = normalizeHints(parsed, length);
-
-      if (status === 'won' || status === 'lost') {
-        this.history.record({
-          word: solution,
-          language,
-          length,
-          mode: 'classic',
-          difficulty,
-          wordTier,
-          status,
-          attempts: parsed.guesses.length,
-          hintsUsed: hints.hintsUsed,
-        });
-      }
-
-      return {
-        mode: 'classic',
-        language,
-        wordLength: length,
-        difficulty,
-        wordTier,
-        maxAttempts,
-        solution,
-        guesses: parsed.guesses.map((guess) =>
-          [...(typeof guess === 'string' ? guess : '')]
-            .map((letter) => normalizeLetter(letter, language))
-            .join(''),
-        ),
-        currentGuess:
-          status === 'playing'
-            ? [...(parsed.currentGuess ?? '')]
-                .map((letter) => normalizeLetter(letter, language))
-                .join('')
-            : '',
-        status,
-        keyboard: parsed.keyboard ?? {},
-        hintedPositions: hints.hintedPositions,
-        hintsUsed: hints.hintsUsed,
-      };
+      return (
+        this.parseClassicSave(raw, { language, length, difficulty, wordTier }) ??
+        this.createClassicState(language, length, difficulty, wordTier)
+      );
     } catch {
       return this.createClassicState(language, length, difficulty, wordTier);
     }
+  }
+
+  private parseClassicSave(
+    raw: string,
+    settings: {
+      language: GameLanguage;
+      length: WordLength;
+      difficulty: Difficulty;
+      wordTier: WordTier;
+      allowUsedSolution?: boolean;
+    },
+  ): GameState | null {
+    const { language, length, difficulty, wordTier, allowUsedSolution = false } = settings;
+    let parsed: Partial<GameState>;
+    try {
+      parsed = JSON.parse(raw) as Partial<GameState>;
+    } catch {
+      return null;
+    }
+
+    const parsedLength = isWordLength(parsed.wordLength) ? parsed.wordLength : length;
+    const parsedLanguage = isGameLanguage(parsed.language) ? parsed.language : language;
+    const parsedDifficulty = isDifficulty(parsed.difficulty) ? parsed.difficulty : difficulty;
+    const parsedTier = isWordTier(parsed.wordTier) ? parsed.wordTier : wordTier;
+    const maxAttempts = attemptsForDifficulty(difficulty);
+
+    const solution =
+      typeof parsed.solution === 'string'
+        ? normalizeSolution(parsed.solution, language, length)
+        : null;
+
+    if (
+      parsedLength !== length ||
+      parsedLanguage !== language ||
+      parsedDifficulty !== difficulty ||
+      parsedTier !== wordTier ||
+      !solution
+    ) {
+      return null;
+    }
+
+    const progress = hydrateSavedProgress(parsed, language, length, solution, maxAttempts);
+    if (!progress) {
+      return null;
+    }
+
+    const used = this.history.usedWords(length, language, difficulty, wordTier);
+    if (!allowUsedSolution && progress.status === 'playing' && used.has(solution)) {
+      return null;
+    }
+
+    if (progress.status === 'won' || progress.status === 'lost') {
+      this.history.record({
+        word: solution,
+        language,
+        length,
+        mode: 'classic',
+        difficulty,
+        wordTier,
+        status: progress.status,
+        attempts: progress.guesses.length,
+        hintsUsed: progress.hintsUsed,
+      });
+    }
+
+    return {
+      mode: 'classic',
+      language,
+      wordLength: length,
+      difficulty,
+      wordTier,
+      maxAttempts,
+      solution,
+      guesses: progress.guesses,
+      currentGuess: progress.currentGuess,
+      status: progress.status,
+      keyboard: progress.keyboard,
+      hintedPositions: progress.hintedPositions,
+      hintsUsed: progress.hintsUsed,
+    };
   }
 
   private loadOrCreateDaily(
@@ -511,34 +519,30 @@ export class GameService {
       }
 
       const parsed = JSON.parse(raw) as Partial<GameState>;
+
+      const solution =
+        typeof parsed.solution === 'string'
+          ? normalizeSolution(parsed.solution, language, length)
+          : null;
+
       if (
         !isWordLength(parsed.wordLength) ||
         parsed.wordLength !== length ||
         !isGameLanguage(parsed.language) ||
         parsed.language !== language ||
         parsed.dailyDate !== dateKey ||
-        typeof parsed.solution !== 'string' ||
-        parsed.solution.length !== length ||
-        !Array.isArray(parsed.guesses) ||
-        parsed.guesses.length > maxAttempts
+        !solution ||
+        solution !== expected
       ) {
         return this.createDailyState(language, length, dateKey);
       }
 
-      const solution = [...parsed.solution]
-        .map((letter) => normalizeLetter(letter, language))
-        .join('');
-
-      if (solution !== expected) {
+      const progress = hydrateSavedProgress(parsed, language, length, solution, maxAttempts);
+      if (!progress) {
         return this.createDailyState(language, length, dateKey);
       }
 
-      const status =
-        parsed.status === 'won' || parsed.status === 'lost' ? parsed.status : 'playing';
-
-      const hints = normalizeHints(parsed, length);
-
-      if (status === 'won' || status === 'lost') {
+      if (progress.status === 'won' || progress.status === 'lost') {
         this.history.record({
           word: solution,
           language,
@@ -547,9 +551,9 @@ export class GameService {
           difficulty,
           wordTier,
           dailyDate: dateKey,
-          status,
-          attempts: parsed.guesses.length,
-          hintsUsed: hints.hintsUsed,
+          status: progress.status,
+          attempts: progress.guesses.length,
+          hintsUsed: progress.hintsUsed,
         });
       }
 
@@ -562,21 +566,12 @@ export class GameService {
         dailyDate: dateKey,
         maxAttempts,
         solution,
-        guesses: parsed.guesses.map((guess) =>
-          [...(typeof guess === 'string' ? guess : '')]
-            .map((letter) => normalizeLetter(letter, language))
-            .join(''),
-        ),
-        currentGuess:
-          status === 'playing'
-            ? [...(parsed.currentGuess ?? '')]
-                .map((letter) => normalizeLetter(letter, language))
-                .join('')
-            : '',
-        status,
-        keyboard: parsed.keyboard ?? {},
-        hintedPositions: hints.hintedPositions,
-        hintsUsed: hints.hintsUsed,
+        guesses: progress.guesses,
+        currentGuess: progress.currentGuess,
+        status: progress.status,
+        keyboard: progress.keyboard,
+        hintedPositions: progress.hintedPositions,
+        hintsUsed: progress.hintsUsed,
       };
     } catch {
       return this.createDailyState(language, length, dateKey);
@@ -592,7 +587,12 @@ export class GameService {
   ): GameState {
     const normalizedSolution = solution
       ? [...solution].map((letter) => normalizeLetter(letter, language)).join('')
-      : pickRandomWord(length, language, this.history.usedWords(length, language), wordTier);
+      : pickRandomWord(
+          length,
+          language,
+          this.history.usedWords(length, language, difficulty, wordTier),
+          wordTier,
+        );
 
     return {
       mode: 'classic',
@@ -631,18 +631,22 @@ export class GameService {
   }
 
   private persist(state: GameState): void {
-    if (state.mode === 'daily' && state.dailyDate) {
+    try {
+      if (state.mode === 'daily' && state.dailyDate) {
+        localStorage.setItem(
+          dailyStorageKey(state.language, state.wordLength, state.dailyDate),
+          JSON.stringify(state),
+        );
+        return;
+      }
+
       localStorage.setItem(
-        dailyStorageKey(state.language, state.wordLength, state.dailyDate),
+        classicStorageKey(state.language, state.wordLength, state.difficulty, state.wordTier),
         JSON.stringify(state),
       );
-      return;
+    } catch {
+      // QuotaExceeded / private mode — keep in-memory state only.
     }
-
-    localStorage.setItem(
-      classicStorageKey(state.language, state.wordLength, state.difficulty, state.wordTier),
-      JSON.stringify(state),
-    );
   }
 }
 
@@ -792,6 +796,26 @@ function mergeKeyboard(
   return next;
 }
 
+function rebuildKeyboard(
+  guesses: readonly string[],
+  solution: string,
+  hintedPositions: readonly number[],
+): Record<string, KeyStatus> {
+  let keyboard: Record<string, KeyStatus> = {};
+  for (const guess of guesses) {
+    keyboard = mergeKeyboard(keyboard, guess, evaluateGuess(guess, solution));
+  }
+
+  for (const position of hintedPositions) {
+    const letter = solution[position];
+    if (letter) {
+      keyboard = { ...keyboard, [letter]: 'correct' };
+    }
+  }
+
+  return keyboard;
+}
+
 function resolveStatus(guesses: string[], solution: string, maxAttempts: number): GameStatus {
   if (guesses[guesses.length - 1] === solution) {
     return 'won';
@@ -800,4 +824,76 @@ function resolveStatus(guesses: string[], solution: string, maxAttempts: number)
     return 'lost';
   }
   return 'playing';
+}
+
+function normalizeSolution(
+  value: string,
+  language: GameLanguage,
+  length: WordLength,
+): string | null {
+  const solution = [...value].map((letter) => normalizeLetter(letter, language)).join('');
+  if (
+    solution.length !== length ||
+    ![...solution].every((letter) => isPlayableLetter(letter, language))
+  ) {
+    return null;
+  }
+  return solution;
+}
+
+function normalizeCurrentGuess(
+  value: unknown,
+  language: GameLanguage,
+  length: WordLength,
+  status: GameStatus,
+): string {
+  if (status !== 'playing' || typeof value !== 'string') {
+    return '';
+  }
+
+  return [...value]
+    .map((letter) => normalizeLetter(letter, language))
+    .filter((letter) => isPlayableLetter(letter, language))
+    .join('')
+    .slice(0, length);
+}
+
+function hydrateSavedProgress(
+  parsed: Partial<GameState>,
+  language: GameLanguage,
+  length: WordLength,
+  solution: string,
+  maxAttempts: number,
+): {
+  guesses: string[];
+  currentGuess: string;
+  status: GameStatus;
+  keyboard: Record<string, KeyStatus>;
+  hintedPositions: number[];
+  hintsUsed: number;
+} | null {
+  if (!Array.isArray(parsed.guesses) || parsed.guesses.length > maxAttempts) {
+    return null;
+  }
+
+  const guesses = parsed.guesses.map((guess) =>
+    [...(typeof guess === 'string' ? guess : '')]
+      .map((letter) => normalizeLetter(letter, language))
+      .join(''),
+  );
+  if (guesses.some((guess) => guess.length !== length)) {
+    return null;
+  }
+
+  const status = resolveStatus(guesses, solution, maxAttempts);
+  const hints = normalizeHints(parsed, length);
+
+  return {
+    guesses,
+    currentGuess: normalizeCurrentGuess(parsed.currentGuess, language, length, status),
+    status,
+    keyboard: rebuildKeyboard(guesses, solution, hints.hintedPositions),
+    hintedPositions: hints.hintedPositions,
+    hintsUsed: hints.hintsUsed,
+  };
 }
