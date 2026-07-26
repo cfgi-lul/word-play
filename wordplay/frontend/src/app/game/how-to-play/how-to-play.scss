@@ -10,6 +10,13 @@
   max-width: 28rem;
 }
 
+.how-to__title-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
 .how-to__header h2 {
   margin: 0;
   font-size: 1.45rem;

@@ -11,12 +11,15 @@ import {
 import { TuiButton, TuiNotificationService, TuiRoot, TuiScrollbar } from '@taiga-ui/core';
 
 import { GameService } from './game/game.service';
+import { type GameMode } from './game/game.types';
 import { GameBoard } from './game/game-board/game-board';
 import { HowToPlay } from './game/how-to-play/how-to-play';
 import { Keyboard } from './game/keyboard/keyboard';
 import { HistoryPanel } from './history/history-panel';
+import { HomeScreen } from './home/home-screen';
 import { LocaleService } from './i18n/locale.service';
 import { TranslatePipe } from './i18n/translate.pipe';
+import { NavigationService } from './navigation/navigation.service';
 import { PwaUpdateService } from './pwa/pwa-update.service';
 import { SettingsPanel } from './settings/settings-panel';
 import { ThemeService } from './theme/theme.service';
@@ -32,6 +35,7 @@ import { ThemeService } from './theme/theme.service';
     Keyboard,
     HowToPlay,
     HistoryPanel,
+    HomeScreen,
     SettingsPanel,
     TranslatePipe,
   ],
@@ -45,11 +49,13 @@ export class App {
   private readonly themes = inject(ThemeService);
   private readonly i18n = inject(LocaleService);
   private readonly updates = inject(PwaUpdateService);
+  private readonly navigation = inject(NavigationService);
   private readonly notifications = inject(TuiNotificationService);
   private readonly hiddenInput = viewChild<ElementRef<HTMLInputElement>>('hiddenInput');
   private readonly onScreenKeyboard = viewChild(Keyboard);
 
   readonly locale = this.i18n.current;
+  readonly screen = this.navigation.screen;
   readonly board = this.game.board;
   readonly keyboard = this.game.keyboard;
   readonly status = this.game.status;
@@ -58,10 +64,10 @@ export class App {
   readonly wordLength = this.game.wordLength;
   readonly maxAttempts = this.game.maxAttempts;
   readonly wordLanguage = this.game.language;
+  readonly gameMode = this.game.mode;
+  readonly canPlayAgain = this.game.canPlayAgain;
   readonly updateAvailable = this.updates.updateAvailable;
   readonly helpOpen = signal(false);
-  readonly settingsOpen = signal(false);
-  readonly historyOpen = signal(false);
 
   constructor() {
     void this.themes.theme();
@@ -70,22 +76,14 @@ export class App {
     afterNextRender(() => {
       if (this.shouldShowIntro()) {
         this.helpOpen.set(true);
-      } else {
-        this.focusInput();
       }
     });
   }
 
   onWindowKeydown(event: KeyboardEvent): void {
-    if (this.helpOpen() || this.settingsOpen() || this.historyOpen()) {
-      if (event.key === 'Escape') {
-        if (this.settingsOpen()) {
-          this.closeSettings();
-        } else if (this.historyOpen()) {
-          this.closeHistory();
-        } else {
-          this.closeHelp();
-        }
+    if (this.helpOpen() || this.screen() !== 'game') {
+      if (event.key === 'Escape' && this.helpOpen()) {
+        this.closeHelp();
       }
       return;
     }
@@ -97,6 +95,26 @@ export class App {
     this.handleKey(event);
   }
 
+  openClassic(): void {
+    this.openGame('classic');
+  }
+
+  openDaily(): void {
+    this.openGame('daily');
+  }
+
+  openStats(): void {
+    this.navigation.openStats();
+  }
+
+  openSettings(): void {
+    this.navigation.openSettings();
+  }
+
+  goHome(): void {
+    this.navigation.goHome();
+  }
+
   openHelp(): void {
     this.helpOpen.set(true);
   }
@@ -104,25 +122,9 @@ export class App {
   closeHelp(): void {
     this.markIntroSeen();
     this.helpOpen.set(false);
-    queueMicrotask(() => this.focusInput());
-  }
-
-  openSettings(): void {
-    this.settingsOpen.set(true);
-  }
-
-  closeSettings(): void {
-    this.settingsOpen.set(false);
-    queueMicrotask(() => this.focusInput());
-  }
-
-  openHistory(): void {
-    this.historyOpen.set(true);
-  }
-
-  closeHistory(): void {
-    this.historyOpen.set(false);
-    queueMicrotask(() => this.focusInput());
+    if (this.screen() === 'game') {
+      queueMicrotask(() => this.focusInput());
+    }
   }
 
   focusInput(): void {
@@ -180,12 +182,17 @@ export class App {
     queueMicrotask(() => this.focusInput());
   }
 
+  private openGame(mode: GameMode): void {
+    this.game.activateMode(mode);
+    this.navigation.openGame();
+    queueMicrotask(() => this.focusInput());
+  }
+
   private handleKey(event: KeyboardEvent): void {
     if (
+      this.screen() !== 'game' ||
       !this.isPlaying() ||
       this.helpOpen() ||
-      this.settingsOpen() ||
-      this.historyOpen() ||
       event.metaKey ||
       event.ctrlKey ||
       event.altKey

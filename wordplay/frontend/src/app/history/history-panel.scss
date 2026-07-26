@@ -1,47 +1,195 @@
-.history-backdrop {
-  position: fixed;
-  inset: 0;
-  z-index: 30;
-  background: var(--wp-overlay);
+:host {
+  display: block;
+  min-height: 100dvh;
 }
 
-.history-modal {
-  position: fixed;
-  z-index: 31;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: min(28rem, calc(100vw - 2rem));
-  max-height: min(85dvh, 40rem);
-  overflow: hidden;
-  border-radius: 1rem;
-  background: var(--wp-surface-elevated);
-  color: var(--wp-text);
-  box-shadow: var(--wp-shadow);
-  border: 1px solid var(--wp-border);
-}
-
-.history-modal__scroll {
-  max-block-size: min(85dvh, 40rem);
-}
-
-.history-modal__content {
+.stats-page {
+  min-height: 100dvh;
+  max-width: 40rem;
+  margin: 0 auto;
   display: grid;
-  gap: 1.25rem;
-  padding: 1.25rem 1.25rem 1rem;
+  grid-template-rows: auto minmax(0, 1fr);
+  background:
+    radial-gradient(100% 60% at 0% 0%, color-mix(in srgb, var(--game-correct) 12%, transparent), transparent 55%),
+    var(--wp-bg);
 }
 
-.panel__header h2 {
+.stats-page__bar {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.75rem 0.85rem 0.35rem;
+}
+
+.stats-page__bar h1 {
   margin: 0;
-  font-size: 1.4rem;
+  font-size: 1.25rem;
   font-weight: 800;
   letter-spacing: -0.02em;
 }
 
+.stats-page__scroll {
+  max-block-size: calc(100dvh - 3.5rem);
+}
+
+.stats-page__content {
+  display: grid;
+  gap: 1rem;
+  padding: 0.5rem 1.25rem 1.5rem;
+}
+
 .panel__header p {
-  margin: 0.3rem 0 0;
+  margin: 0;
   color: var(--wp-text-muted);
   font-weight: 600;
+}
+
+.mode-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.4rem;
+  padding: 0.3rem;
+  border-radius: 0.9rem;
+  background: var(--wp-surface);
+  border: 1px solid var(--wp-border);
+}
+
+.mode-tab {
+  border: 0;
+  border-radius: 0.7rem;
+  padding: 0.65rem 0.75rem;
+  background: transparent;
+  color: var(--wp-text-muted);
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.mode-tab--active {
+  background: var(--wp-option-active);
+  color: var(--wp-option-active-text);
+}
+
+.panel__mode {
+  margin: 0;
+  font-size: 0.88rem;
+  font-weight: 800;
+  color: var(--wp-text);
+}
+
+.panel__hint {
+  margin: 0;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--wp-text-muted);
+  line-height: 1.35;
+}
+
+.stats {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.stats h3,
+.stats h4 {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 800;
+}
+
+.stats h4 {
+  color: var(--wp-text-muted);
+  font-size: 0.88rem;
+}
+
+.stats__scope {
+  margin: 0;
+  color: var(--wp-text-muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.stats__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.55rem;
+}
+
+.stats__card {
+  display: grid;
+  gap: 0.15rem;
+  justify-items: center;
+  padding: 0.7rem 0.4rem;
+  border-radius: 0.85rem;
+  border: 1.5px solid var(--wp-option-border);
+  background: var(--wp-surface);
+  text-align: center;
+}
+
+.stats__card strong {
+  font-size: 1.25rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+.stats__card span {
+  color: var(--wp-text-muted);
+  font-size: 0.72rem;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.stats__distribution {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.dist-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.35rem;
+}
+
+.dist-row {
+  display: grid;
+  grid-template-columns: 1.1rem minmax(0, 1fr) 1.4rem;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.dist-row__label,
+.dist-row__count {
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: var(--wp-text-muted);
+}
+
+.dist-row__count {
+  text-align: right;
+}
+
+.dist-row__track {
+  height: 1.15rem;
+  border-radius: 0.35rem;
+  background: var(--wp-surface);
+  border: 1px solid var(--wp-border);
+  overflow: hidden;
+}
+
+.dist-row__bar {
+  height: 100%;
+  width: 0;
+  border-radius: inherit;
+  background: var(--game-correct);
+  transition: width 180ms ease;
+}
+
+.dist-row__bar--filled {
+  min-width: 0.45rem;
 }
 
 .history-empty {
@@ -95,9 +243,4 @@
 
 .history-item__status--lost {
   color: var(--wp-text-muted);
-}
-
-.dialog-actions {
-  display: flex;
-  justify-content: flex-end;
 }

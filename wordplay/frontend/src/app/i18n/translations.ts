@@ -27,10 +27,13 @@ const EN = {
   'settings.tabsAria': 'Settings sections',
   'settings.tab.game': 'Game',
   'settings.tab.system': 'App',
-  'settings.subtitle.game': 'Word length, dictionary, difficulty, language, and updates',
-  'settings.subtitle.system': 'Interface language and theme',
+  'settings.subtitle.game': 'Word length, dictionary, difficulty, and word language',
+  'settings.subtitle.gameDaily': 'Word length and word language for today’s puzzle',
+  'settings.subtitle.system': 'Updates, interface language, and theme',
+  'settings.closeAria': 'Close settings',
   'settings.update': 'App update',
-  'settings.updateHint': 'Install the latest version when a green dot appears on Settings.',
+  'settings.updateHint':
+    'Install the latest version from this App tab when a green dot appears on the Settings menu item.',
   'settings.updateAvailable': 'A new version is ready to install.',
   'settings.updateNow': 'Update now',
   'settings.updateChecking': 'Updating…',
@@ -89,9 +92,34 @@ const EN = {
   'settings.colorAbsent': 'Gray — not in word',
   'settings.done': 'Done',
 
-  'history.title': 'History',
-  'history.subtitle': 'Words you already played stay out of future games.',
+  'home.eyebrow': 'Choose a mode',
+  'home.tagline': 'Guess the hidden word — play freely, or take on today’s shared puzzle.',
+  'home.navAria': 'Main menu',
+  'home.classic': 'Classic',
+  'home.classicHint': 'Choose attempts, dictionary, and keep a personal streak.',
+  'home.daily': 'Daily word',
+  'home.dailyHint': 'One seeded puzzle for everyone today — no difficulty settings.',
+  'home.stats': 'Statistics',
+  'home.statsHint': 'Win rate, streaks, and guess distribution by mode.',
+  'home.settings': 'Settings',
+  'home.settingsHint': 'Word length, difficulty, language, theme, and updates.',
+  'home.back': 'Back to home',
+  'home.backAria': 'Back to home',
+
+  'daily.finishedHint': 'Come back tomorrow for a new daily word.',
+
+  'history.title': 'Statistics',
+  'history.subtitle':
+    'Classic games keep used words out of future rounds. History and stats are split by mode — and for Classic, by attempts and dictionary.',
+  'history.modeTabsAria': 'Statistics mode',
+  'history.modeHint':
+    'Showing Classic results for the selected attempts mode and dictionary. Change them in Settings to view another set.',
+  'history.dailyMode': 'Daily word',
+  'history.dailyHint': 'One puzzle per day. Difficulty settings do not apply to Daily.',
   'history.empty': 'No finished words yet. Play a round to build your history.',
+  'history.emptyMode':
+    'No finished Classic games for this attempts mode and dictionary yet. Play a round or switch settings.',
+  'history.emptyDaily': 'No finished daily puzzles yet. Play today’s word to start a streak.',
   'history.won': 'Solved',
   'history.lost': 'Missed',
   'history.letters': '{{length}} letters',
@@ -99,8 +127,20 @@ const EN = {
   'history.languageEn': 'EN',
   'history.languageRu': 'RU',
   'history.done': 'Done',
+  'history.stats': 'Statistics',
+  'history.statsScope': 'Counted only for the selected attempts mode and dictionary.',
+  'history.statsScopeDaily': 'Counted across daily puzzles.',
+  'history.statsAria': 'Game statistics',
+  'history.statsPlayed': 'Played',
+  'history.statsWinRate': 'Win rate',
+  'history.statsLossRate': 'Loss rate',
+  'history.statsMaxStreak': 'Best streak',
+  'history.statsCurrentStreak': 'Current streak',
+  'history.statsWinsLosses': 'Wins / losses',
+  'history.statsDistribution': 'Guess distribution',
 
   'help.title': 'How to Play',
+  'help.closeAria': 'Close help',
   'help.subtitle': 'Guess the hidden word in {{attempts}} tries',
   'help.objective': 'Objective',
   'help.objectiveText':
@@ -123,6 +163,10 @@ const EN = {
   'help.tip3': 'Use keyboard colors to track what you have learned.',
   'help.tip4': 'Guesses must be valid words from the selected language dictionary.',
   'help.tip5': 'On Hard difficulty, every revealed hint must be used in the next guess.',
+  'help.tip6':
+    'Classic history and stats are separate for each attempts mode and dictionary — switch them in Settings to compare.',
+  'help.tip7':
+    'Daily word is the same for everyone today and ignores difficulty settings. Open Statistics from the home screen.',
 } as const;
 
 const RU: Record<TranslationKey, string> = {
@@ -150,10 +194,13 @@ const RU: Record<TranslationKey, string> = {
   'settings.tabsAria': 'Разделы настроек',
   'settings.tab.game': 'Игра',
   'settings.tab.system': 'Приложение',
-  'settings.subtitle.game': 'Длина слова, словарь, сложность, язык и обновления',
-  'settings.subtitle.system': 'Язык интерфейса и тема',
+  'settings.subtitle.game': 'Длина слова, словарь, сложность и язык слов',
+  'settings.subtitle.gameDaily': 'Длина слова и язык слов для сегодняшней загадки',
+  'settings.subtitle.system': 'Обновления, язык интерфейса и тема',
+  'settings.closeAria': 'Закрыть настройки',
   'settings.update': 'Обновление приложения',
-  'settings.updateHint': 'Установите новую версию, когда над настройками появится зелёная точка.',
+  'settings.updateHint':
+    'Установите новую версию на этой вкладке «Приложение», когда у пункта «Настройки» появится зелёная точка.',
   'settings.updateAvailable': 'Новая версия готова к установке.',
   'settings.updateNow': 'Обновить сейчас',
   'settings.updateChecking': 'Обновление…',
@@ -212,9 +259,35 @@ const RU: Record<TranslationKey, string> = {
   'settings.colorAbsent': 'Серый — буквы нет в слове',
   'settings.done': 'Готово',
 
-  'history.title': 'История',
-  'history.subtitle': 'Сыгранные слова больше не появляются в новых играх.',
+  'home.eyebrow': 'Выберите режим',
+  'home.tagline': 'Угадайте скрытое слово — играйте свободно или берите общее слово дня.',
+  'home.navAria': 'Главное меню',
+  'home.classic': 'Обычная игра',
+  'home.classicHint': 'Выбирайте попытки, словарь и ведите свою серию.',
+  'home.daily': 'Ежедневное слово',
+  'home.dailyHint': 'Одна загадка на всех сегодня — без настроек сложности.',
+  'home.stats': 'Статистика',
+  'home.statsHint': 'Доля побед, серии и распределение попыток по режимам.',
+  'home.settings': 'Настройки',
+  'home.settingsHint': 'Длина слова, сложность, язык, тема и обновления.',
+  'home.back': 'На главный экран',
+  'home.backAria': 'На главный экран',
+
+  'daily.finishedHint': 'Завтра будет новое ежедневное слово.',
+
+  'history.title': 'Статистика',
+  'history.subtitle':
+    'В обычной игре сыгранные слова больше не повторяются. История и статистика разделены по режимам — а для обычной игры ещё и по попыткам и словарю.',
+  'history.modeTabsAria': 'Режим статистики',
+  'history.modeHint':
+    'Показаны результаты обычной игры для выбранного режима попыток и словаря. Смените их в настройках, чтобы посмотреть другой набор.',
+  'history.dailyMode': 'Ежедневное слово',
+  'history.dailyHint': 'Одна загадка в день. Настройки сложности на ежедневный режим не влияют.',
   'history.empty': 'Пока пусто. Завершите игру, чтобы появилась история.',
+  'history.emptyMode':
+    'Для этого режима попыток и словаря пока нет обычных игр. Сыграйте партию или смените настройки.',
+  'history.emptyDaily':
+    'Пока нет завершённых ежедневных загадок. Сыграйте слово дня, чтобы начать серию.',
   'history.won': 'Угадано',
   'history.lost': 'Не угадано',
   'history.letters': '{{length}} букв',
@@ -222,8 +295,20 @@ const RU: Record<TranslationKey, string> = {
   'history.languageEn': 'EN',
   'history.languageRu': 'RU',
   'history.done': 'Готово',
+  'history.stats': 'Статистика',
+  'history.statsScope': 'Считается только для выбранного режима попыток и словаря.',
+  'history.statsScopeDaily': 'Считается по ежедневным загадкам.',
+  'history.statsAria': 'Игровая статистика',
+  'history.statsPlayed': 'Сыграно',
+  'history.statsWinRate': 'Доля побед',
+  'history.statsLossRate': 'Доля поражений',
+  'history.statsMaxStreak': 'Лучшая серия',
+  'history.statsCurrentStreak': 'Текущая серия',
+  'history.statsWinsLosses': 'Победы / поражения',
+  'history.statsDistribution': 'Распределение попыток',
 
   'help.title': 'Как играть',
+  'help.closeAria': 'Закрыть справку',
   'help.subtitle': 'Угадайте скрытое слово за {{attempts}} попыток',
   'help.objective': 'Цель',
   'help.objectiveText':
@@ -246,6 +331,10 @@ const RU: Record<TranslationKey, string> = {
   'help.tip3': 'Ориентируйтесь на цвета клавиш, чтобы не повторять ошибки.',
   'help.tip4': 'Можно вводить только слова из словаря выбранного языка.',
   'help.tip5': 'В сложном режиме в следующей догадке нужно использовать все открытые подсказки.',
+  'help.tip6':
+    'В обычной игре история и статистика разделены по режиму попыток и словарю — переключайте их в настройках, чтобы сравнивать.',
+  'help.tip7':
+    'Ежедневное слово одно на всех и без настроек сложности. Статистику открывайте с главного экрана.',
 };
 
 export const TRANSLATIONS: Record<AppLocale, Record<TranslationKey, string>> = {

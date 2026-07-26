@@ -1,6 +1,15 @@
-import { ChangeDetectionStrategy, Component, inject, input, output, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  input,
+  linkedSignal,
+  output,
+} from '@angular/core';
 import { TuiButton, TuiScrollbar } from '@taiga-ui/core';
 
+import { DifficultyService } from '../game/difficulty.service';
 import { GameService } from '../game/game.service';
 import {
   type Difficulty,
@@ -9,9 +18,12 @@ import {
   type WordLength,
   type WordTier,
 } from '../game/game.types';
+import { GameModeService } from '../game/game-mode.service';
+import { WordTierService } from '../game/word-tier.service';
 import { LocaleService } from '../i18n/locale.service';
 import { TranslatePipe } from '../i18n/translate.pipe';
 import { type AppLocale } from '../i18n/translations';
+import { NavigationService } from '../navigation/navigation.service';
 import { PwaUpdateService } from '../pwa/pwa-update.service';
 import { type ThemeMode, ThemeService } from '../theme/theme.service';
 
@@ -28,21 +40,29 @@ export class SettingsPanel {
   private readonly themes = inject(ThemeService);
   private readonly i18n = inject(LocaleService);
   private readonly game = inject(GameService);
+  private readonly difficulties = inject(DifficultyService);
+  private readonly wordTiers = inject(WordTierService);
+  private readonly modes = inject(GameModeService);
+  private readonly navigation = inject(NavigationService);
   private readonly updates = inject(PwaUpdateService);
 
-  readonly open = input(false);
+  /** Which tab to show when the page opens. */
+  readonly initialTab = input<SettingsTab>('game');
   readonly closed = output<void>();
 
-  readonly tab = signal<SettingsTab>('game');
+  readonly tab = linkedSignal(() => this.initialTab());
   readonly theme = this.themes.theme;
   readonly locale = this.i18n.current;
   readonly wordLanguage = this.game.language;
   readonly wordLength = this.game.wordLength;
-  readonly difficulty = this.game.difficulty;
-  readonly wordTier = this.game.wordTier;
+  readonly difficulty = this.difficulties.difficulty;
+  readonly wordTier = this.wordTiers.wordTier;
   readonly wordLengths = WORD_LENGTHS;
   readonly updateAvailable = this.updates.updateAvailable;
   readonly isApplyingUpdate = this.updates.isApplyingUpdate;
+  readonly showDifficultySettings = computed(
+    () => this.navigation.screen() !== 'game' || this.modes.mode() !== 'daily',
+  );
 
   selectTab(tab: SettingsTab): void {
     this.tab.set(tab);

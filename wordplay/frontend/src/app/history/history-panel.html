@@ -1,61 +1,172 @@
-@if (open()) {
-  <div class="history-backdrop" (click)="close()"></div>
-  <div
-    class="history-modal"
-    role="dialog"
-    aria-modal="true"
-    aria-labelledby="history-title"
-    (click)="$event.stopPropagation()"
-  >
-    <tui-scrollbar class="history-modal__scroll">
-      <div class="history-modal__content">
-        <header class="panel__header">
-          <h2 id="history-title">{{ 'history.title' | t: locale() }}</h2>
-          <p>{{ 'history.subtitle' | t: locale() }}</p>
-        </header>
+<section class="stats-page" aria-labelledby="history-title">
+  <header class="stats-page__bar">
+    <button
+      tuiIconButton
+      type="button"
+      appearance="flat"
+      size="m"
+      iconStart="@tui.arrow-left"
+      [attr.aria-label]="'home.backAria' | t: locale()"
+      (click)="close()"
+    ></button>
+    <h1 id="history-title">{{ 'history.title' | t: locale() }}</h1>
+  </header>
 
-        @if (entries().length === 0) {
-          <p class="history-empty">{{ 'history.empty' | t: locale() }}</p>
-        } @else {
-          <ul class="history-list">
-            @for (
-              entry of entries();
-              track entry.word + entry.language + entry.length + entry.finishedAt
-            ) {
-              <li class="history-item">
-                <span class="history-item__word">{{ entry.word }}</span>
-                <span class="history-item__meta">
-                  <span
-                    class="history-item__status"
-                    [class.history-item__status--won]="entry.status === 'won'"
-                    [class.history-item__status--lost]="entry.status === 'lost'"
-                  >
-                    {{
-                      (entry.status === 'won' ? 'history.won' : 'history.lost') | t: locale()
-                    }}
-                  </span>
-                  <span>
-                    {{
-                      (entry.language === 'ru' ? 'history.languageRu' : 'history.languageEn')
-                        | t: locale()
-                    }}
-                  </span>
-                  <span>{{ 'history.letters' | t: locale() : { length: entry.length } }}</span>
-                  <span>
-                    {{ 'history.attempts' | t: locale() : { count: entry.attempts } }}
-                  </span>
-                </span>
-              </li>
-            }
-          </ul>
-        }
+  <tui-scrollbar class="stats-page__scroll">
+    <div class="stats-page__content">
+      <header class="panel__header">
+        <p>{{ 'history.subtitle' | t: locale() }}</p>
+      </header>
 
-        <div class="dialog-actions">
-          <button tuiButton type="button" appearance="primary" size="m" (click)="close()">
-            {{ 'history.done' | t: locale() }}
-          </button>
-        </div>
+      <div
+        class="mode-tabs"
+        role="tablist"
+        [attr.aria-label]="'history.modeTabsAria' | t: locale()"
+      >
+        <button
+          type="button"
+          class="mode-tab"
+          role="tab"
+          [attr.aria-selected]="statsMode() === 'classic'"
+          [class.mode-tab--active]="statsMode() === 'classic'"
+          (click)="selectMode('classic')"
+        >
+          {{ 'home.classic' | t: locale() }}
+        </button>
+        <button
+          type="button"
+          class="mode-tab"
+          role="tab"
+          [attr.aria-selected]="statsMode() === 'daily'"
+          [class.mode-tab--active]="statsMode() === 'daily'"
+          (click)="selectMode('daily')"
+        >
+          {{ 'home.daily' | t: locale() }}
+        </button>
       </div>
-    </tui-scrollbar>
-  </div>
-}
+
+      @if (statsMode() === 'classic') {
+        <p class="panel__mode">
+          {{ difficultyKey(difficulty()) | t: locale() }}
+          ·
+          {{ dictionaryKey(wordTier()) | t: locale() }}
+        </p>
+        <p class="panel__hint">{{ 'history.modeHint' | t: locale() }}</p>
+      } @else {
+        <p class="panel__mode">{{ 'history.dailyMode' | t: locale() }}</p>
+        <p class="panel__hint">{{ 'history.dailyHint' | t: locale() }}</p>
+      }
+
+      @if (stats().played > 0) {
+        <section class="stats" [attr.aria-label]="'history.statsAria' | t: locale()">
+          <h3>{{ 'history.stats' | t: locale() }}</h3>
+          <p class="stats__scope">
+            {{
+              (statsMode() === 'daily' ? 'history.statsScopeDaily' : 'history.statsScope')
+                | t: locale()
+            }}
+          </p>
+
+          <div class="stats__grid">
+            <div class="stats__card">
+              <strong>{{ stats().played }}</strong>
+              <span>{{ 'history.statsPlayed' | t: locale() }}</span>
+            </div>
+            <div class="stats__card">
+              <strong>{{ stats().winRate }}%</strong>
+              <span>{{ 'history.statsWinRate' | t: locale() }}</span>
+            </div>
+            <div class="stats__card">
+              <strong>{{ stats().lossRate }}%</strong>
+              <span>{{ 'history.statsLossRate' | t: locale() }}</span>
+            </div>
+            <div class="stats__card">
+              <strong>{{ stats().maxWinStreak }}</strong>
+              <span>{{ 'history.statsMaxStreak' | t: locale() }}</span>
+            </div>
+            <div class="stats__card">
+              <strong>{{ stats().currentWinStreak }}</strong>
+              <span>{{ 'history.statsCurrentStreak' | t: locale() }}</span>
+            </div>
+            <div class="stats__card">
+              <strong>{{ stats().wins }}/{{ stats().losses }}</strong>
+              <span>{{ 'history.statsWinsLosses' | t: locale() }}</span>
+            </div>
+          </div>
+
+          <div class="stats__distribution">
+            <h4>{{ 'history.statsDistribution' | t: locale() }}</h4>
+            <ul class="dist-list">
+              @for (bucket of stats().attemptDistribution; track bucket.attempts) {
+                <li class="dist-row">
+                  <span class="dist-row__label">{{ bucket.attempts }}</span>
+                  <div class="dist-row__track" aria-hidden="true">
+                    <div
+                      class="dist-row__bar"
+                      [class.dist-row__bar--filled]="bucket.count > 0"
+                      [style.width.%]="bucket.share"
+                    ></div>
+                  </div>
+                  <span class="dist-row__count">{{ bucket.count }}</span>
+                </li>
+              }
+            </ul>
+          </div>
+        </section>
+      }
+
+      @if (entries().length === 0) {
+        <p class="history-empty">
+          {{
+            (statsMode() === 'daily' ? 'history.emptyDaily' : 'history.emptyMode') | t: locale()
+          }}
+        </p>
+      } @else {
+        <ul class="history-list">
+          @for (
+            entry of entries();
+            track entry.word +
+              entry.language +
+              entry.length +
+              entry.mode +
+              (entry.dailyDate ?? '') +
+              entry.difficulty +
+              entry.wordTier +
+              entry.finishedAt
+          ) {
+            <li class="history-item">
+              <span class="history-item__word">{{ entry.word }}</span>
+              <span class="history-item__meta">
+                <span
+                  class="history-item__status"
+                  [class.history-item__status--won]="entry.status === 'won'"
+                  [class.history-item__status--lost]="entry.status === 'lost'"
+                >
+                  {{
+                    (entry.status === 'won' ? 'history.won' : 'history.lost') | t: locale()
+                  }}
+                </span>
+                <span>
+                  {{
+                    (entry.language === 'ru' ? 'history.languageRu' : 'history.languageEn')
+                      | t: locale()
+                  }}
+                </span>
+                <span>{{ 'history.letters' | t: locale() : { length: entry.length } }}</span>
+                @if (entry.mode === 'classic') {
+                  <span>{{ difficultyKey(entry.difficulty) | t: locale() }}</span>
+                  <span>{{ dictionaryKey(entry.wordTier) | t: locale() }}</span>
+                } @else if (entry.dailyDate) {
+                  <span>{{ entry.dailyDate }}</span>
+                }
+                <span>
+                  {{ 'history.attempts' | t: locale() : { count: entry.attempts } }}
+                </span>
+              </span>
+            </li>
+          }
+        </ul>
+      }
+    </div>
+  </tui-scrollbar>
+</section>

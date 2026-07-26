@@ -1,0 +1,50 @@
+<section class="home" aria-labelledby="home-brand">
+  <div class="home__glow" aria-hidden="true"></div>
+
+  <header class="home__top">
+    <div class="home__actions">
+      <button
+        tuiIconButton
+        type="button"
+        appearance="flat"
+        size="m"
+        iconStart="@tui.circle-help"
+        [attr.aria-label]="'app.helpAria' | t: locale()"
+        (click)="help.emit()"
+      ></button>
+    </div>
+  </header>
+
+  <div class="home__hero">
+    <p class="home__eyebrow">{{ 'home.eyebrow' | t: locale() }}</p>
+    <h1 id="home-brand" class="home__brand">{{ 'app.title' | t: locale() }}</h1>
+    <p class="home__tagline">{{ 'home.tagline' | t: locale() }}</p>
+  </div>
+
+  <nav class="home__nav" [attr.aria-label]="'home.navAria' | t: locale()">
+    <button type="button" class="home__choice home__choice--classic" (click)="classic.emit()">
+      <span class="home__choice-label">{{ 'home.classic' | t: locale() }}</span>
+      <span class="home__choice-hint">{{ 'home.classicHint' | t: locale() }}</span>
+    </button>
+
+    <button type="button" class="home__choice home__choice--daily" (click)="daily.emit()">
+      <span class="home__choice-label">{{ 'home.daily' | t: locale() }}</span>
+      <span class="home__choice-hint">{{ 'home.dailyHint' | t: locale() }}</span>
+    </button>
+
+    <button type="button" class="home__choice home__choice--stats" (click)="stats.emit()">
+      <span class="home__choice-label">{{ 'home.stats' | t: locale() }}</span>
+      <span class="home__choice-hint">{{ 'home.statsHint' | t: locale() }}</span>
+    </button>
+
+    <button type="button" class="home__choice home__choice--settings" (click)="settings.emit()">
+      <span class="home__choice-label-row">
+        <span class="home__choice-label">{{ 'home.settings' | t: locale() }}</span>
+        @if (updateAvailable()) {
+          <span class="home__choice-dot" aria-hidden="true"></span>
+        }
+      </span>
+      <span class="home__choice-hint">{{ 'home.settingsHint' | t: locale() }}</span>
+    </button>
+  </nav>
+</section>

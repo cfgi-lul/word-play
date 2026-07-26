@@ -34,7 +34,7 @@ describe('SettingsPanel', () => {
 
   it('starts on the game tab and switches to app settings', async () => {
     const fixture = TestBed.createComponent(SettingsPanel);
-    fixture.componentRef.setInput('open', true);
+    fixture.componentRef.setInput('initialTab', 'game');
     await fixture.whenStable();
     fixture.detectChanges();
 
@@ -46,14 +46,15 @@ describe('SettingsPanel', () => {
     expect(compiled.textContent).toContain('Dictionary');
     expect(compiled.textContent).toContain('Attempts');
     expect(compiled.textContent).toContain('Word language');
-    expect(compiled.textContent).toContain('App update');
-    expect(compiled.textContent).toContain('Update now');
+    expect(compiled.textContent).not.toContain('App update');
     expect(compiled.textContent).not.toContain('Interface language');
 
     panel.selectTab('system');
     fixture.detectChanges();
 
     expect(panel.tab()).toBe('system');
+    expect(compiled.textContent).toContain('App update');
+    expect(compiled.textContent).toContain('Update now');
     expect(compiled.textContent).toContain('Interface language');
     expect(compiled.textContent).toContain('Theme');
     expect(compiled.textContent).not.toContain('Word length');
@@ -61,9 +62,18 @@ describe('SettingsPanel', () => {
     expect(compiled.textContent).not.toContain('Attempts');
   });
 
+  it('opens on the app tab when requested', async () => {
+    const fixture = TestBed.createComponent(SettingsPanel);
+    fixture.componentRef.setInput('initialTab', 'system');
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.tab()).toBe('system');
+    expect((fixture.nativeElement as HTMLElement).textContent).toContain('App update');
+  });
+
   it('updates dictionary and attempts from the game tab', async () => {
     const fixture = TestBed.createComponent(SettingsPanel);
-    fixture.componentRef.setInput('open', true);
     await fixture.whenStable();
     fixture.detectChanges();
 

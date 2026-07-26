@@ -1,0 +1,193 @@
+:host {
+  display: block;
+  min-height: 100dvh;
+}
+
+.home {
+  position: relative;
+  isolation: isolate;
+  min-height: 100dvh;
+  max-width: 40rem;
+  margin: 0 auto;
+  padding: 1rem 1.25rem 2rem;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  gap: 1.5rem;
+  overflow: hidden;
+  background:
+    radial-gradient(120% 80% at 10% -10%, color-mix(in srgb, var(--game-correct) 22%, transparent), transparent 55%),
+    radial-gradient(90% 70% at 100% 20%, color-mix(in srgb, var(--game-present) 16%, transparent), transparent 50%),
+    linear-gradient(180deg, var(--wp-bg) 0%, var(--wp-bg-accent) 100%);
+  animation: home-enter 420ms ease-out;
+}
+
+.home__glow {
+  position: absolute;
+  inset: auto -20% 10% -20%;
+  height: 40%;
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--game-correct) 12%, transparent), transparent);
+  pointer-events: none;
+  z-index: -1;
+}
+
+.home__top {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.home__actions {
+  display: flex;
+  gap: 0.15rem;
+}
+
+.home__hero {
+  align-self: center;
+  display: grid;
+  gap: 0.65rem;
+  padding-block: 1rem 0.5rem;
+  text-align: left;
+}
+
+.home__eyebrow {
+  margin: 0;
+  color: var(--wp-text-muted);
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  animation: home-rise 480ms 40ms ease-out both;
+}
+
+.home__brand {
+  margin: 0;
+  font-size: clamp(2.6rem, 10vw, 3.6rem);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 0.95;
+  color: var(--wp-text);
+  animation: home-rise 520ms 80ms ease-out both;
+}
+
+.home__tagline {
+  margin: 0;
+  max-width: 22rem;
+  color: var(--wp-text-muted);
+  font-size: 1.05rem;
+  font-weight: 600;
+  line-height: 1.45;
+  animation: home-rise 560ms 120ms ease-out both;
+}
+
+.home__nav {
+  display: grid;
+  gap: 0.75rem;
+  padding-bottom: max(0.5rem, env(safe-area-inset-bottom, 0px));
+}
+
+.home__choice {
+  display: grid;
+  gap: 0.25rem;
+  width: 100%;
+  padding: 1.05rem 1.15rem;
+  border-radius: 1rem;
+  border: 1.5px solid var(--wp-option-border);
+  background: color-mix(in srgb, var(--wp-surface) 88%, transparent);
+  color: var(--wp-text);
+  text-align: left;
+  cursor: pointer;
+  transition:
+    transform 160ms ease,
+    border-color 160ms ease,
+    background 160ms ease;
+  animation: home-rise 600ms ease-out both;
+}
+
+.home__choice--classic {
+  animation-delay: 160ms;
+}
+
+.home__choice--daily {
+  animation-delay: 220ms;
+}
+
+.home__choice--stats {
+  animation-delay: 280ms;
+}
+
+.home__choice--settings {
+  animation-delay: 340ms;
+}
+
+.home__choice-label-row {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.home__choice-dot {
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  background: var(--wp-update-dot);
+  flex: 0 0 auto;
+}
+
+.home__choice:hover,
+.home__choice:focus-visible {
+  outline: none;
+  border-color: var(--wp-option-active);
+  transform: translateY(-2px);
+  background: var(--wp-surface-elevated);
+}
+
+.home__choice:active {
+  transform: translateY(0);
+}
+
+.home__choice-label {
+  font-size: 1.15rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.home__choice-hint {
+  color: var(--wp-text-muted);
+  font-size: 0.88rem;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+@keyframes home-enter {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes home-rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home,
+  .home__eyebrow,
+  .home__brand,
+  .home__tagline,
+  .home__choice {
+    animation: none;
+  }
+
+  .home__choice:hover,
+  .home__choice:focus-visible {
+    transform: none;
+  }
+}
