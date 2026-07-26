@@ -90,7 +90,10 @@ const EN = {
   'settings.done': 'Done',
 
   'history.title': 'History',
-  'history.subtitle': 'Words you already played stay out of future games.',
+  'history.subtitle':
+    'Words you already played stay out of future games. History and statistics are kept separately for each attempts mode and dictionary.',
+  'history.modeHint':
+    'Showing results for the selected attempts mode and dictionary. Change them in Settings to view another set.',
   'history.empty': 'No finished words yet. Play a round to build your history.',
   'history.emptyMode':
     'No finished games for this attempts mode and dictionary yet. Play a round or switch settings.',
@@ -102,7 +105,7 @@ const EN = {
   'history.languageRu': 'RU',
   'history.done': 'Done',
   'history.stats': 'Statistics',
-  'history.statsScope': 'For the selected attempts mode and dictionary.',
+  'history.statsScope': 'Counted only for the selected attempts mode and dictionary.',
   'history.statsAria': 'Game statistics',
   'history.statsPlayed': 'Played',
   'history.statsWinRate': 'Win rate',
@@ -135,6 +138,8 @@ const EN = {
   'help.tip3': 'Use keyboard colors to track what you have learned.',
   'help.tip4': 'Guesses must be valid words from the selected language dictionary.',
   'help.tip5': 'On Hard difficulty, every revealed hint must be used in the next guess.',
+  'help.tip6':
+    'History and statistics are separate for each attempts mode and dictionary — switch them in Settings to compare.',
 } as const;
 
 const RU: Record<TranslationKey, string> = {
@@ -225,7 +230,10 @@ const RU: Record<TranslationKey, string> = {
   'settings.done': 'Готово',
 
   'history.title': 'История',
-  'history.subtitle': 'Сыгранные слова больше не появляются в новых играх.',
+  'history.subtitle':
+    'Сыгранные слова больше не появляются в новых играх. История и статистика считаются отдельно для каждого режима попыток и словаря.',
+  'history.modeHint':
+    'Показаны результаты для выбранного режима попыток и словаря. Смените их в настройках, чтобы посмотреть другой набор.',
   'history.empty': 'Пока пусто. Завершите игру, чтобы появилась история.',
   'history.emptyMode':
     'Для этого режима попыток и словаря пока нет игр. Сыграйте партию или смените настройки.',
@@ -237,7 +245,7 @@ const RU: Record<TranslationKey, string> = {
   'history.languageRu': 'RU',
   'history.done': 'Готово',
   'history.stats': 'Статистика',
-  'history.statsScope': 'Для выбранного режима попыток и словаря.',
+  'history.statsScope': 'Считается только для выбранного режима попыток и словаря.',
   'history.statsAria': 'Игровая статистика',
   'history.statsPlayed': 'Сыграно',
   'history.statsWinRate': 'Доля побед',
@@ -270,6 +278,8 @@ const RU: Record<TranslationKey, string> = {
   'help.tip3': 'Ориентируйтесь на цвета клавиш, чтобы не повторять ошибки.',
   'help.tip4': 'Можно вводить только слова из словаря выбранного языка.',
   'help.tip5': 'В сложном режиме в следующей догадке нужно использовать все открытые подсказки.',
+  'help.tip6':
+    'История и статистика разделены по режиму попыток и словарю — переключайте их в настройках, чтобы сравнивать.',
 };
 
 export const TRANSLATIONS: Record<AppLocale, Record<TranslationKey, string>> = {

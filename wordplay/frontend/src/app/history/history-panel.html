@@ -17,6 +17,7 @@
             ·
             {{ dictionaryKey(wordTier()) | t: locale() }}
           </p>
+          <p class="panel__hint">{{ 'history.modeHint' | t: locale() }}</p>
         </header>
 
         @if (stats().played > 0) {
