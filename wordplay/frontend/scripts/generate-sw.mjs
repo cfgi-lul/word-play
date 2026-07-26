@@ -24,7 +24,8 @@ const { count, size, warnings } = await generateSW({
   navigateFallbackAllowlist: [/^(?!\/__).*/],
   cleanupOutdatedCaches: true,
   clientsClaim: true,
-  skipWaiting: true,
+  // Keep the new worker waiting so the app can prompt the user before reload.
+  skipWaiting: false,
   maximumFileSizeToCacheInBytes: 3 * 1024 * 1024,
   runtimeCaching: [
     {

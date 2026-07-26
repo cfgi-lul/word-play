@@ -17,6 +17,7 @@ import { Keyboard } from './game/keyboard/keyboard';
 import { HistoryPanel } from './history/history-panel';
 import { LocaleService } from './i18n/locale.service';
 import { TranslatePipe } from './i18n/translate.pipe';
+import { PwaUpdateService } from './pwa/pwa-update.service';
 import { SettingsPanel } from './settings/settings-panel';
 import { ThemeService } from './theme/theme.service';
 
@@ -43,6 +44,7 @@ export class App {
   private readonly game = inject(GameService);
   private readonly themes = inject(ThemeService);
   private readonly i18n = inject(LocaleService);
+  private readonly updates = inject(PwaUpdateService);
   private readonly notifications = inject(TuiNotificationService);
   private readonly hiddenInput = viewChild<ElementRef<HTMLInputElement>>('hiddenInput');
   private readonly onScreenKeyboard = viewChild(Keyboard);
@@ -56,6 +58,7 @@ export class App {
   readonly wordLength = this.game.wordLength;
   readonly maxAttempts = this.game.maxAttempts;
   readonly wordLanguage = this.game.language;
+  readonly updateAvailable = this.updates.updateAvailable;
   readonly helpOpen = signal(false);
   readonly settingsOpen = signal(false);
   readonly historyOpen = signal(false);

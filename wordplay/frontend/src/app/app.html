@@ -30,15 +30,22 @@
           [attr.aria-label]="'app.historyAria' | t: locale()"
           (click)="openHistory(); $event.stopPropagation()"
         ></button>
-        <button
-          tuiIconButton
-          type="button"
-          appearance="flat"
-          size="m"
-          iconStart="@tui.settings"
-          [attr.aria-label]="'app.settingsAria' | t: locale()"
-          (click)="openSettings(); $event.stopPropagation()"
-        ></button>
+        <span class="header__settings">
+          <button
+            tuiIconButton
+            type="button"
+            appearance="flat"
+            size="m"
+            iconStart="@tui.settings"
+            [attr.aria-label]="
+              (updateAvailable() ? 'app.settingsUpdateAria' : 'app.settingsAria') | t: locale()
+            "
+            (click)="openSettings(); $event.stopPropagation()"
+          ></button>
+          @if (updateAvailable()) {
+            <span class="header__update-dot" aria-hidden="true"></span>
+          }
+        </span>
         <button
           tuiIconButton
           type="button"
