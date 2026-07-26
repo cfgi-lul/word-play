@@ -27,9 +27,10 @@ const EN = {
   'settings.tabsAria': 'Settings sections',
   'settings.tab.game': 'Game',
   'settings.tab.system': 'App',
-  'settings.subtitle.game': 'Word length, dictionary, difficulty, language, and updates',
-  'settings.subtitle.gameDaily': 'Word length, language, and updates for today’s puzzle',
-  'settings.subtitle.system': 'Interface language and theme',
+  'settings.subtitle.game': 'Word length, dictionary, difficulty, and word language',
+  'settings.subtitle.gameDaily': 'Word length and word language for today’s puzzle',
+  'settings.subtitle.system': 'Updates, interface language, and theme',
+  'settings.closeAria': 'Close settings',
   'settings.update': 'App update',
   'settings.updateHint': 'Install the latest version when a green dot appears on Settings.',
   'settings.updateAvailable': 'A new version is ready to install.',
@@ -136,6 +137,7 @@ const EN = {
   'history.statsDistribution': 'Guess distribution',
 
   'help.title': 'How to Play',
+  'help.closeAria': 'Close help',
   'help.subtitle': 'Guess the hidden word in {{attempts}} tries',
   'help.objective': 'Objective',
   'help.objectiveText':
@@ -189,9 +191,10 @@ const RU: Record<TranslationKey, string> = {
   'settings.tabsAria': 'Разделы настроек',
   'settings.tab.game': 'Игра',
   'settings.tab.system': 'Приложение',
-  'settings.subtitle.game': 'Длина слова, словарь, сложность, язык и обновления',
-  'settings.subtitle.gameDaily': 'Длина слова, язык и обновления для сегодняшней загадки',
-  'settings.subtitle.system': 'Язык интерфейса и тема',
+  'settings.subtitle.game': 'Длина слова, словарь, сложность и язык слов',
+  'settings.subtitle.gameDaily': 'Длина слова и язык слов для сегодняшней загадки',
+  'settings.subtitle.system': 'Обновления, язык интерфейса и тема',
+  'settings.closeAria': 'Закрыть настройки',
   'settings.update': 'Обновление приложения',
   'settings.updateHint': 'Установите новую версию, когда над настройками появится зелёная точка.',
   'settings.updateAvailable': 'Новая версия готова к установке.',
@@ -299,6 +302,7 @@ const RU: Record<TranslationKey, string> = {
   'history.statsDistribution': 'Распределение попыток',
 
   'help.title': 'Как играть',
+  'help.closeAria': 'Закрыть справку',
   'help.subtitle': 'Угадайте скрытое слово за {{attempts}} попыток',
   'help.objective': 'Цель',
   'help.objectiveText':

@@ -1,6 +1,17 @@
 <article class="how-to">
   <header class="how-to__header">
-    <h2 id="help-title">{{ 'help.title' | t: locale() }}</h2>
+    <div class="how-to__title-row">
+      <h2 id="help-title">{{ 'help.title' | t: locale() }}</h2>
+      <button
+        tuiIconButton
+        type="button"
+        appearance="flat"
+        size="m"
+        iconStart="@tui.x"
+        [attr.aria-label]="'help.closeAria' | t: locale()"
+        (click)="close()"
+      ></button>
+    </div>
     <p class="how-to__subtitle">{{ 'help.subtitle' | t: locale() : { attempts: maxAttempts() } }}</p>
   </header>
 

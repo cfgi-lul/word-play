@@ -145,6 +145,7 @@
             [locale]="locale()"
             [wordLength]="wordLength()"
             [maxAttempts]="maxAttempts()"
+            (closed)="closeHelp()"
           />
           <div class="dialog-actions">
             <button tuiButton type="button" appearance="primary" size="m" (click)="closeHelp()">

@@ -10,7 +10,18 @@
     <tui-scrollbar class="settings-modal__scroll">
       <div class="settings-modal__content">
         <header class="panel__header">
-          <h2 id="settings-title">{{ 'settings.title' | t: locale() }}</h2>
+          <div class="panel__title-row">
+            <h2 id="settings-title">{{ 'settings.title' | t: locale() }}</h2>
+            <button
+              tuiIconButton
+              type="button"
+              appearance="flat"
+              size="m"
+              iconStart="@tui.x"
+              [attr.aria-label]="'settings.closeAria' | t: locale()"
+              (click)="close()"
+            ></button>
+          </div>
           <p>
             @if (tab() === 'game') {
               {{
@@ -53,34 +64,6 @@
         </div>
 
         @if (tab() === 'game') {
-          <section class="section" [class.section--update]="updateAvailable()">
-            <h3>{{ 'settings.update' | t: locale() }}</h3>
-            <p class="section__hint">
-              @if (updateAvailable()) {
-                {{ 'settings.updateAvailable' | t: locale() }}
-              } @else {
-                {{ 'settings.updateHint' | t: locale() }}
-              }
-            </p>
-            <button
-              tuiButton
-              type="button"
-              appearance="secondary"
-              size="m"
-              class="update-button"
-              [disabled]="isApplyingUpdate()"
-              (click)="applyUpdate()"
-            >
-              @if (updateAvailable()) {
-                <span class="update-button__dot" aria-hidden="true"></span>
-              }
-              {{
-                (isApplyingUpdate() ? 'settings.updateChecking' : 'settings.updateNow')
-                  | t: locale()
-              }}
-            </button>
-          </section>
-
           <section class="section">
             <h3>{{ 'settings.wordLength' | t: locale() }}</h3>
             <p class="section__hint">{{ 'settings.wordLengthHint' | t: locale() }}</p>
@@ -275,6 +258,34 @@
             </div>
           </section>
         } @else {
+          <section class="section" [class.section--update]="updateAvailable()">
+            <h3>{{ 'settings.update' | t: locale() }}</h3>
+            <p class="section__hint">
+              @if (updateAvailable()) {
+                {{ 'settings.updateAvailable' | t: locale() }}
+              } @else {
+                {{ 'settings.updateHint' | t: locale() }}
+              }
+            </p>
+            <button
+              tuiButton
+              type="button"
+              appearance="secondary"
+              size="m"
+              class="update-button"
+              [disabled]="isApplyingUpdate()"
+              (click)="applyUpdate()"
+            >
+              @if (updateAvailable()) {
+                <span class="update-button__dot" aria-hidden="true"></span>
+              }
+              {{
+                (isApplyingUpdate() ? 'settings.updateChecking' : 'settings.updateNow')
+                  | t: locale()
+              }}
+            </button>
+          </section>
+
           <section class="section">
             <h3>{{ 'settings.interfaceLanguage' | t: locale() }}</h3>
             <p class="section__hint">{{ 'settings.interfaceLanguageHint' | t: locale() }}</p>

@@ -46,14 +46,15 @@ describe('SettingsPanel', () => {
     expect(compiled.textContent).toContain('Dictionary');
     expect(compiled.textContent).toContain('Attempts');
     expect(compiled.textContent).toContain('Word language');
-    expect(compiled.textContent).toContain('App update');
-    expect(compiled.textContent).toContain('Update now');
+    expect(compiled.textContent).not.toContain('App update');
     expect(compiled.textContent).not.toContain('Interface language');
 
     panel.selectTab('system');
     fixture.detectChanges();
 
     expect(panel.tab()).toBe('system');
+    expect(compiled.textContent).toContain('App update');
+    expect(compiled.textContent).toContain('Update now');
     expect(compiled.textContent).toContain('Interface language');
     expect(compiled.textContent).toContain('Theme');
     expect(compiled.textContent).not.toContain('Word length');
