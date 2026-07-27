@@ -4,14 +4,14 @@
   "scripts": {
     "build": "ng build && node scripts/generate-sw.mjs",
     "build:gh-pages": "ng build --configuration production --base-href /word-play/ && node scripts/generate-sw.mjs --gh-pages",
+    "curate:dictionaries": "node scripts/curate-dictionaries.mjs",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "ng": "ng",
     "start": "ng serve",
     "test": "ng test",
     "test:ci": "ng test --watch=false",
-    "watch": "ng build --watch --configuration development",
-    "curate:dictionaries": "node scripts/curate-dictionaries.mjs"
+    "watch": "ng build --watch --configuration development"
   },
   "prettier": {
     "printWidth": 100,
