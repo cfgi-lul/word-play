@@ -67,18 +67,6 @@ export function decodePuzzleSeed(seed: string): PuzzleSeedPayload | null {
   }
 }
 
-export function buildClassicPlayPath(seed: string): string {
-  return `/classic/${encodeURIComponent(seed)}`;
-}
-
-export function buildDailyPlayPath(
-  dateKey: string,
-  language: GameLanguage,
-  length: WordLength,
-): string {
-  return `/daily/${encodeURIComponent(dateKey)}?lang=${encodeURIComponent(language)}&len=${length}`;
-}
-
 function normalizeSolution(word: string, language: GameLanguage, length: WordLength): string {
   return [...word]
     .map((letter) => normalizeLetter(letter, language))

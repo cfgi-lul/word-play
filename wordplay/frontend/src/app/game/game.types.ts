@@ -5,7 +5,6 @@ export type GameLanguage = AppLocale;
 export type Difficulty = 'easy' | 'normal' | 'hard';
 export type WordTier = 'easy' | 'medium' | 'hard';
 export type GameMode = 'classic' | 'daily';
-export type AppScreen = 'home' | 'game' | 'stats' | 'settings';
 
 export const WORD_LENGTHS: readonly WordLength[] = [4, 5, 6, 7];
 export const DEFAULT_WORD_LENGTH: WordLength = 5;
@@ -18,9 +17,6 @@ export const DAILY_WORD_TIER: WordTier = 'medium';
 
 /** Player-requested letter reveals allowed per game. */
 export const MAX_HINTS_PER_GAME = 1;
-
-/** Kept for older imports; prefer attemptsForDifficulty(). */
-export const MAX_ATTEMPTS = 6;
 
 export const DIFFICULTY_ATTEMPTS: Record<Difficulty, number> = {
   easy: 8,

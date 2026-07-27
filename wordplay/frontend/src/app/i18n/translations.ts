@@ -4,10 +4,8 @@ export type TranslationKey = keyof typeof EN;
 
 const EN = {
   'app.title': 'Word Play',
-  'app.guessAria': 'Type your guess',
   'app.settingsAria': 'Settings',
   'app.settingsUpdateAria': 'Settings, update available',
-  'app.historyAria': 'History',
   'app.helpAria': 'How to play',
   'app.boardAria': 'Word Play board',
   'app.keyboardAria': 'On-screen keyboard',
@@ -51,9 +49,7 @@ const EN = {
   'settings.tab.game': 'Game',
   'settings.tab.system': 'App',
   'settings.subtitle.game': 'Word length, dictionary, difficulty, and word language',
-  'settings.subtitle.gameDaily': 'Word length and word language for today’s puzzle',
   'settings.subtitle.system': 'Updates, interface language, and theme',
-  'settings.closeAria': 'Close settings',
   'settings.update': 'App update',
   'settings.updateHint':
     'Install the latest version from this App tab when a green dot appears on the Settings menu item.',
@@ -113,7 +109,6 @@ const EN = {
   'settings.colorCorrect': 'Blue — correct place',
   'settings.colorPresent': 'Yellow — wrong place',
   'settings.colorAbsent': 'Gray — not in word',
-  'settings.done': 'Done',
 
   'home.eyebrow': 'Choose a mode',
   'home.tagline': 'Guess the hidden word — play freely, or take on today’s shared puzzle.',
@@ -139,7 +134,6 @@ const EN = {
     'Showing Classic results for the selected attempts mode and dictionary. Change them in Settings to view another set.',
   'history.dailyMode': 'Daily word',
   'history.dailyHint': 'One puzzle per day. Difficulty settings do not apply to Daily.',
-  'history.empty': 'No finished words yet. Play a round to build your history.',
   'history.emptyMode':
     'No finished Classic games for this attempts mode and dictionary yet. Play a round or switch settings.',
   'history.emptyDaily': 'No finished daily puzzles yet. Play today’s word to start a streak.',
@@ -150,7 +144,6 @@ const EN = {
   'history.hints': '{{count}} hints',
   'history.languageEn': 'EN',
   'history.languageRu': 'RU',
-  'history.done': 'Done',
   'history.stats': 'Statistics',
   'history.statsScope': 'Counted only for the selected attempts mode and dictionary.',
   'history.statsScopeDaily': 'Counted across daily puzzles.',
@@ -200,10 +193,8 @@ const EN = {
 
 const RU: Record<TranslationKey, string> = {
   'app.title': 'Word Play',
-  'app.guessAria': 'Введите догадку',
   'app.settingsAria': 'Настройки',
   'app.settingsUpdateAria': 'Настройки, доступно обновление',
-  'app.historyAria': 'История',
   'app.helpAria': 'Как играть',
   'app.boardAria': 'Игровое поле Word Play',
   'app.keyboardAria': 'Экранная клавиатура',
@@ -247,9 +238,7 @@ const RU: Record<TranslationKey, string> = {
   'settings.tab.game': 'Игра',
   'settings.tab.system': 'Приложение',
   'settings.subtitle.game': 'Длина слова, словарь, сложность и язык слов',
-  'settings.subtitle.gameDaily': 'Длина слова и язык слов для сегодняшней загадки',
   'settings.subtitle.system': 'Обновления, язык интерфейса и тема',
-  'settings.closeAria': 'Закрыть настройки',
   'settings.update': 'Обновление приложения',
   'settings.updateHint':
     'Установите новую версию на этой вкладке «Приложение», когда у пункта «Настройки» появится зелёная точка.',
@@ -309,7 +298,6 @@ const RU: Record<TranslationKey, string> = {
   'settings.colorCorrect': 'Синий — верное место',
   'settings.colorPresent': 'Жёлтый — неверное место',
   'settings.colorAbsent': 'Серый — буквы нет в слове',
-  'settings.done': 'Готово',
 
   'home.eyebrow': 'Выберите режим',
   'home.tagline': 'Угадайте скрытое слово — играйте свободно или берите общее слово дня.',
@@ -335,7 +323,6 @@ const RU: Record<TranslationKey, string> = {
     'Показаны результаты обычной игры для выбранного режима попыток и словаря. Смените их в настройках, чтобы посмотреть другой набор.',
   'history.dailyMode': 'Ежедневное слово',
   'history.dailyHint': 'Одна загадка в день. Настройки сложности на ежедневный режим не влияют.',
-  'history.empty': 'Пока пусто. Завершите игру, чтобы появилась история.',
   'history.emptyMode':
     'Для этого режима попыток и словаря пока нет обычных игр. Сыграйте партию или смените настройки.',
   'history.emptyDaily':
@@ -347,7 +334,6 @@ const RU: Record<TranslationKey, string> = {
   'history.hints': '{{count}} подсказок',
   'history.languageEn': 'EN',
   'history.languageRu': 'RU',
-  'history.done': 'Готово',
   'history.stats': 'Статистика',
   'history.statsScope': 'Считается только для выбранного режима попыток и словаря.',
   'history.statsScopeDaily': 'Считается по ежедневным загадкам.',
@@ -397,9 +383,4 @@ const RU: Record<TranslationKey, string> = {
 export const TRANSLATIONS: Record<AppLocale, Record<TranslationKey, string>> = {
   en: EN,
   ru: RU,
-};
-
-export const LOCALE_LABELS: Record<AppLocale, string> = {
-  en: 'English',
-  ru: 'Русский',
 };

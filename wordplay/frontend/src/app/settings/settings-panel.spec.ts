@@ -83,4 +83,16 @@ describe('SettingsPanel', () => {
     expect(panel.wordTier()).toBe('hard');
     expect(panel.difficulty()).toBe('hard');
   });
+
+  it('keeps classic difficulty settings visible after a daily session', async () => {
+    localStorage.setItem('word-play-game-mode', 'daily');
+    const fixture = TestBed.createComponent(SettingsPanel);
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.textContent).toContain('Dictionary');
+    expect(compiled.textContent).toContain('Attempts');
+    expect(compiled.textContent).toContain('Word length, dictionary, difficulty');
+  });
 });
