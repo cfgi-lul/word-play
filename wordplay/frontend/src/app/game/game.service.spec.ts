@@ -272,7 +272,7 @@ describe('GameService', () => {
     expect(game.solution()).toBe(solution);
   });
 
-  it('reveals one correct letter with a hint and records it on finish', () => {
+  it('highlights one in-word letter on the keyboard with a hint', () => {
     const game = createGame({ solution: 'crane' });
     const history = TestBed.inject(HistoryService);
 
@@ -282,10 +282,17 @@ describe('GameService', () => {
     expect(game.canUseHint()).toBe(false);
     expect(game.useHint()).toBe('none-left');
 
-    const currentRow = game.board().at(0)!;
-    const revealed = currentRow.filter((tile) => tile.status === 'correct');
-    expect(revealed).toHaveLength(1);
-    expect(game.solution().toUpperCase()).toContain(revealed.at(0)!.letter);
+    const presentKeys = Object.entries(game.keyboard()).filter(
+      ([, status]) => status === 'present',
+    );
+    expect(presentKeys).toHaveLength(1);
+    expect(game.solution()).toContain(presentKeys.at(0)![0]);
+    expect(
+      game
+        .board()
+        .at(0)
+        ?.every((tile) => tile.status === 'empty'),
+    ).toBe(true);
 
     typeWord(game, 'crane');
     expect(game.submitGuess()).toBe('ok');
@@ -323,8 +330,9 @@ describe('GameService', () => {
       solution: 'crane',
       difficulty: 'hard',
       maxAttempts: 5,
-      hintedPositions: [0],
+      hintedLetters: ['c'],
       hintsUsed: 1,
+      keyboard: { c: 'present' },
     });
 
     typeWord(game, 'plane');
@@ -363,7 +371,7 @@ function createGame(partial: Partial<GameState> = {}): GameService {
       currentGuess: '',
       status: 'playing',
       keyboard: {},
-      hintedPositions: [],
+      hintedLetters: [],
       hintsUsed: 0,
       ...partial,
     } satisfies GameState),
