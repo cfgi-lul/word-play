@@ -18,8 +18,11 @@ permissions:
   pages: write
   id-token: write
 
+# Isolate PR checks from each other and from main deploys. A shared
+# "pages" group previously cancelled in-flight PR CI whenever another
+# branch or main push started the same workflow.
 concurrency:
-  group: pages
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
