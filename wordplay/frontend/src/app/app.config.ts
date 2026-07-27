@@ -13,7 +13,9 @@ export const appConfig: ApplicationConfig = {
       block: 'start',
       inline: 'center',
       autoClose: 2200,
-      closable: false,
+      // Must stay dismissible: Taiga pauses autoClose on mouseenter, and sticky
+      // hover/touch on iOS can leave a toast up forever without a close button.
+      closable: true,
       size: 'm',
     }),
   ],
