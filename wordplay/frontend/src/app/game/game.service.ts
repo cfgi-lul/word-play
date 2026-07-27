@@ -129,13 +129,13 @@ export class GameService {
       }
     }
 
-    const next = this.createClassicState(
-      payload.language,
-      payload.wordLength,
-      payload.difficulty,
-      payload.wordTier,
-      payload.solution,
-    );
+    const next = this.createClassicState({
+      language: payload.language,
+      length: payload.wordLength,
+      difficulty: payload.difficulty,
+      wordTier: payload.wordTier,
+      solution: payload.solution,
+    });
     this.state.set(next);
     this.persist(next);
     return true;
@@ -317,14 +317,14 @@ export class GameService {
     }
 
     const current = this.state();
-    const next = this.createClassicState(
-      this.gameLanguages.language(),
-      this.wordLengths.wordLength(),
-      this.difficulties.difficulty(),
-      this.wordTiers.wordTier(),
-      undefined,
-      current.solution,
-    );
+
+    const next = this.createClassicState({
+      language: this.gameLanguages.language(),
+      length: this.wordLengths.wordLength(),
+      difficulty: this.difficulties.difficulty(),
+      wordTier: this.wordTiers.wordTier(),
+      avoidSolution: current.solution,
+    });
     this.state.set(next);
     this.persist(next);
   }
@@ -400,15 +400,15 @@ export class GameService {
         localStorage.getItem(classicStorageKey(language, length, difficulty, wordTier)) ??
         legacyRaw(language, length, difficulty, wordTier);
       if (!raw) {
-        return this.createClassicState(language, length, difficulty, wordTier);
+        return this.createClassicState({ language, length, difficulty, wordTier });
       }
 
       return (
         this.parseClassicSave(raw, { language, length, difficulty, wordTier }) ??
-        this.createClassicState(language, length, difficulty, wordTier)
+        this.createClassicState({ language, length, difficulty, wordTier })
       );
     } catch {
-      return this.createClassicState(language, length, difficulty, wordTier);
+      return this.createClassicState({ language, length, difficulty, wordTier });
     }
   }
 
@@ -568,19 +568,24 @@ export class GameService {
     }
   }
 
-  private createClassicState(
-    language: GameLanguage,
-    length: WordLength,
-    difficulty: Difficulty,
-    wordTier: WordTier,
-    solution?: string,
-    avoidSolution?: string,
-  ): GameState {
+  private createClassicState({
+    language,
+    length,
+    difficulty,
+    wordTier,
+    solution,
+    avoidSolution,
+  }: {
+    language: GameLanguage;
+    length: WordLength;
+    difficulty: Difficulty;
+    wordTier: WordTier;
+    solution?: string;
+    avoidSolution?: string;
+  }): GameState {
     const used = new Set(this.history.usedWords(length, language, difficulty, wordTier));
     if (avoidSolution) {
-      used.add(
-        [...avoidSolution].map((letter) => normalizeLetter(letter, language)).join(''),
-      );
+      used.add([...avoidSolution].map((letter) => normalizeLetter(letter, language)).join(''));
     }
 
     const normalizedSolution = solution
