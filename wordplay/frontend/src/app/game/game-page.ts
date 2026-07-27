@@ -3,6 +3,7 @@ import {
   afterNextRender,
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   type ElementRef,
   inject,
   input,
@@ -43,6 +44,7 @@ export class GamePage {
   private readonly router = inject(Router);
   private readonly location = inject(Location);
   private readonly route = inject(ActivatedRoute);
+  private readonly destroyRef = inject(DestroyRef);
   private readonly hiddenInput = viewChild<ElementRef<HTMLInputElement>>('hiddenInput');
   private readonly onScreenKeyboard = viewChild(Keyboard);
 
@@ -77,7 +79,7 @@ export class GamePage {
       });
 
     afterNextRender(() => {
-      queueMicrotask(() => this.focusInput());
+      queueMicrotask(() => this.blurHiddenInput());
     });
   }
 
@@ -89,7 +91,8 @@ export class GamePage {
     this.help.show();
   }
 
-  focusInput(): void {
+  /** Keep the hidden field unfocused so the mobile OS keyboard stays closed. */
+  blurHiddenInput(): void {
     this.hiddenInput()?.nativeElement.blur();
   }
 
@@ -106,12 +109,12 @@ export class GamePage {
 
   onLetter(letter: string): void {
     this.game.addLetter(letter);
-    this.focusInput();
+    this.blurHiddenInput();
   }
 
   onBackspace(): void {
     this.game.removeLetter();
-    this.focusInput();
+    this.blurHiddenInput();
   }
 
   useHint(): void {
@@ -129,7 +132,7 @@ export class GamePage {
       default:
         break;
     }
-    this.focusInput();
+    this.blurHiddenInput();
   }
 
   submit(): void {
@@ -159,7 +162,7 @@ export class GamePage {
         break;
     }
 
-    this.focusInput();
+    this.blurHiddenInput();
   }
 
   newGame(): void {
@@ -173,7 +176,7 @@ export class GamePage {
       this.navigation.replaceClassicSeed(nextSeed);
     }
     this.notify(this.i18n.t('app.newGameStarted'), 'info');
-    queueMicrotask(() => this.focusInput());
+    queueMicrotask(() => this.blurHiddenInput());
   }
 
   async shareResult(): Promise<void> {
@@ -364,13 +367,8 @@ export class GamePage {
     appearance: 'warning' | 'positive' | 'negative' | 'info' = 'info',
   ): void {
     this.notifications
-      .open(message, {
-        appearance,
-        block: 'start',
-        inline: 'center',
-        autoClose: 2200,
-        closable: false,
-      })
+      .open(message, { appearance })
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({ error: () => {} });
   }
 }
