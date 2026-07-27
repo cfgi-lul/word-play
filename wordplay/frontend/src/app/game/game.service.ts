@@ -316,11 +316,14 @@ export class GameService {
       return;
     }
 
+    const current = this.state();
     const next = this.createClassicState(
       this.gameLanguages.language(),
       this.wordLengths.wordLength(),
       this.difficulties.difficulty(),
       this.wordTiers.wordTier(),
+      undefined,
+      current.solution,
     );
     this.state.set(next);
     this.persist(next);
@@ -571,15 +574,18 @@ export class GameService {
     difficulty: Difficulty,
     wordTier: WordTier,
     solution?: string,
+    avoidSolution?: string,
   ): GameState {
+    const used = new Set(this.history.usedWords(length, language, difficulty, wordTier));
+    if (avoidSolution) {
+      used.add(
+        [...avoidSolution].map((letter) => normalizeLetter(letter, language)).join(''),
+      );
+    }
+
     const normalizedSolution = solution
       ? [...solution].map((letter) => normalizeLetter(letter, language)).join('')
-      : pickRandomWord(
-          length,
-          language,
-          this.history.usedWords(length, language, difficulty, wordTier),
-          wordTier,
-        );
+      : pickRandomWord(length, language, used, wordTier);
 
     return {
       mode: 'classic',

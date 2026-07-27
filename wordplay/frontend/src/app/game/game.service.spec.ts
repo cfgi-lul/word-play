@@ -1,4 +1,5 @@
 import { TestBed } from '@angular/core/testing';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { evaluateGuess, GameService, satisfiesHardMode } from './game.service';
 import { attemptsForDifficulty, type GameState } from './game.types';
@@ -193,6 +194,32 @@ describe('GameService', () => {
     expect(game.guessesCount()).toBe(0);
     expect(game.currentGuess()).toBe('');
     expect(game.solution().length).toBe(5);
+  });
+
+  it('does not repeat the previous solution when starting a new classic game', () => {
+    const game = createGame({ solution: 'crane' });
+    const random = vi.spyOn(Math, 'random').mockReturnValue(0);
+
+    game.startNewGame();
+    const first = game.solution();
+    expect(first).not.toBe('crane');
+
+    game.startNewGame();
+    expect(game.solution()).not.toBe(first);
+
+    random.mockRestore();
+  });
+
+  it('avoids the just-finished word after play again', () => {
+    const game = createGame({ solution: 'crane' });
+    typeWord(game, 'crane');
+    expect(game.submitGuess()).toBe('ok');
+    expect(game.status()).toBe('won');
+
+    const random = vi.spyOn(Math, 'random').mockReturnValue(0);
+    game.startNewGame();
+    expect(game.solution()).not.toBe('crane');
+    random.mockRestore();
   });
 
   it('resets an in-progress classic game with a fresh board', () => {
