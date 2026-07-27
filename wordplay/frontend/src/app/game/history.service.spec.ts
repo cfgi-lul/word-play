@@ -232,6 +232,94 @@ describe('HistoryService', () => {
     expect(history.forStatsMode()).toHaveLength(1);
   });
 
+  it('clears classic stats for the selected difficulty and dictionary only', () => {
+    localStorage.setItem('word-play-difficulty', 'normal');
+    localStorage.setItem('word-play-word-tier', 'medium');
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({});
+    const history = TestBed.inject(HistoryService);
+
+    history.record({
+      word: 'crane',
+      language: 'en',
+      length: 5,
+      mode: 'classic',
+      difficulty: 'normal',
+      wordTier: 'medium',
+      status: 'won',
+      attempts: 3,
+      hintsUsed: 0,
+    });
+    history.record({
+      word: 'about',
+      language: 'en',
+      length: 5,
+      mode: 'classic',
+      difficulty: 'hard',
+      wordTier: 'medium',
+      status: 'won',
+      attempts: 2,
+      hintsUsed: 0,
+    });
+    history.record({
+      word: 'trace',
+      language: 'en',
+      length: 5,
+      mode: 'daily',
+      difficulty: 'normal',
+      wordTier: 'medium',
+      dailyDate: '2026-07-27',
+      status: 'won',
+      attempts: 1,
+      hintsUsed: 0,
+    });
+
+    history.setStatsMode('classic');
+    history.clearCurrentStats();
+
+    expect(history.stats().played).toBe(0);
+    expect(history.all()).toHaveLength(2);
+    expect(history.all().some((entry) => entry.word === 'crane')).toBe(false);
+    expect(history.all().some((entry) => entry.word === 'about')).toBe(true);
+    expect(history.all().some((entry) => entry.mode === 'daily')).toBe(true);
+  });
+
+  it('clears daily stats without touching classic history', () => {
+    TestBed.configureTestingModule({});
+    const history = TestBed.inject(HistoryService);
+
+    history.record({
+      word: 'crane',
+      language: 'en',
+      length: 5,
+      mode: 'classic',
+      difficulty: 'normal',
+      wordTier: 'medium',
+      status: 'won',
+      attempts: 3,
+      hintsUsed: 0,
+    });
+    history.record({
+      word: 'trace',
+      language: 'en',
+      length: 5,
+      mode: 'daily',
+      difficulty: 'normal',
+      wordTier: 'medium',
+      dailyDate: '2026-07-27',
+      status: 'lost',
+      attempts: 6,
+      hintsUsed: 0,
+    });
+
+    history.setStatsMode('daily');
+    history.clearCurrentStats();
+
+    expect(history.stats().played).toBe(0);
+    expect(history.all()).toHaveLength(1);
+    expect(history.all().at(0)?.mode).toBe('classic');
+  });
+
   it('returns empty stats for no games', () => {
     expect(computeGameStats([], 6)).toEqual({
       played: 0,

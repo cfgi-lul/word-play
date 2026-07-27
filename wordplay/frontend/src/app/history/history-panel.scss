@@ -146,6 +146,16 @@
   gap: 0.55rem;
 }
 
+.stats__actions {
+  display: grid;
+  justify-items: stretch;
+  margin-block-start: 0.35rem;
+}
+
+.stats__reset {
+  width: 100%;
+}
+
 .dist-list {
   list-style: none;
   margin: 0;

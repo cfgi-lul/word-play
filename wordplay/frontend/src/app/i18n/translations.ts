@@ -156,6 +156,13 @@ const EN = {
   'history.statsWinsLosses': 'Wins / losses',
   'history.statsHints': 'With hints',
   'history.statsDistribution': 'Guess distribution',
+  'history.reset': 'Reset statistics',
+  'history.resetAria': 'Reset statistics',
+  'history.resetConfirmTitle': 'Are you sure?',
+  'history.resetConfirmText':
+    'This will clear the statistics shown on this screen. This cannot be undone.',
+  'history.resetConfirmYes': 'Reset',
+  'history.resetConfirmNo': 'Cancel',
 
   'help.title': 'How to Play',
   'help.closeAria': 'Close help',
@@ -346,6 +353,13 @@ const RU: Record<TranslationKey, string> = {
   'history.statsWinsLosses': 'Победы / поражения',
   'history.statsHints': 'С подсказками',
   'history.statsDistribution': 'Распределение попыток',
+  'history.reset': 'Сбросить статистику',
+  'history.resetAria': 'Сбросить статистику',
+  'history.resetConfirmTitle': 'Вы уверены?',
+  'history.resetConfirmText':
+    'Будет очищена статистика, показанная на этом экране. Отменить это действие нельзя.',
+  'history.resetConfirmYes': 'Сбросить',
+  'history.resetConfirmNo': 'Отмена',
 
   'help.title': 'Как играть',
   'help.closeAria': 'Закрыть справку',
