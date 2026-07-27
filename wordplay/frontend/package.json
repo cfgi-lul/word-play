@@ -10,7 +10,8 @@
     "start": "ng serve",
     "test": "ng test",
     "test:ci": "ng test --watch=false",
-    "watch": "ng build --watch --configuration development"
+    "watch": "ng build --watch --configuration development",
+    "curate:dictionaries": "node scripts/curate-dictionaries.mjs"
   },
   "prettier": {
     "printWidth": 100,

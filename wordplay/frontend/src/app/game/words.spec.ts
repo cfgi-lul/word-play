@@ -31,10 +31,11 @@ describe('words helpers', () => {
   });
 
   it('assigns words to easy, medium, and hard dictionary tiers', () => {
-    expect(wordTierOf('about', 5, 'en')).toBe('easy');
-    expect(wordTierOf('crane', 5, 'en')).toBe('medium');
-    expect(wordTierOf('aahed', 5, 'en')).toBe('hard');
+    expect(wordTierOf('crane', 5, 'en')).toBe('easy');
+    expect(wordTierOf('bagel', 5, 'en')).toBe('medium');
+    expect(wordTierOf('anvil', 5, 'en')).toBe('hard');
     expect(wordTierOf('слово', 5, 'ru')).toBe('easy');
+    expect(wordTierOf('about', 5, 'en')).toBeNull();
   });
 
   it('picks answers only from the selected dictionary tier', () => {
