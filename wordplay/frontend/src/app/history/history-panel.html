@@ -116,6 +116,20 @@
               }
             </ul>
           </div>
+
+          <div class="stats__actions">
+            <button
+              tuiButton
+              type="button"
+              appearance="primary-destructive"
+              size="m"
+              class="stats__reset"
+              [attr.aria-label]="'history.resetAria' | t: locale()"
+              (click)="confirmResetStats()"
+            >
+              {{ 'history.reset' | t: locale() }}
+            </button>
+          </div>
         </section>
       }
 
