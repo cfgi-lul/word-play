@@ -13,7 +13,7 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TuiButton, TuiNotificationService } from '@taiga-ui/core';
-import { merge } from 'rxjs';
+import { merge, type Subscription, timer } from 'rxjs';
 
 import { LocaleService } from '../i18n/locale.service';
 import { TranslatePipe } from '../i18n/translate.pipe';
@@ -47,6 +47,7 @@ export class GamePage {
   private readonly destroyRef = inject(DestroyRef);
   private readonly hiddenInput = viewChild<ElementRef<HTMLInputElement>>('hiddenInput');
   private readonly onScreenKeyboard = viewChild(Keyboard);
+  private toastSub: Subscription | null = null;
 
   /** Bound from `/classic/:seed` via withComponentInputBinding. */
   readonly seed = input<string | undefined>(undefined);
@@ -81,6 +82,8 @@ export class GamePage {
     afterNextRender(() => {
       queueMicrotask(() => this.blurHiddenInput());
     });
+
+    this.destroyRef.onDestroy(() => this.toastSub?.unsubscribe());
   }
 
   goHome(): void {
@@ -366,9 +369,20 @@ export class GamePage {
     message: string,
     appearance: 'warning' | 'positive' | 'negative' | 'info' = 'info',
   ): void {
-    this.notifications
-      .open(message, { appearance })
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({ error: () => {} });
+    // Replace any visible toast so stacked/stuck alerts cannot pile up.
+    this.toastSub?.unsubscribe();
+
+    const sub = this.notifications.open(message, { appearance }).subscribe({ error: () => {} });
+    this.toastSub = sub;
+
+    // Taiga pauses autoClose on mouseenter and resumes on mouseleave. On iOS a
+    // tap often leaves sticky hover with no mouseleave, so force-dismiss.
+    sub.add(
+      timer(4500).subscribe(() => {
+        if (!sub.closed) {
+          sub.unsubscribe();
+        }
+      }),
+    );
   }
 }
