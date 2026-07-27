@@ -1,5 +1,7 @@
-import { ChangeDetectionStrategy, Component, inject, output } from '@angular/core';
-import { TuiButton, TuiScrollbar } from '@taiga-ui/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, output } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { TuiButton, TuiDialogService, TuiScrollbar } from '@taiga-ui/core';
+import { TUI_CONFIRM, type TuiConfirmData } from '@taiga-ui/kit';
 
 import { DifficultyService } from '../game/difficulty.service';
 import { type Difficulty, type GameMode, type WordTier } from '../game/game.types';
@@ -21,6 +23,8 @@ export class HistoryPanel {
   private readonly difficulties = inject(DifficultyService);
   private readonly wordTiers = inject(WordTierService);
   private readonly i18n = inject(LocaleService);
+  private readonly dialogs = inject(TuiDialogService);
+  private readonly destroyRef = inject(DestroyRef);
 
   readonly closed = output<void>();
 
@@ -37,6 +41,32 @@ export class HistoryPanel {
 
   close(): void {
     this.closed.emit();
+  }
+
+  confirmResetStats(): void {
+    if (this.stats().played === 0) {
+      return;
+    }
+
+    const data: TuiConfirmData = {
+      content: this.i18n.t('history.resetConfirmText'),
+      yes: this.i18n.t('history.resetConfirmYes'),
+      no: this.i18n.t('history.resetConfirmNo'),
+      appearance: 'primary-destructive',
+    };
+
+    this.dialogs
+      .open<boolean>(TUI_CONFIRM, {
+        label: this.i18n.t('history.resetConfirmTitle'),
+        size: 's',
+        data,
+      })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((confirmed) => {
+        if (confirmed) {
+          this.history.clearCurrentStats();
+        }
+      });
   }
 
   difficultyKey(difficulty: Difficulty): TranslationKey {

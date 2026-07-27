@@ -133,6 +133,26 @@ export class HistoryService {
     this.persist();
   }
 
+  /** Clears finished games for the currently viewed stats scope. */
+  clearCurrentStats(): void {
+    const mode = this.statsModeSignal();
+    if (mode === 'daily') {
+      this.entries.update((current) => current.filter((entry) => entry.mode !== 'daily'));
+    } else {
+      const difficulty = this.difficulties.difficulty();
+      const wordTier = this.wordTiers.wordTier();
+      this.entries.update((current) =>
+        current.filter(
+          (entry) =>
+            entry.mode !== 'classic' ||
+            entry.difficulty !== difficulty ||
+            entry.wordTier !== wordTier,
+        ),
+      );
+    }
+    this.persist();
+  }
+
   private read(): HistoryEntry[] {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
