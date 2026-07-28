@@ -27,6 +27,17 @@ const RU_ROWS = [
 ] as const;
 
 const HAPTIC_MS = 12;
+const HAPTIC_SLIDE_MS = 8;
+
+interface KeyPopup {
+  key: string;
+  left: number;
+  bottom: number;
+  width: number;
+  stemWidth: number;
+  stemLeft: number;
+  edge: 'left' | 'center' | 'right';
+}
 
 @Component({
   selector: 'app-keyboard',
@@ -50,6 +61,7 @@ export class Keyboard {
   private activePointerId: number | null = null;
   private suppressClick = false;
   private readonly pressed = signal<string | null>(null);
+  private readonly popupSignal = signal<KeyPopup | null>(null);
 
   readonly keyStatuses = input<Record<string, KeyStatus>>({});
   readonly disabled = input(false);
@@ -61,6 +73,7 @@ export class Keyboard {
   readonly enter = output<void>();
 
   readonly rows = computed(() => (this.gameLanguage() === 'ru' ? RU_ROWS : EN_ROWS));
+  readonly popup = this.popupSignal.asReadonly();
 
   constructor() {
     this.destroyRef.onDestroy(() => this.clearFlashTimer());
@@ -134,7 +147,7 @@ export class Keyboard {
     this.suppressClick = true;
     this.host.nativeElement.setPointerCapture(event.pointerId);
     this.clearFlashTimer();
-    this.pressed.set(key);
+    this.setActiveKey(key);
   }
 
   onPointerMove(event: PointerEvent): void {
@@ -143,9 +156,12 @@ export class Keyboard {
     }
     event.preventDefault();
     const key = this.keyFromPoint(event.clientX, event.clientY);
-    if (key !== this.pressed()) {
-      this.pressed.set(key);
+    // Between keys: keep the last floating letter until another key is hit.
+    if (!key || key === this.pressed()) {
+      return;
     }
+    this.setActiveKey(key);
+    this.vibrate(HAPTIC_SLIDE_MS);
   }
 
   onPointerUp(event: PointerEvent): void {
@@ -155,8 +171,11 @@ export class Keyboard {
     event.preventDefault();
     const key = this.keyFromPoint(event.clientX, event.clientY);
     this.endPointerTracking();
+    this.popupSignal.set(null);
     if (key && !this.disabled()) {
       this.commitKey(key);
+    } else {
+      this.pressed.set(null);
     }
   }
 
@@ -165,12 +184,70 @@ export class Keyboard {
       return;
     }
     this.endPointerTracking();
+    this.popupSignal.set(null);
     this.pressed.set(null);
+  }
+
+  private setActiveKey(key: string | null): void {
+    this.pressed.set(key);
+    this.updatePopup(key);
+  }
+
+  private updatePopup(key: string | null): void {
+    if (!key || key === 'backspace' || key === 'enter') {
+      this.popupSignal.set(null);
+      return;
+    }
+
+    const root =
+      (this.host.nativeElement.querySelector('.keyboard') as HTMLElement | null) ??
+      this.host.nativeElement;
+
+    const button = Array.from(root.querySelectorAll('[data-key]')).find(
+      (el) => (el as HTMLElement).dataset['key'] === key,
+    ) as HTMLElement | undefined;
+    if (!button) {
+      this.popupSignal.set(null);
+      return;
+    }
+
+    const rootRect = root.getBoundingClientRect();
+    const keyRect = button.getBoundingClientRect();
+    const stemWidth = keyRect.width;
+    const width = Math.max(stemWidth * 1.7, 44);
+    const centerX = keyRect.left + keyRect.width / 2 - rootRect.left;
+    let left = centerX - width / 2;
+    let edge: KeyPopup['edge'] = 'center';
+
+    if (left < 2) {
+      left = 2;
+      edge = 'left';
+    }
+    const maxLeft = rootRect.width - width - 2;
+    if (left > maxLeft) {
+      left = Math.max(2, maxLeft);
+      edge = 'right';
+    }
+
+    const stemLeft = Math.min(
+      Math.max(0, centerX - left - stemWidth / 2),
+      Math.max(0, width - stemWidth),
+    );
+
+    this.popupSignal.set({
+      key,
+      left,
+      bottom: rootRect.height - (keyRect.top - rootRect.top),
+      width,
+      stemWidth,
+      stemLeft,
+      edge,
+    });
   }
 
   private commitKey(key: string): void {
     this.flash(key);
-    this.vibrate();
+    this.vibrate(HAPTIC_MS);
     if (key === 'backspace') {
       this.backspace.emit();
       return;
@@ -202,11 +279,11 @@ export class Keyboard {
     });
   }
 
-  private vibrate(): void {
+  private vibrate(durationMs: number): void {
     try {
       const vibrateFn = Reflect.get(navigator, 'vibrate');
       if (typeof vibrateFn === 'function') {
-        Reflect.apply(vibrateFn, navigator, [HAPTIC_MS]);
+        Reflect.apply(vibrateFn, navigator, [durationMs]);
       }
     } catch {
       // Unsupported / blocked — ignore.
