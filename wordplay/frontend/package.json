@@ -4,6 +4,7 @@
   "scripts": {
     "build": "ng build && node scripts/generate-sw.mjs",
     "build:gh-pages": "ng build --configuration production --base-href /word-play/ && node scripts/generate-sw.mjs --gh-pages",
+    "curate:dictionaries": "node scripts/curate-dictionaries.mjs",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "ng": "ng",

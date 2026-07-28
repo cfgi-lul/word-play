@@ -110,7 +110,7 @@ describe('GameService', () => {
   it('marks a wrong valid guess and updates keyboard colors', () => {
     const game = createGame({ solution: 'crane' });
 
-    typeWord(game, 'about');
+    typeWord(game, 'album');
     expect(game.submitGuess()).toBe('ok');
     expect(game.status()).toBe('playing');
     expect(game.guessesCount()).toBe(1);
@@ -123,7 +123,7 @@ describe('GameService', () => {
   it('loses after the maximum number of attempts', () => {
     const game = createGame({ solution: 'crane' });
     const history = TestBed.inject(HistoryService);
-    const misses = ['about', 'slate', 'flame', 'grape', 'bloom', 'humid'];
+    const misses = ['album', 'slate', 'flame', 'grape', 'sugar', 'humid'];
 
     for (const word of misses) {
       typeWord(game, word);
@@ -198,7 +198,7 @@ describe('GameService', () => {
   it('resets an in-progress classic game with a fresh board', () => {
     const game = createGame({ solution: 'crane' });
 
-    typeWord(game, 'about');
+    typeWord(game, 'bacon');
     expect(game.submitGuess()).toBe('ok');
     expect(game.guessesCount()).toBe(1);
     expect(game.useHint()).toBe('ok');
@@ -350,7 +350,7 @@ describe('GameService', () => {
         wordTier: 'medium',
         maxAttempts: 6,
         solution: 'crane',
-        guesses: ['about'],
+        guesses: ['bacon'],
         currentGuess: 'cr',
         status: 'playing',
         keyboard: {},
@@ -393,7 +393,7 @@ describe('GameService', () => {
   it('rebuilds keyboard colors when a save omits them', () => {
     const game = createGame({
       solution: 'crane',
-      guesses: ['about'],
+      guesses: ['bacon'],
       keyboard: {},
     });
 
