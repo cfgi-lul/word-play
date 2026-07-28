@@ -5,12 +5,13 @@
         <button
           type="button"
           class="key"
+          [attr.data-key]="key"
           [class.key--correct]="statusOf(key) === 'correct'"
           [class.key--present]="statusOf(key) === 'present'"
           [class.key--absent]="statusOf(key) === 'absent'"
           [class.key--pressed]="isPressed(key)"
           [disabled]="disabled()"
-          (click)="onLetter(key, $event)"
+          (click)="onLetterClick(key, $event)"
         >
           {{ key }}
         </button>
@@ -20,10 +21,11 @@
         <button
           type="button"
           class="key key--action"
+          data-key="backspace"
           [class.key--pressed]="isPressed('backspace')"
           [attr.aria-label]="'app.backspaceAria' | t: locale()"
           [disabled]="disabled()"
-          (click)="onBackspace($event)"
+          (click)="onBackspaceClick($event)"
         >
           <svg viewBox="0 0 24 24" aria-hidden="true">
             <path
@@ -35,10 +37,11 @@
         <button
           type="button"
           class="key key--action key--enter"
+          data-key="enter"
           [class.key--pressed]="isPressed('enter')"
           [attr.aria-label]="'app.confirmAria' | t: locale()"
           [disabled]="disabled()"
-          (click)="onEnter($event)"
+          (click)="onEnterClick($event)"
         >
           <svg viewBox="0 0 24 24" aria-hidden="true">
             <path
