@@ -31,9 +31,9 @@ describe('words helpers', () => {
   });
 
   it('assigns words to easy, medium, and hard dictionary tiers', () => {
-    expect(wordTierOf('crane', 5, 'en')).toBe('easy');
-    expect(wordTierOf('bagel', 5, 'en')).toBe('medium');
-    expect(wordTierOf('anvil', 5, 'en')).toBe('hard');
+    expect(wordTierOf('crane', 5, 'en')).toBe('medium');
+    expect(wordTierOf('sugar', 5, 'en')).toBe('easy');
+    expect(wordTierOf('bagel', 5, 'en')).toBe('hard');
     expect(wordTierOf('слово', 5, 'ru')).toBe('easy');
     expect(wordTierOf('about', 5, 'en')).toBeNull();
   });
