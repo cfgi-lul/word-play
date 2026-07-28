@@ -13,6 +13,7 @@ import {
 import { TranslatePipe } from '../../i18n/translate.pipe';
 import { type AppLocale } from '../../i18n/translations';
 import { type GameLanguage, type KeyStatus } from '../game.types';
+import { triggerHaptic } from './haptic';
 
 const EN_ROWS = [
   ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'],
@@ -295,14 +296,7 @@ export class Keyboard {
   }
 
   private vibrate(durationMs: number): void {
-    try {
-      const vibrateFn = Reflect.get(navigator, 'vibrate');
-      if (typeof vibrateFn === 'function') {
-        Reflect.apply(vibrateFn, navigator, [durationMs]);
-      }
-    } catch {
-      // Unsupported / blocked — ignore.
-    }
+    triggerHaptic(durationMs);
   }
 
   private clearFlashTimer(): void {
