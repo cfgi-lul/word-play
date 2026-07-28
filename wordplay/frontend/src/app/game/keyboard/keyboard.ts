@@ -3,6 +3,7 @@ import {
   Component,
   computed,
   DestroyRef,
+  ElementRef,
   inject,
   input,
   output,
@@ -25,17 +26,29 @@ const RU_ROWS = [
   ['я', 'ч', 'с', 'м', 'и', 'т', 'ь', 'б', 'ю'],
 ] as const;
 
+const HAPTIC_MS = 12;
+
 @Component({
   selector: 'app-keyboard',
   imports: [TranslatePipe],
   templateUrl: './keyboard.html',
   styleUrl: './keyboard.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { '[attr.data-lang]': 'gameLanguage()' },
+  host: {
+    '[attr.data-lang]': 'gameLanguage()',
+    '(lostpointercapture)': 'onPointerCancel($event)',
+    '(pointercancel)': 'onPointerCancel($event)',
+    '(pointerdown)': 'onPointerDown($event)',
+    '(pointermove)': 'onPointerMove($event)',
+    '(pointerup)': 'onPointerUp($event)',
+  },
 })
 export class Keyboard {
+  private readonly host = inject(ElementRef<HTMLElement>);
   private readonly destroyRef = inject(DestroyRef);
   private flashTimer: ReturnType<typeof setTimeout> | null = null;
+  private activePointerId: number | null = null;
+  private suppressClick = false;
   private readonly pressed = signal<string | null>(null);
 
   readonly keyStatuses = input<Record<string, KeyStatus>>({});
@@ -70,28 +83,134 @@ export class Keyboard {
         this.pressed.set(null);
       }
       this.flashTimer = null;
-    }, 140);
+    }, 160);
   }
 
-  onLetter(key: string, event: Event): void {
-    if (!this.disabled()) {
-      this.letter.emit(key);
+  onLetterClick(key: string, event: Event): void {
+    if (this.suppressClick) {
+      event.preventDefault();
+      return;
     }
+    this.commitKey(key);
     this.blurTarget(event);
   }
 
-  onBackspace(event: Event): void {
-    if (!this.disabled()) {
+  onBackspaceClick(event: Event): void {
+    if (this.suppressClick) {
+      event.preventDefault();
+      return;
+    }
+    this.commitKey('backspace');
+    this.blurTarget(event);
+  }
+
+  onEnterClick(event: Event): void {
+    if (this.suppressClick) {
+      event.preventDefault();
+      return;
+    }
+    this.commitKey('enter');
+    this.blurTarget(event);
+  }
+
+  onPointerDown(event: PointerEvent): void {
+    // Mouse / keyboard activation stays on click for accessibility.
+    if (
+      this.disabled() ||
+      event.pointerType === 'mouse' ||
+      event.pointerType === '' ||
+      this.activePointerId !== null
+    ) {
+      return;
+    }
+
+    const key = this.keyFromPoint(event.clientX, event.clientY);
+    if (!key) {
+      return;
+    }
+
+    event.preventDefault();
+    this.activePointerId = event.pointerId;
+    this.suppressClick = true;
+    this.host.nativeElement.setPointerCapture(event.pointerId);
+    this.clearFlashTimer();
+    this.pressed.set(key);
+  }
+
+  onPointerMove(event: PointerEvent): void {
+    if (this.activePointerId !== event.pointerId) {
+      return;
+    }
+    event.preventDefault();
+    const key = this.keyFromPoint(event.clientX, event.clientY);
+    if (key !== this.pressed()) {
+      this.pressed.set(key);
+    }
+  }
+
+  onPointerUp(event: PointerEvent): void {
+    if (this.activePointerId !== event.pointerId) {
+      return;
+    }
+    event.preventDefault();
+    const key = this.keyFromPoint(event.clientX, event.clientY);
+    this.endPointerTracking();
+    if (key && !this.disabled()) {
+      this.commitKey(key);
+    }
+  }
+
+  onPointerCancel(event: PointerEvent): void {
+    if (this.activePointerId !== null && event.pointerId !== this.activePointerId) {
+      return;
+    }
+    this.endPointerTracking();
+    this.pressed.set(null);
+  }
+
+  private commitKey(key: string): void {
+    this.flash(key);
+    this.vibrate();
+    if (key === 'backspace') {
       this.backspace.emit();
+      return;
     }
-    this.blurTarget(event);
+    if (key === 'enter') {
+      this.enter.emit();
+      return;
+    }
+    this.letter.emit(key);
   }
 
-  onEnter(event: Event): void {
-    if (!this.disabled()) {
-      this.enter.emit();
+  private keyFromPoint(clientX: number, clientY: number): string | null {
+    const node = document.elementFromPoint(clientX, clientY);
+    if (!(node instanceof Element)) {
+      return null;
     }
-    this.blurTarget(event);
+    const button = node.closest<HTMLElement>('[data-key]');
+    if (!button || !this.host.nativeElement.contains(button)) {
+      return null;
+    }
+    return button.dataset['key'] ?? null;
+  }
+
+  private endPointerTracking(): void {
+    this.activePointerId = null;
+    // Allow the next intentional click (e.g. after a touch) without a stale suppress flag.
+    queueMicrotask(() => {
+      this.suppressClick = false;
+    });
+  }
+
+  private vibrate(): void {
+    try {
+      const vibrateFn = Reflect.get(navigator, 'vibrate');
+      if (typeof vibrateFn === 'function') {
+        Reflect.apply(vibrateFn, navigator, [HAPTIC_MS]);
+      }
+    } catch {
+      // Unsupported / blocked — ignore.
+    }
   }
 
   private clearFlashTimer(): void {

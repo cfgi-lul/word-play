@@ -138,4 +138,6 @@
   backdrop-filter: blur(10px);
   border-top: 1px solid var(--wp-border);
   box-shadow: 0 -8px 24px rgb(16 24 40 / 8%);
+  touch-action: none;
+  overscroll-behavior: none;
 }
