@@ -180,6 +180,51 @@ describe('Keyboard', () => {
     expect(keyboard.popup()).toBeNull();
   });
 
+  it('ignores the compatibility click after a touch tap so only one letter is inserted', () => {
+    vi.useFakeTimers();
+    const { keyboard, host } = createKeyboard();
+    const emitted: string[] = [];
+    keyboard.letter.subscribe((value) => {
+      emitted.push(value);
+    });
+
+    const target = host.querySelector('[data-key="a"]')!;
+    Object.defineProperty(document, 'elementFromPoint', {
+      configurable: true,
+      writable: true,
+      value: vi.fn().mockReturnValue(target),
+    });
+
+    keyboard.onPointerDown(
+      new PointerEvent('pointerdown', {
+        pointerId: 9,
+        pointerType: 'touch',
+        clientX: 12,
+        clientY: 12,
+        bubbles: true,
+      }),
+    );
+    keyboard.onPointerUp(
+      new PointerEvent('pointerup', {
+        pointerId: 9,
+        pointerType: 'touch',
+        clientX: 12,
+        clientY: 12,
+        bubbles: true,
+      }),
+    );
+    expect(emitted).toEqual(['a']);
+
+    const click = new Event('click', { bubbles: true, cancelable: true });
+    keyboard.onLetterClick('a', click);
+    expect(emitted).toEqual(['a']);
+
+    vi.advanceTimersByTime(400);
+    keyboard.onLetterClick('a', new Event('click'));
+    expect(emitted).toEqual(['a', 'a']);
+    vi.useRealTimers();
+  });
+
   it('ignores mouse pointer tracking and keeps click path', () => {
     const { keyboard } = createKeyboard();
     const emitted: string[] = [];

@@ -58,6 +58,7 @@ export class Keyboard {
   private readonly host = inject(ElementRef<HTMLElement>);
   private readonly destroyRef = inject(DestroyRef);
   private flashTimer: ReturnType<typeof setTimeout> | null = null;
+  private suppressClickTimer: ReturnType<typeof setTimeout> | null = null;
   private activePointerId: number | null = null;
   private suppressClick = false;
   private readonly pressed = signal<string | null>(null);
@@ -76,7 +77,10 @@ export class Keyboard {
   readonly popup = this.popupSignal.asReadonly();
 
   constructor() {
-    this.destroyRef.onDestroy(() => this.clearFlashTimer());
+    this.destroyRef.onDestroy(() => {
+      this.clearFlashTimer();
+      this.clearSuppressClickTimer();
+    });
   }
 
   statusOf(key: string): KeyStatus | 'unused' {
@@ -100,8 +104,7 @@ export class Keyboard {
   }
 
   onLetterClick(key: string, event: Event): void {
-    if (this.suppressClick) {
-      event.preventDefault();
+    if (this.consumeSuppressedClick(event)) {
       return;
     }
     this.commitKey(key);
@@ -109,8 +112,7 @@ export class Keyboard {
   }
 
   onBackspaceClick(event: Event): void {
-    if (this.suppressClick) {
-      event.preventDefault();
+    if (this.consumeSuppressedClick(event)) {
       return;
     }
     this.commitKey('backspace');
@@ -118,8 +120,7 @@ export class Keyboard {
   }
 
   onEnterClick(event: Event): void {
-    if (this.suppressClick) {
-      event.preventDefault();
+    if (this.consumeSuppressedClick(event)) {
       return;
     }
     this.commitKey('enter');
@@ -273,10 +274,24 @@ export class Keyboard {
 
   private endPointerTracking(): void {
     this.activePointerId = null;
-    // Allow the next intentional click (e.g. after a touch) without a stale suppress flag.
-    queueMicrotask(() => {
+    // Keep suppressClick until the compatibility click after touch/pen, or a short timeout.
+    // Clearing in a microtask is too early — click often arrives after that and double-inserts.
+    this.clearSuppressClickTimer();
+    this.suppressClickTimer = setTimeout(() => {
       this.suppressClick = false;
-    });
+      this.suppressClickTimer = null;
+    }, 400);
+  }
+
+  private consumeSuppressedClick(event: Event): boolean {
+    if (!this.suppressClick) {
+      return false;
+    }
+    event.preventDefault();
+    event.stopPropagation();
+    this.suppressClick = false;
+    this.clearSuppressClickTimer();
+    return true;
   }
 
   private vibrate(durationMs: number): void {
@@ -294,6 +309,13 @@ export class Keyboard {
     if (this.flashTimer !== null) {
       clearTimeout(this.flashTimer);
       this.flashTimer = null;
+    }
+  }
+
+  private clearSuppressClickTimer(): void {
+    if (this.suppressClickTimer !== null) {
+      clearTimeout(this.suppressClickTimer);
+      this.suppressClickTimer = null;
     }
   }
 
