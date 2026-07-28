@@ -1,16 +1,17 @@
 /**
- * Curate EN/RU dictionaries into noun-only answer tiers + broader guess lists.
+ * Curate EN/RU dictionaries from game-proven public word lists.
  *
- * Answers: common nouns in base/lemma form (no proper names, adjectives, verbs).
- * Guesses: answers + base adjectives + infinitives/base verbs (still no names/junk).
+ * English:
+ * - 5-letter answers/guesses: official Wordle lists
+ * - 4/6/7: Google 10k ∩ ENABLE (common playable words), frequency-ranked tiers
  *
- * Lexicon sources (scripts/dict-data/):
- * - Moby POS extracts: en-{nouns,adjs,verbs}-4-7.txt
- * - OpenRussian extracts: ru-{nouns,adjs,verbs}-4-7.txt
- * - FrequencyWords: en_50k.txt, ru_50k.txt
- * - Name/function blocklists: block-{en,ru}-{names,function,surnames}.txt
+ * Russian:
+ * - Answers/guesses: Harrix Russian-Nouns (Efremova-based noun lemmas),
+ *   frequency-ranked into easy/medium/hard
  *
- * Run from frontend/: node scripts/curate-dictionaries.mjs
+ * Sources live in scripts/dict-data/ (not shipped in the Angular build).
+ *
+ * Run from frontend/: npm run curate:dictionaries
  */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -31,31 +32,11 @@ const ANSWER_TARGETS = {
 };
 
 const EXTRA_GUESS_CAP = {
-  4: 1000,
-  5: 1400,
-  6: 1400,
-  7: 1300,
+  4: 1200,
+  5: 2000,
+  6: 1600,
+  7: 1500,
 };
-
-/** Max frequency rank (0 = most common) accepted into answer pools. */
-const MAX_ANSWER_FREQ_RANK = {
-  en: 45_000,
-  ru: 48_000,
-};
-
-/** Rarer nouns may still fill hard tiers when easy/medium targets are met. */
-const MAX_HARD_FILL_FREQ_RANK = {
-  en: 49_999,
-  ru: 49_999,
-};
-
-const MAX_GUESS_FREQ_RANK = {
-  en: 45_000,
-  ru: 48_000,
-};
-
-/** Surnames that collide with common nouns stay if frequent enough. */
-const SURNAME_KEEP_MAX_RANK = 5_000;
 
 function loadLines(file, { optional = false } = {}) {
   if (!fs.existsSync(file)) {
@@ -66,7 +47,7 @@ function loadLines(file, { optional = false } = {}) {
     .readFileSync(file, 'utf8')
     .split(/\n/)
     .map((line) => line.trim().toLowerCase().replaceAll('ё', 'е'))
-    .filter(Boolean);
+    .filter((line) => line && !line.startsWith('#'));
 }
 
 function loadSet(file, { optional = false } = {}) {
@@ -117,106 +98,11 @@ function splitTiers(sortedAnswers, targets) {
   return { easy, medium, hard };
 }
 
-function looksLikeEnPlural(word) {
-  if (word.endsWith('ss') || word.endsWith('us') || word.endsWith('is') || word.endsWith('ous')) {
-    return false;
-  }
-  if (word.endsWith('ies') || word.endsWith('ves')) return true;
-  if (word.endsWith('s') && !word.endsWith('ss')) return true;
-  return false;
-}
-
-function looksLikeRuNonLemma(word) {
-  if (/(ая|яя|ое|ее|ые|ый|ий|ой)$/.test(word) && word.length >= 4) return true;
-  if (/(ами|ями|ах|ях)$/.test(word) && word.length >= 5) return true;
-  return false;
-}
-
-const EN_NAMES = loadSet(path.join(dataDir, 'block-en-names.txt'));
-const EN_SURNAMES = loadSet(path.join(dataDir, 'block-en-surnames.txt'), { optional: true });
-const RU_NAMES = loadSet(path.join(dataDir, 'block-ru-names.txt'));
-const EN_FUNCTION = loadSet(path.join(dataDir, 'block-en-function.txt'));
-const RU_FUNCTION = loadSet(path.join(dataDir, 'block-ru-function.txt'));
-
-const enNouns = loadSet(path.join(dataDir, 'en-nouns-4-7.txt'));
-const enAdjs = loadSet(path.join(dataDir, 'en-adjs-4-7.txt'));
-const enVerbs = loadSet(path.join(dataDir, 'en-verbs-4-7.txt'));
-const ruNouns = loadSet(path.join(dataDir, 'ru-nouns-4-7.txt'));
-const ruAdjs = loadSet(path.join(dataDir, 'ru-adjs-4-7.txt'));
-const ruVerbs = loadSet(path.join(dataDir, 'ru-verbs-4-7.txt'));
-const enFreq = loadFreq('en_50k.txt');
-const ruFreq = loadFreq('ru_50k.txt');
-
-function isBlockedEnName(word) {
-  if (EN_NAMES.has(word)) return true;
-  if (!EN_SURNAMES.has(word)) return false;
-  const rank = enFreq.get(word);
-  return rank === undefined || rank > SURNAME_KEEP_MAX_RANK;
-}
-
-function isEnAnswer(word, { maxRank = MAX_ANSWER_FREQ_RANK.en, allowDualVerb = false } = {}) {
-  if (!/^[a-z]+$/.test(word) || word.length < 4 || word.length > 7) return false;
-  if (isBlockedEnName(word) || EN_FUNCTION.has(word)) return false;
-  if (!enNouns.has(word)) return false;
-  if (enAdjs.has(word)) return false;
-  if (enVerbs.has(word)) {
-    // Replenish pools with mid-frequency noun/verb duals (e.g. plant, watch)
-    // while still excluding ultra-common verb-primary words.
-    if (!allowDualVerb) return false;
-    const rank = enFreq.get(word);
-    if (rank === undefined || rank < 800 || rank > 20_000) return false;
-  }
-  if (word.endsWith('ly') || word.endsWith('ing') || word.endsWith('ed')) return false;
-  if (looksLikeEnPlural(word)) return false;
-  // Require attested frequency — unranked Moby nouns are mostly obscure names/jargon.
-  if (!enFreq.has(word)) return false;
-  if (enFreq.get(word) > maxRank) return false;
-  return true;
-}
-
-function isRuAnswer(word, { maxRank = MAX_ANSWER_FREQ_RANK.ru, requireFreq = true } = {}) {
-  const w = word.replaceAll('ё', 'е');
-  if (!/^[а-я]+$/.test(w) || w.length < 4 || w.length > 7) return false;
-  if (RU_NAMES.has(w) || RU_FUNCTION.has(w)) return false;
-  if (!ruNouns.has(w)) return false;
-  if (ruAdjs.has(w) || ruVerbs.has(w)) return false;
-  if (looksLikeRuNonLemma(w)) return false;
-  if (requireFreq) {
-    if (!ruFreq.has(w)) return false;
-    if (ruFreq.get(w) > maxRank) return false;
-  }
-  return true;
-}
-
-function isEnGuess(word) {
-  if (!/^[a-z]+$/.test(word) || word.length < 4 || word.length > 7) return false;
-  if (isBlockedEnName(word) || EN_FUNCTION.has(word)) return false;
-  const isLex = enNouns.has(word) || enAdjs.has(word) || enVerbs.has(word);
-  if (!isLex) return false;
-  if (word.endsWith('ing') && enVerbs.has(word) && !enNouns.has(word)) return false;
-  if (word.endsWith('ed') && enVerbs.has(word) && !enNouns.has(word)) return false;
-  const rank = enFreq.get(word);
-  return rank !== undefined && rank <= MAX_GUESS_FREQ_RANK.en;
-}
-
-function isRuGuess(word) {
-  const w = word.replaceAll('ё', 'е');
-  if (!/^[а-я]+$/.test(w) || w.length < 4 || w.length > 7) return false;
-  if (RU_NAMES.has(w) || RU_FUNCTION.has(w)) return false;
-  if (looksLikeRuNonLemma(w) && !ruNouns.has(w)) return false;
-  const isLex = ruNouns.has(w) || ruAdjs.has(w) || ruVerbs.has(w);
-  if (!isLex) return false;
-  const rank = ruFreq.get(w);
-  return rank !== undefined && rank <= MAX_GUESS_FREQ_RANK.ru;
-}
-
-function writeDictionary({ lang, length, easy, medium, hard, guesses }) {
+function writeDictionary({ lang, length, easy, medium, hard, guesses, note }) {
   const exportBase = `WORDS_${length}_${lang.toUpperCase()}`;
   const label = lang === 'en' ? 'English' : 'Russian';
   const content = `/** ${label} ${length}-letter dictionary with explicit difficulty tiers.
- * Answer pools are common nouns in base/lemma form (no proper names, adjectives,
- * or verbs). The full guess list also includes a limited set of base-form
- * adjectives and verbs so players can still probe the board.
+ * ${note}
  */
 export const ${exportBase}_EASY: readonly string[] = [
 ${chunkLines(easy)}
@@ -230,7 +116,7 @@ export const ${exportBase}_HARD: readonly string[] = [
 ${chunkLines(hard)}
 ];
 
-/** Full guess list = answer tiers + extra base-form playable words. */
+/** Full guess list = answer tiers + extra playable words. */
 export const ${exportBase}: readonly string[] = [
 ${chunkLines(guesses)}
 ];
@@ -242,66 +128,209 @@ ${chunkLines(guesses)}
   );
 }
 
-function curate(lang) {
-  const freq = lang === 'en' ? enFreq : ruFreq;
-  const isGuess = lang === 'en' ? isEnGuess : isRuGuess;
-  const hardFillRank = MAX_HARD_FILL_FREQ_RANK[lang];
-  const answerRank = MAX_ANSWER_FREQ_RANK[lang];
-  const nounLexicon = lang === 'en' ? enNouns : ruNouns;
+const EN_NAMES = loadSet(path.join(dataDir, 'block-en-names.txt'), { optional: true });
+const EN_SURNAMES = loadSet(path.join(dataDir, 'block-en-surnames.txt'), { optional: true });
+const EN_FUNCTION = loadSet(path.join(dataDir, 'block-en-function.txt'), { optional: true });
+const RU_NAMES = loadSet(path.join(dataDir, 'block-ru-names.txt'), { optional: true });
+const RU_FUNCTION = loadSet(path.join(dataDir, 'block-ru-function.txt'), { optional: true });
+
+const enFreq = loadFreq('en_50k.txt');
+const ruFreq = loadFreq('ru_50k.txt');
+const google10k = loadLines(path.join(dataDir, 'en-google-10k.txt'));
+const enable = loadSet(path.join(dataDir, 'en-enable-4-7.txt'));
+const enNouns = loadSet(path.join(dataDir, 'en-nouns-4-7.txt'));
+const enVerbs = loadSet(path.join(dataDir, 'en-verbs-4-7.txt'));
+const enAdjs = loadSet(path.join(dataDir, 'en-adjs-4-7.txt'));
+const wordleAnswers = loadLines(path.join(dataDir, 'wordle-answers-nyt.txt')).filter((w) =>
+  /^[a-z]{5}$/.test(w),
+);
+const wordleGuesses = loadLines(path.join(dataDir, 'wordle-guesses-5.txt')).filter((w) =>
+  /^[a-z]{5}$/.test(w),
+);
+const harrixNouns = loadLines(path.join(dataDir, 'ru-harrix-nouns.txt')).filter((w) =>
+  /^[а-я]+$/.test(w),
+);
+const openRussianNouns = loadSet(path.join(dataDir, 'ru-nouns-4-7.txt'));
+
+function isBlockedEnName(word) {
+  if (EN_NAMES.has(word)) return true;
+  if (!EN_SURNAMES.has(word)) return false;
+  const rank = enFreq.get(word);
+  return rank === undefined || rank > 5_000;
+}
+
+function isBlockedEnCommon(word) {
+  return isBlockedEnName(word) || EN_FUNCTION.has(word);
+}
+
+function isBlockedRu(word) {
+  return RU_NAMES.has(word) || RU_FUNCTION.has(word);
+}
+
+function looksLikeRuJunk(word) {
+  // Declined / non-lemma noise that sometimes leaks into noun dumps.
+  if (/(ами|ями|ах|ях|ого|ему|ому|ими)$/.test(word) && word.length >= 5) return true;
+  if (/(ая|яя|ое|ее|ые|ый|ий)$/.test(word) && word.length >= 4) return true;
+  return false;
+}
+
+function curateEnglish() {
+  const noteByLength = {
+    5: 'Answers from the official Wordle list (minus closed-class junk); guesses from Wordle valid words.',
+    4: 'Common nouns from Google 10k ∩ ENABLE, frequency-ranked.',
+    6: 'Common nouns from Google 10k ∩ ENABLE, frequency-ranked.',
+    7: 'Common nouns from Google 10k ∩ ENABLE, frequency-ranked.',
+  };
 
   for (const length of LENGTHS) {
-    const fromFreq = [...freq.keys()].filter((w) => w.length === length);
-    const fromLexicon = [...nounLexicon].filter((w) => w.length === length);
+    let answers;
+    let guessesExtra;
 
-    let ranked;
-    let rest;
-    if (lang === 'en') {
-      const pure = sortByFreq(uniq(fromFreq.filter((w) => isEnAnswer(w, { maxRank: answerRank }))), freq);
-      const duals = sortByFreq(
-        uniq(fromFreq.filter((w) => isEnAnswer(w, { maxRank: answerRank, allowDualVerb: true }))).filter(
-          (w) => !pure.includes(w),
-        ),
-        freq,
+    if (length === 5) {
+      // Official Wordle solutions, minus closed-class / junk for cleaner answer tiers.
+      // Full Wordle valid list remains available as guesses.
+      answers = sortByFreq(
+        uniq(wordleAnswers).filter((w) => !isBlockedEnCommon(w)),
+        enFreq,
       );
-      ranked = [...pure, ...duals];
-      rest = sortByFreq(
-        uniq(
-          fromFreq.filter((w) =>
-            isEnAnswer(w, { maxRank: hardFillRank, allowDualVerb: true }),
-          ),
-        ).filter((w) => !ranked.includes(w)),
-        freq,
+      guessesExtra = sortByFreq(
+        uniq([...wordleGuesses, ...wordleAnswers]).filter((w) => w.length === 5 && !EN_NAMES.has(w)),
+        enFreq,
       );
     } else {
-      ranked = sortByFreq(uniq(fromFreq.filter((w) => isRuAnswer(w, { maxRank: answerRank }))), freq);
-      // Replenish hard tiers from OpenRussian lemmas even without frequency ranks.
-      rest = sortByFreq(
-        uniq(fromLexicon.filter((w) => isRuAnswer(w, { requireFreq: false }))).filter(
-          (w) => !ranked.includes(w),
+      const isPlayableAnswer = (w) => {
+        if (!/^[a-z]+$/.test(w) || w.length !== length) return false;
+        if (isBlockedEnCommon(w) || !enable.has(w)) return false;
+        if (!enNouns.has(w)) return false;
+        if (enAdjs.has(w)) return false;
+        if (enVerbs.has(w) && (enFreq.get(w) ?? 0) < 800) return false;
+        if (w.endsWith('ing') || w.endsWith('ly')) return false;
+        if (
+          w.endsWith('s') &&
+          !w.endsWith('ss') &&
+          !w.endsWith('us') &&
+          !w.endsWith('is') &&
+          !w.endsWith('ous')
+        ) {
+          return false;
+        }
+        return true;
+      };
+      const fromGoogle = google10k.filter(isPlayableAnswer);
+      const fromFreq = [...enFreq.keys()].filter(
+        (w) => isPlayableAnswer(w) && (enFreq.get(w) ?? 999999) <= 35_000,
+      );
+      answers = sortByFreq(uniq([...fromGoogle, ...fromFreq]), enFreq);
+      guessesExtra = sortByFreq(
+        uniq(
+          [...enable].filter(
+            (w) =>
+              w.length === length &&
+              !isBlockedEnName(w) &&
+              enFreq.has(w) &&
+              enFreq.get(w) <= 45_000,
+          ),
         ),
-        freq,
+        enFreq,
       );
     }
 
+    const targets = ANSWER_TARGETS[length];
+    const needed = targets.easy + targets.medium + targets.hard;
+    const answerPool = answers.slice(0, Math.min(answers.length, needed + 200));
+    const { easy, medium, hard } = splitTiers(answerPool, targets);
+    const answerSet = new Set([...easy, ...medium, ...hard]);
+    const extra = guessesExtra.filter((w) => !answerSet.has(w)).slice(0, EXTRA_GUESS_CAP[length]);
+    const guesses = [...easy, ...medium, ...hard, ...extra];
+
+    writeDictionary({
+      lang: 'en',
+      length,
+      easy,
+      medium,
+      hard,
+      guesses,
+      note: noteByLength[length],
+    });
+  }
+}
+
+function curateRussian() {
+  const note =
+    'Noun lemmas from Harrix/Russian-Nouns ∩ OpenRussian, frequency-ranked into tiers.';
+
+  // Extra high-frequency non-answers that leak into noun dumps.
+  const ruExtraBlock = new Set(
+    `
+есть одно сама сами само никто ничто знать стать плохо хорошо можно нужно нельзя
+парня парню парне парней людей человека человеку человеком людей жизни жизни
+`.match(/[а-я]+/g) ?? [],
+  );
+
+  for (const length of LENGTHS) {
+    const nouns = sortByFreq(
+      uniq(
+        harrixNouns.filter(
+          (w) =>
+            w.length === length &&
+            !isBlockedRu(w) &&
+            !ruExtraBlock.has(w) &&
+            !looksLikeRuJunk(w) &&
+            // Prefer lemmas confirmed by both curated noun sources.
+            openRussianNouns.has(w),
+        ),
+      ),
+      ruFreq,
+    );
+    // If intersection is short for hard tiers, allow Harrix-only fill after ranked intersection.
+    const harrixOnly = sortByFreq(
+      uniq(
+        harrixNouns.filter(
+          (w) =>
+            w.length === length &&
+            !isBlockedRu(w) &&
+            !ruExtraBlock.has(w) &&
+            !looksLikeRuJunk(w) &&
+            !openRussianNouns.has(w) &&
+            ruFreq.has(w) &&
+            ruFreq.get(w) <= 25_000,
+        ),
+      ),
+      ruFreq,
+    );
+
+    const ranked = nouns.filter((w) => ruFreq.has(w));
+    const rest = [...nouns.filter((w) => !ruFreq.has(w)), ...harrixOnly];
     const answers = [...ranked, ...rest];
+
     const targets = ANSWER_TARGETS[length];
     const needed = targets.easy + targets.medium + targets.hard;
     const answerPool = answers.slice(0, Math.min(answers.length, needed + 200));
     const { easy, medium, hard } = splitTiers(answerPool, targets);
     const answerSet = new Set([...easy, ...medium, ...hard]);
 
-    const extra = sortByFreq(
-      uniq([...fromFreq, ...fromLexicon].filter(isGuess)).filter((w) => !answerSet.has(w)),
-      freq,
-    ).slice(0, EXTRA_GUESS_CAP[length]);
-
+    const guessPool = sortByFreq(
+      uniq(
+        harrixNouns.filter(
+          (w) =>
+            w.length === length &&
+            !isBlockedRu(w) &&
+            !ruExtraBlock.has(w) &&
+            !looksLikeRuJunk(w) &&
+            (openRussianNouns.has(w) || (ruFreq.has(w) && ruFreq.get(w) <= 40_000)),
+        ),
+      ),
+      ruFreq,
+    );
+    const extra = guessPool.filter((w) => !answerSet.has(w)).slice(0, EXTRA_GUESS_CAP[length]);
     const guesses = [...easy, ...medium, ...hard, ...extra];
-    writeDictionary({ lang, length, easy, medium, hard, guesses });
+
+    writeDictionary({ lang: 'ru', length, easy, medium, hard, guesses, note });
   }
 }
 
-console.log('Curating English…');
-curate('en');
-console.log('Curating Russian…');
-curate('ru');
+console.log('Curating English (Wordle + Google/ENABLE)…');
+curateEnglish();
+console.log('Curating Russian (Harrix nouns)…');
+curateRussian();
 console.log('Done.');
