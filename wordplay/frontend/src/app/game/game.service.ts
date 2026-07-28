@@ -127,6 +127,25 @@ export class GameService {
         this.state.set(restored);
         return true;
       }
+
+      // After "play again", the router can briefly re-apply the previous seed while
+      // localStorage already holds a fresh round. Prefer that fresh round when the
+      // seed points at a word already recorded in history.
+      const used = this.history.usedWords(
+        payload.wordLength,
+        payload.language,
+        payload.difficulty,
+        payload.wordTier,
+      );
+      if (
+        restored?.status === 'playing' &&
+        restored.guesses.length === 0 &&
+        restored.hintsUsed === 0 &&
+        used.has(payload.solution)
+      ) {
+        this.state.set(restored);
+        return true;
+      }
     }
 
     const next = this.createClassicState({

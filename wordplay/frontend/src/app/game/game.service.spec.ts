@@ -222,6 +222,29 @@ describe('GameService', () => {
     random.mockRestore();
   });
 
+  it('keeps the fresh round when a stale previous seed is re-applied', () => {
+    const game = createGame({ solution: 'crane' });
+    typeWord(game, 'crane');
+    expect(game.submitGuess()).toBe('ok');
+    expect(game.status()).toBe('won');
+    const previousSeed = game.puzzleSeed();
+    expect(previousSeed).toBeTruthy();
+
+    const random = vi.spyOn(Math, 'random').mockReturnValue(0);
+    game.startNewGame();
+    const fresh = game.solution();
+    expect(fresh).not.toBe('crane');
+    expect(game.status()).toBe('playing');
+    expect(game.guessesCount()).toBe(0);
+
+    // Simulate returning via menu / classic route with the old finished seed still pending.
+    expect(game.activateClassicSeed(previousSeed!)).toBe(true);
+    expect(game.solution()).toBe(fresh);
+    expect(game.status()).toBe('playing');
+    expect(game.guessesCount()).toBe(0);
+    random.mockRestore();
+  });
+
   it('resets an in-progress classic game with a fresh board', () => {
     const game = createGame({ solution: 'crane' });
 
