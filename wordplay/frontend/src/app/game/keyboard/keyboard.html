@@ -1,4 +1,22 @@
 <div class="keyboard" role="group" [attr.aria-label]="'app.keyboardAria' | t: locale()">
+  @if (popup(); as tip) {
+    <div
+      class="key-popup"
+      [class.key-popup--left]="tip.edge === 'left'"
+      [class.key-popup--right]="tip.edge === 'right'"
+      [style.inset-inline-start.px]="tip.left"
+      [style.inset-block-end.px]="tip.bottom"
+      [style.width.px]="tip.width"
+      [style.--stem-width.px]="tip.stemWidth"
+      [style.--stem-left.px]="tip.stemLeft"
+      [attr.data-key]="tip.key"
+      aria-hidden="true"
+    >
+      <span class="key-popup__letter">{{ tip.key }}</span>
+      <span class="key-popup__stem"></span>
+    </div>
+  }
+
   @for (row of rows(); track $index; let last = $last) {
     <div class="keyboard__row" [class.keyboard__row--last]="last">
       @for (key of row; track key) {
